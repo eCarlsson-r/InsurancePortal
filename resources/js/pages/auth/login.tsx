@@ -1,15 +1,14 @@
 import InputError from '@/components/input-error';
-import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import AuthLayout from '@/layouts/auth-layout';
-import { register } from '@/routes';
-import { store } from '@/routes/login';
-import { request } from '@/routes/password';
-import { Form, Head } from '@inertiajs/react';
+import { register } from '@/wayfinder/routes';
+import { store } from '@/wayfinder/routes/login';
+import { request } from '@/wayfinder/routes/password';
+import { Form, Head, Link } from '@inertiajs/react';
+
 
 interface LoginProps {
     status?: string;
@@ -23,98 +22,113 @@ export default function Login({
     canRegister,
 }: LoginProps) {
     return (
-        <AuthLayout
-            title="Log in to your account"
-            description="Enter your email and password below to log in"
-        >
+        <div className="authincation h-100 mt-5">
             <Head title="Log in" />
+            <div className="container h-100">
+                <div className="row justify-content-center h-100 align-items-center">
+                    <div className="col-md-6">
+                        <div className="authincation-content">
+                            <div className="row no-gutters">
+                                <div className="col-xl-12">
+                                    <div className="auth-form">
+                                        <div className="text-center mb-3">
+                                            <Link href="/">
+                                                <img src="/images/logo-full.png" alt="" style={{ maxWidth: '150px' }} />
+                                            </Link>
+                                        </div>
+                                        <h4 className="text-center mb-4">Sign in your account</h4>
+                                        
+                                        {status && (
+                                            <div className="alert alert-success text-center mb-4">
+                                                {status}
+                                            </div>
+                                        )}
 
-            <Form
-                {...store.form()}
-                resetOnSuccess={['password']}
-                className="flex flex-col gap-6"
-            >
-                {({ processing, errors }) => (
-                    <>
-                        <div className="grid gap-6">
-                            <div className="grid gap-2">
-                                <Label htmlFor="email">Email address</Label>
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    name="email"
-                                    required
-                                    autoFocus
-                                    tabIndex={1}
-                                    autoComplete="email"
-                                    placeholder="email@example.com"
-                                />
-                                <InputError message={errors.email} />
-                            </div>
-
-                            <div className="grid gap-2">
-                                <div className="flex items-center">
-                                    <Label htmlFor="password">Password</Label>
-                                    {canResetPassword && (
-                                        <TextLink
-                                            href={request()}
-                                            className="ml-auto text-sm"
-                                            tabIndex={5}
+                                        <Form
+                                            {...store.form()}
+                                            resetOnSuccess={['password']}
                                         >
-                                            Forgot password?
-                                        </TextLink>
-                                    )}
+                                            {({ processing, errors }) => (
+                                                <>
+                                                    <div className="form-group mb-3">
+                                                        <Label htmlFor="email" className="mb-1"><strong>Email</strong></Label>
+                                                        <Input
+                                                            id="email"
+                                                            type="email"
+                                                            name="email"
+                                                            className="form-control"
+                                                            required
+                                                            autoFocus
+                                                            tabIndex={1}
+                                                            autoComplete="email"
+                                                            placeholder="hello@example.com"
+                                                        />
+                                                        <InputError message={errors.email} />
+                                                    </div>
+                                                    
+                                                    <div className="form-group mb-3">
+                                                        <Label htmlFor="password" className="mb-1"><strong>Password</strong></Label>
+                                                        <Input
+                                                            id="password"
+                                                            type="password"
+                                                            name="password"
+                                                            className="form-control"
+                                                            required
+                                                            tabIndex={2}
+                                                            autoComplete="current-password"
+                                                            placeholder="Password"
+                                                        />
+                                                        <InputError message={errors.password} />
+                                                    </div>
+
+                                                    <div className="form-row d-flex justify-content-between mt-4 mb-2">
+                                                        <div className="form-group">
+                                                            <div className="custom-control custom-checkbox ml-1">
+                                                                <Checkbox
+                                                                    id="remember"
+                                                                    name="remember"
+                                                                    className="custom-control-input"
+                                                                    tabIndex={3}
+                                                                />
+                                                                <Label className="custom-control-label" htmlFor="remember">Remember me</Label>
+                                                            </div>
+                                                        </div>
+                                                        <div className="form-group">
+                                                            {canResetPassword && (
+                                                                <Link href={request()} className="text-primary" tabIndex={5}>
+                                                                    Forgot Password?
+                                                                </Link>
+                                                            )}
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="text-center">
+                                                        <Button
+                                                            type="submit"
+                                                            className="btn btn-primary btn-block"
+                                                            tabIndex={4}
+                                                            disabled={processing}
+                                                        >
+                                                            {processing && <Spinner className="mr-2" />}
+                                                            Sign me in
+                                                        </Button>
+                                                    </div>
+                                                </>
+                                            )}
+                                        </Form>
+
+                                        {canRegister && (
+                                            <div className="new-account mt-3 text-center">
+                                                <p>Don't have an account? <Link href={register()} className="text-primary">Sign up</Link></p>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                                <Input
-                                    id="password"
-                                    type="password"
-                                    name="password"
-                                    required
-                                    tabIndex={2}
-                                    autoComplete="current-password"
-                                    placeholder="Password"
-                                />
-                                <InputError message={errors.password} />
                             </div>
-
-                            <div className="flex items-center space-x-3">
-                                <Checkbox
-                                    id="remember"
-                                    name="remember"
-                                    tabIndex={3}
-                                />
-                                <Label htmlFor="remember">Remember me</Label>
-                            </div>
-
-                            <Button
-                                type="submit"
-                                className="mt-4 w-full"
-                                tabIndex={4}
-                                disabled={processing}
-                                data-test="login-button"
-                            >
-                                {processing && <Spinner />}
-                                Log in
-                            </Button>
                         </div>
-
-                        {canRegister && (
-                            <div className="text-center text-sm text-muted-foreground">
-                                Don't have an account?{' '}
-                                <TextLink href={register()} tabIndex={5}>
-                                    Sign up
-                                </TextLink>
-                            </div>
-                        )}
-                    </>
-                )}
-            </Form>
-
-            {status && (
-                <div className="mb-4 text-center text-sm font-medium text-green-600">
-                    {status}
+                    </div>
                 </div>
-            )}
-        </AuthLayout>
+            </div>
+        </div>
     );
 }

@@ -39,6 +39,15 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
 
+        {{-- Template Icons --}}
+        <link rel="stylesheet" href="/icons/simple-line-icons/css/simple-line-icons.css">
+        <link rel="stylesheet" href="/icons/font-awesome-old/css/font-awesome.min.css">
+        <link rel="stylesheet" href="/icons/material-design-iconic-font/css/materialdesignicons.min.css">
+        <link rel="stylesheet" href="/icons/themify-icons/css/themify-icons.css">
+        <link rel="stylesheet" href="/icons/line-awesome/css/line-awesome.min.css">
+        <link rel="stylesheet" href="/icons/avasta/css/style.css">
+
+
         @viteReactRefresh
         @vite(['resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])
         @inertiaHead
