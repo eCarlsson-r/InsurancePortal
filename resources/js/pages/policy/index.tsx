@@ -65,9 +65,7 @@ export default function Policy({ policies = [], query = "" }: PolicyProps) {
                     </div>
                     <div className="col-6 p-md-0 justify-content-end mt-2 d-flex">
                         <ol className="breadcrumb">
-                            <li className="breadcrumb-item">
-                                <Link href="/sales" data-i18n="sales">Penjualan</Link>
-                            </li>
+                            <li className="breadcrumb-item" data-i18n="sales">Penjualan</li>
                             <li className="breadcrumb-item active" data-i18n="case">SP / Polis</li>
                         </ol>
                     </div>

@@ -55,7 +55,8 @@ class PolicyController extends Controller
         }
 
         return Inertia::render('policy/form', [
-            'extracted' => $extracted
+            'extracted' => $extracted['data'],
+            'fileUrl' => route('ocr.view-file', ['ocrId' => $request->ocr_id])
         ]);
     }
 
@@ -97,7 +98,12 @@ class PolicyController extends Controller
         $ocrId = Str::uuid()->toString();
 
         // 3. Set an initial 'processing' status in the cache
-        Cache::put("ocr_result_{$ocrId}", ['status' => 'processing'], now()->addMinutes(30));
+        Cache::put("ocr_result_{$ocrId}", [
+            'status' => 'processing',
+            'file_path' => $path, // Store the relative path
+            'file_name' => $request->file('document')->getClientOriginalName(),
+            'data' => []
+        ], now()->addMinutes(30));
 
         // 4. Dispatch the Job to the background
         // We pass the path and the ID so the Job knows what to do and where to save the result

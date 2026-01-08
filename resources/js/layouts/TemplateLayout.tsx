@@ -1,7 +1,6 @@
 import { Link } from '@inertiajs/react';
 import MetisMenu from 'metismenujs';
 import { PropsWithChildren, useEffect, useRef } from 'react';
-import PerfectScrollbar from 'react-perfect-scrollbar';
 import { menuItems } from '../data/menu';
 
 export default function TemplateLayout({ children }: PropsWithChildren) {
@@ -32,7 +31,7 @@ export default function TemplateLayout({ children }: PropsWithChildren) {
     }, []);
 
     return (
-        <div id="main-wrapper" ref={mainWrapperRef} className="show" data-sidebar-style="full" data-layout="horizontal">
+        <div id="main-wrapper" ref={mainWrapperRef} className="show"  data-typography="opensans" data-theme-version="light" data-sidebar-style="full" data-layout="horizontal" data-nav-headerbg="color_1" data-headerbg="color_1" data-sibebarbg="color_6" data-sidebar-position="fixed" data-header-position="fixed" data-container="wide" direction="ltr" data-primary="color_6">
             {/* Nav Header */}
             <div className="nav-header">
                 <Link href="/" className="brand-logo">
@@ -54,19 +53,7 @@ export default function TemplateLayout({ children }: PropsWithChildren) {
                 <div className="header-content">
                     <nav className="navbar navbar-expand">
                         <div className="collapse navbar-collapse justify-content-between">
-                            <div className="header-left">
-                                <div className="search_bar dropdown">
-                                    <span className="search_icon p-3 c-pointer" data-toggle="dropdown">
-                                        <i className="mdi mdi-magnify"></i>
-                                    </span>
-                                    <div className="dropdown-menu p-0 m-0">
-                                        <form>
-                                            <input className="form-control" type="search" placeholder="Search" aria-label="Search" />
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-
+                            <div className="header-left"></div>
                             <ul className="navbar-nav header-right">
                                 <li className="nav-item dropdown header-profile">
                                     <a className="nav-link" href="#" role="button" data-toggle="dropdown">
@@ -91,9 +78,9 @@ export default function TemplateLayout({ children }: PropsWithChildren) {
 
             {/* Sidebar */}
             <div className="deznav">
-                <PerfectScrollbar className="deznav-scroll">
+                <div className="deznav-scroll">
                     <ul className="metismenu" id="menu" ref={sideMenuRef}>
-{menuItems.map((item, index) => {
+                        {menuItems.map((item, index) => {
                             if (item.type === 'label') {
                                 return (
                                     <li key={index} className={`nav-label ${index === 0 ? 'first' : ''}`}>
@@ -128,14 +115,12 @@ export default function TemplateLayout({ children }: PropsWithChildren) {
                             );
                         })}
                     </ul>
-                </PerfectScrollbar>
+                </div>
             </div>
 
             {/* Content Body */}
             <div className="content-body" style={{ minHeight: '100vh' }}>
-                <div className="container-fluid">
-                    {children}
-                </div>
+                {children}
             </div>
 
             {/* Footer */}

@@ -8,16 +8,32 @@ export interface MenuItem {
 
 export const menuItems: MenuItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Sales',
         type: 'link',
-        href: '/dashboard',
-        icon: 'icon icon-single-04',
+        icon: 'fa fa-briefcase',
         children: [
             {
-                title: 'Dashboard 1',
+                title: 'Cases / Policies',
                 type: 'link',
-                href: '/dashboard',
+                href: '/sales/policy',
+            }
+        ]
+    },
+    {
+        title: 'Master',
+        type: 'link',
+        icon: 'fa fa-database',
+        children: [
+            {
+                title: 'Agency',
+                type: 'link',
+                href: '/master/agency'
             },
-        ],
+            {
+                title: 'Agent',
+                type: 'link',
+                href: '/master/agent'
+            }
+        ]
     }
 ];

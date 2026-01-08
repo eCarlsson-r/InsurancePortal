@@ -10,12 +10,6 @@ use App\Services\OllamaService;
 use Illuminate\Support\Facades\Cache;
 
 class PolicyExtractionService {
-    protected $ollama;
-
-    public function __construct(OllamaService $ollama) {
-        $this->ollama = $ollama; // Dependency Injection
-    }
-
     private function mapAiResponseToDatabase(array $aiData): array
     {
         $map = [
@@ -52,12 +46,12 @@ class PolicyExtractionService {
 
             // Group 4: Policy & Finance
             'insurance_policy_number'       => 'policy_no',
-            'insurance_case_number'         => 'case_code',
+            'application_form_number'         => 'case_code',
             'policy_start_effective_date'   => 'case_start_date',
             'total_sum_assured_benefit_amount' => 'case_base_insure',
             'total_premium_amount_to_pay'   => 'case_premium',
             'premium_payment_frequency'     => 'case_pay_method',
-            'currency_code_idr_or_usd'      => 'case_currency',
+            'currency_code'      => 'case_currency',
             'insurance_coverage_period_years' => 'case_insure_period',
             'premium_paying_period_years'   => 'case_pay_period',
         ];
@@ -82,12 +76,12 @@ class PolicyExtractionService {
             'policy_metadata' => [
                 'source' => $summaryText,
                 'fields' => "insurance_policy_number, total_sum_assured_benefit_amount, total_premium_amount_to_pay, ".
-                            "policy_start_effective_date, premium_payment_frequency, currency_code_idr_or_usd, ".
+                            "policy_start_effective_date, premium_payment_frequency, currency_code (Must be 'IDR' if document mentions Rp, Rupiah, or IDR. Must be 'USD' if document mentions $, USD, or Dollar), ".
                             "insurance_coverage_period_years, premium_paying_period_years"
             ],
             'customer_info' => [
                 'source' => $spajText,
-                'fields' => "insurance_case_number, policy_holder_full_name, policy_holder_gender, policy_holder_ktp_nik_number, ".
+                'fields' => "application_form_number, policy_holder_full_name, policy_holder_gender, policy_holder_ktp_nik_number, ".
                             "policy_holder_email_address, policy_holder_mobile_phone, ".
                             "policy_holder_city_of_birth, policy_holder_birth_date, policy_holder_religion, ".
                             "policy_holder_marital_status, policy_holder_current_profession, ".
@@ -105,7 +99,7 @@ class PolicyExtractionService {
         $count = 0;
         foreach ($groups as $name => $config) {
             $percentage = round(($count / count($groups)) * 100);
-            Cache::put("extraction_status_{$jobId}", "Processing {$name} ({$percentage}%)...", 600);
+            Cache::put("extraction_status_{$jobId}", "Sedang membaca {$name} ({$percentage}%)...", 600);
 
             if ($name === 'insured_info') {
                 $sections = $this->getSectionsForAi($config['source']);
@@ -119,12 +113,27 @@ class PolicyExtractionService {
             $mappedResult = $this->mapAiResponseToDatabase($result);
             $finalData = array_merge($finalData, $mappedResult);
 
-            Cache::put("ocr_result_{$jobId}", ['status' => 'processing', 'data' => $finalData], 600);
+            // 1. Get existing cache to preserve file_path and other metadata
+            $currentCache = Cache::get("ocr_result_{$jobId}", []);
+
+            // 2. Put it back with merged data
+            Cache::put("ocr_result_{$jobId}", [
+                'status'    => 'processing',
+                'file_path' => $currentCache['file_path'] ?? null, // PRESERVE THIS
+                'file_name' => $currentCache['file_name'] ?? null,
+                'data'      => $finalData
+            ], 600);
             $count++;
         }
 
+        $currentCache = Cache::get("ocr_result_{$jobId}", []);
+        Cache::put("ocr_result_{$jobId}", [
+            'status'    => 'completed',
+            'file_path' => $currentCache['file_path'] ?? null,
+            'data'      => $finalData
+        ], 600);
+
         Cache::put("extraction_status_{$jobId}", "Completed", 600);
-        Cache::put("ocr_result_{$jobId}", ['status' => 'completed', 'data' => $finalData], 600);
         return $finalData;
     }
 
@@ -183,16 +192,69 @@ class PolicyExtractionService {
     {
         if (is_null($value) || $value === "null" || $value === "") return null;
 
-        // 1. Force Gender consistency
         if (str_contains($key, 'gender')) {
             $val = strtoupper($value);
-            if (str_contains($val, 'LAKI') || str_contains($val, 'PRIA') || $val === 'L') return 'Laki-laki';
-            if (str_contains($val, 'PEREMPUAN') || str_contains($val, 'WANITA') || str_contains($val, 'IBU') || $val === 'P') return 'Perempuan';
+            if (str_contains($val, 'LAKI') || str_contains($val, 'PRIA') || $val === 'L') return '1';
+            if (str_contains($val, 'PEREMPUAN') || str_contains($val, 'WANITA') || str_contains($val, 'IBU') || $val === 'P') return '2';
+        }
+
+        if (str_contains($key, 'religion')) {
+            $val = strtoupper($value);
+            if (str_contains($val, 'BUDHA') || $val === 'B') return '1';
+            if (str_contains($val, 'KRISTEN') || $val === 'K') return '2';
+            if (str_contains($val, 'ISLAM') || $val === 'I') return '3';
+            if (str_contains($val, 'HINDU') || $val === 'H') return '4';
+        }
+
+        if (str_contains($key, 'marital')) {
+            $val = strtoupper($value);
+            if (str_contains($val, 'BELUM MENIKAH') || $val === 'B') return '1';
+            if (str_contains($val, 'MENIKAH') || $val === 'M') return '2';
+            if (str_contains($val, 'JANDA') || $val === 'J') return '3';
+            if (str_contains($val, 'DUDA') || $val === 'D') return '4';
+        }
+
+        if ($key === 'case_currency') {
+            $val = strtoupper((string)$value);
+            
+            // Explicitly check for IDR/Rupiah keywords
+            if (preg_match('/(RP|IDR|RUPIAH|1)/i', $val)) {
+                return "1";
+            }
+            
+            // Explicitly check for USD/Dollar keywords
+            if (preg_match('/(USD|\$|DOLLAR|2)/i', $val)) {
+                return "2";
+            }
+
+            // Default to Rupiah for Indonesian Context
+            return "1";
         }
 
         // 2. Clean Money/Numbers (remove Rp, dots, commas for database)
         if (in_array($key, ['case_base_insure', 'case_premium'])) {
-            return preg_replace('/[^0-9]/', '', $value);
+            $val = (string)$value;
+
+            // 1. Remove the decimal part if it's .00 or ,00
+            // We look for the last separator (either dot or comma)
+            $lastDot = strrpos($val, '.');
+            $lastComma = strrpos($val, ',');
+            $lastSeparator = max($lastDot, $lastComma);
+
+            if ($lastSeparator !== false) {
+                $decimalPart = substr($val, $lastSeparator + 1);
+                
+                // If the part after the separator is "00", "0", or empty
+                // We truncate the string to exclude the decimal
+                if (in_array($decimalPart, ['00', '0', ''])) {
+                    $val = substr($val, 0, $lastSeparator);
+                }
+            }
+
+            // 2. Now safely remove all non-numeric characters ($, Rp, commas, dots)
+            $cleanNumber = preg_replace('/[^0-9]/', '', $val);
+            
+            return (int) $cleanNumber;
         }
 
         // 3. Clean Dates (ensure YYYY-MM-DD)

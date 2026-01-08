@@ -53,6 +53,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
             'is_finished' => ($percentage === 100)
         ]);
     });
+
+    Route::get('/ocr/view-file/{ocrId}', function ($ocrId) {
+        $cache = Cache::get("ocr_result_{$ocrId}");
+        if (!$cache || !isset($cache['file_path'])) abort(404);
+
+        // Return the file from private storage
+        return Storage::disk('local')->response($cache['file_path']);
+    })->name('ocr.view-file');
 });
 
 require __DIR__.'/settings.php';

@@ -10,10 +10,10 @@ import { Spinner } from '@/components/ui/spinner';
 
 export default function Register() {
     return (
-        <div className="authincation h-100 mt-5">
+        <div className="authincation vh-100">
             <Head title="Register" />
-            <div className="container h-100">
-                <div className="row justify-content-center h-100 align-items-center">
+            <div className="container vh-100">
+                <div className="row justify-content-center vh-100 align-items-center">
                     <div className="col-md-6">
                         <div className="authincation-content">
                             <div className="row no-gutters">

@@ -22,10 +22,10 @@ export default function Login({
     canRegister,
 }: LoginProps) {
     return (
-        <div className="authincation h-100 mt-5">
+        <div className="authincation vh-100">
             <Head title="Log in" />
-            <div className="container h-100">
-                <div className="row justify-content-center h-100 align-items-center">
+            <div className="container vh-100">
+                <div className="row justify-content-center vh-100 align-items-center">
                     <div className="col-md-6">
                         <div className="authincation-content">
                             <div className="row no-gutters">

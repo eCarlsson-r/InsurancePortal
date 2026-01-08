@@ -1,45 +1,51 @@
 import { useState, useEffect } from 'react';
 import { ProgressBar } from 'react-bootstrap';
 
-const OCRTracker = ({ ocrId, onFinish }: { ocrId: string, onFinish: () => void }) => {
+interface ProgressData {
+    status: string;
+    percentage: number;
+    is_finished: boolean;
+}
+
+const OCRTracker = ({ ocrId, onFinish }: { 
+    ocrId: string, 
+    onFinish: () => void
+}) => {
     const [progress, setProgress] = useState({ status: 'initializing...', percentage: 0 });
 
     useEffect(() => {
         if (!ocrId) return;
 
         const interval = setInterval(async () => {
-            const response = await fetch(`/extraction-status/${ocrId}`);
-            const data = await response.json();
+            try {
+                // Fetch from the combined endpoint we discussed
+                const response = await fetch(`/extraction-status/${ocrId}`);
+                const result: ProgressData = await response.json();
 
-            if (data.status.toLowerCase().includes('error') || data.status === 'failed') {
                 setProgress({
-                    status: data.status,
-                    percentage: data.percentage
+                    status: result.status,
+                    percentage: result.percentage || (result.is_finished ? 100 : 0)
                 });
-                if (onFinish) onFinish();
-                clearInterval(interval);
-                return;
-            }
 
-            setProgress({
-                status: data.status,
-                percentage: data.percentage
-            });
-
-            if (data.is_finished) {
-                clearInterval(interval);
-                if (onFinish) onFinish();
+                if (result.is_finished || result.status === 'completed') {
+                    clearInterval(interval);
+                    if (onFinish) onFinish();
+                }
+            } catch (e) {
+                console.error("Tracker polling failed", e);
             }
-        }, 3000); // Poll every 3 seconds to save CPU
+        }, 3000);
 
         return () => clearInterval(interval);
-    }, [ocrId]);
+    }, [ocrId, onFinish]);
 
     return (
-        <div className="p-6 max-w-md mx-auto bg-white rounded-xl shadow-md space-y-4">
-            <div className="text-xl font-medium text-black">Processing Policy</div>
-            <p className="text-slate-500">{progress.status}</p>
-            <ProgressBar className="mb-3" variant="success" now={progress.percentage} />
+        <div className="p-4 border rounded shadow-sm bg-white">
+            <div className="d-flex justify-content-between mb-2">
+                <small className="text-primary font-weight-bold text-uppercase">{progress.status}</small>
+                <small>{progress.percentage}%</small>
+            </div>
+            <ProgressBar variant="primary" animated now={progress.percentage} style={{height: '10px'}} />
         </div>
     );
 };

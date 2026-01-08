@@ -1,8 +1,5 @@
 import '../css/app.css';
 import '../../node_modules/metismenujs/dist/metismenujs.css';
-import '../../node_modules/react-perfect-scrollbar/dist/css/styles.css';
-
-
 
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
