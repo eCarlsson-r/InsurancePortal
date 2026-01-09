@@ -42,7 +42,7 @@ export default function PolicyForm({extracted, fileUrl, policy}: {extracted: any
         insured_birthplace: policy?.["insured_birthplace"] || extracted.insured_birthplace || "",
         insured_birthdate: policy?.["insured_birthdate"] || extracted.insured_birthdate || "",
         insured_marital: policy?.["insured_marital"] || extracted.insured_marital || "1",
-        case_relation: policy?.["case_relation"] || extracted.case_relation || "",
+        insured_relationship: policy?.["insured_relationship"] || extracted.insured_relationship || "",
         insured_profession: policy?.["insured_profession"] || extracted.insured_profession || "",
         insured_homeaddress: policy?.["insured_homeaddress"] || extracted.insured_homeaddress || "",
         insured_homepostal: policy?.["insured_homepostal"] || extracted.insured_homepostal || "",
@@ -517,12 +517,17 @@ export default function PolicyForm({extracted, fileUrl, policy}: {extracted: any
                                             <div className="mb-3 row form-group">
                                                 <label className="col-sm-3 col-form-label" data-i18n="relationship">Hubungan</label>
                                                 <div className="col-sm-9">
-                                                    <input 
-                                                        type="text" 
+                                                    <select 
                                                         className="form-control"
-                                                        value={data.case_relation}
-                                                        onChange={e => setData("case_relation", e.target.value)}
-                                                    />
+                                                        value={data.insured_relationship} // e.g., "4"
+                                                        onChange={e => setData("insured_relationship", e.target.value)}
+                                                    >
+                                                        <option value="1">Diri Sendiri</option>
+                                                        <option value="2">Suami / Istri</option>
+                                                        <option value="3">Anak</option>
+                                                        <option value="4">Orang Tua</option>
+                                                        <option value="5">Lainnya</option>
+                                                    </select>
                                                 </div>
                                             </div>
 

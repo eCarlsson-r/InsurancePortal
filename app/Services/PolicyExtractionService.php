@@ -6,10 +6,12 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use HelgeSverre\Extractor\Facades\Text;
 use Smalot\PdfParser\Parser;
-use App\Services\OllamaService;
+use App\Services\Traits\PolicySanitizer;
 use Illuminate\Support\Facades\Cache;
 
 class PolicyExtractionService {
+    use PolicySanitizer;
+    
     private function mapAiResponseToDatabase(array $aiData): array
     {
         $map = [
@@ -46,7 +48,6 @@ class PolicyExtractionService {
 
             // Group 4: Policy & Finance
             'insurance_policy_number'       => 'policy_no',
-            'application_form_number'         => 'case_code',
             'policy_start_effective_date'   => 'case_start_date',
             'total_sum_assured_benefit_amount' => 'case_base_insure',
             'total_premium_amount_to_pay'   => 'case_premium',
@@ -62,6 +63,28 @@ class PolicyExtractionService {
             
             // Clean up the value
             $mappedData[$dbKey] = $this->sanitizeValue($dbKey, $value);
+
+            if ($aiKey === 'distribution_header') {
+                $mappedData['case_code'] = explode(" : ", $value[1]["value"])[1];
+                unset($mappedData['distribution_header']);
+            }
+
+            if ($aiKey === 'signature_info') {
+                $mappedData['case_entry_date'] = $this->cleanSignatureDate(array_values($value)[0]);
+                unset($mappedData['signature_info']);
+            }
+
+            if ($aiKey === 'insured_relationship') {
+                $policyHolder = strtoupper($mappedData['policy_holder_full_name'] ?? '');
+                $insured = strtoupper($mappedData['insured_person_full_name'] ?? '');
+
+                // If names are identical or insured is 'SDA', relationship is always Self (1)
+                if ($policyHolder === $insured || $insured === 'SDA' || str_contains($insured, 'SAMA DENGAN')) {
+                    $mappedData['insured_relationship'] = "1";
+                }
+
+                $mappedData['insured_relationship'] = $this->cleanRelationship($value);
+            }
         }
 
         return $mappedData;
@@ -81,7 +104,8 @@ class PolicyExtractionService {
             ],
             'customer_info' => [
                 'source' => $spajText,
-                'fields' => "application_form_number, policy_holder_full_name, policy_holder_gender, policy_holder_ktp_nik_number, ".
+                'fields' => "distribution_header (Extract the full text that looks like 'Agency No. : [number]' or 'Channel: [text] No. : [number]'), ".
+                            "policy_holder_full_name, policy_holder_gender, policy_holder_ktp_nik_number, ".
                             "policy_holder_email_address, policy_holder_mobile_phone, ".
                             "policy_holder_city_of_birth, policy_holder_birth_date, policy_holder_religion, ".
                             "policy_holder_marital_status, policy_holder_current_profession, ".
@@ -92,7 +116,9 @@ class PolicyExtractionService {
                 'source' => $spajText,
                 'fields' => "insured_person_full_name, insured_person_gender, insured_person_birth_date, ".
                             "insured_person_city_of_birth, insured_person_marital_status, insured_person_current_profession, ".
-                            "insured_person_home_address, insured_person_home_postal, insured_person_home_city"
+                            "insured_person_home_address, insured_person_home_postal, insured_person_home_city, ".
+                            "insured_relationship (Look for 'Hubungan'. If the Insured name is the same as Policy Holder or says 'SDA', return 'Self'. Otherwise return Spouse, Child, or Parent), ".
+                            "signature_info (Look for 'Ditandatangani di' or 'Signed at'. Extract the city and the date that follows it, e.g., 'Kota Medan 26-09-2025')"
             ]
         ];
 
@@ -186,86 +212,5 @@ class PolicyExtractionService {
         }
 
         return $data;
-    }
-
-    private function sanitizeValue(string $key, $value)
-    {
-        if (is_null($value) || $value === "null" || $value === "") return null;
-
-        if (str_contains($key, 'gender')) {
-            $val = strtoupper($value);
-            if (str_contains($val, 'LAKI') || str_contains($val, 'PRIA') || $val === 'L') return '1';
-            if (str_contains($val, 'PEREMPUAN') || str_contains($val, 'WANITA') || str_contains($val, 'IBU') || $val === 'P') return '2';
-        }
-
-        if (str_contains($key, 'religion')) {
-            $val = strtoupper($value);
-            if (str_contains($val, 'BUDHA') || $val === 'B') return '1';
-            if (str_contains($val, 'KRISTEN') || $val === 'K') return '2';
-            if (str_contains($val, 'ISLAM') || $val === 'I') return '3';
-            if (str_contains($val, 'HINDU') || $val === 'H') return '4';
-        }
-
-        if (str_contains($key, 'marital')) {
-            $val = strtoupper($value);
-            if (str_contains($val, 'BELUM MENIKAH') || $val === 'B') return '1';
-            if (str_contains($val, 'MENIKAH') || $val === 'M') return '2';
-            if (str_contains($val, 'JANDA') || $val === 'J') return '3';
-            if (str_contains($val, 'DUDA') || $val === 'D') return '4';
-        }
-
-        if ($key === 'case_currency') {
-            $val = strtoupper((string)$value);
-            
-            // Explicitly check for IDR/Rupiah keywords
-            if (preg_match('/(RP|IDR|RUPIAH|1)/i', $val)) {
-                return "1";
-            }
-            
-            // Explicitly check for USD/Dollar keywords
-            if (preg_match('/(USD|\$|DOLLAR|2)/i', $val)) {
-                return "2";
-            }
-
-            // Default to Rupiah for Indonesian Context
-            return "1";
-        }
-
-        // 2. Clean Money/Numbers (remove Rp, dots, commas for database)
-        if (in_array($key, ['case_base_insure', 'case_premium'])) {
-            $val = (string)$value;
-
-            // 1. Remove the decimal part if it's .00 or ,00
-            // We look for the last separator (either dot or comma)
-            $lastDot = strrpos($val, '.');
-            $lastComma = strrpos($val, ',');
-            $lastSeparator = max($lastDot, $lastComma);
-
-            if ($lastSeparator !== false) {
-                $decimalPart = substr($val, $lastSeparator + 1);
-                
-                // If the part after the separator is "00", "0", or empty
-                // We truncate the string to exclude the decimal
-                if (in_array($decimalPart, ['00', '0', ''])) {
-                    $val = substr($val, 0, $lastSeparator);
-                }
-            }
-
-            // 2. Now safely remove all non-numeric characters ($, Rp, commas, dots)
-            $cleanNumber = preg_replace('/[^0-9]/', '', $val);
-            
-            return (int) $cleanNumber;
-        }
-
-        // 3. Clean Dates (ensure YYYY-MM-DD)
-        if (str_contains($key, 'date') || str_contains($key, 'birthdate')) {
-            try {
-                return \Carbon\Carbon::parse($value)->format('Y-m-d');
-            } catch (\Exception $e) {
-                return $value; // Return original if parse fails
-            }
-        }
-
-        return $value;
     }
 }
