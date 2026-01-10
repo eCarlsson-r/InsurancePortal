@@ -1,5 +1,4 @@
 declare module "@svg-maps/usa";
-declare module "react-svg-map";
 declare module "react-slick";
 declare module "react-circular-progressbar";
 

@@ -5,7 +5,7 @@ import UploadOcrModal from "@/components/upload-ocr-modal";
 import { Accordion, Card } from "react-bootstrap";
 
 
-export default function PolicyForm({extracted, fileUrl, policy}: {extracted: any, fileUrl: string, policy: any}) {
+export default function PolicyForm({extracted, fileUrl, policy}: {extracted: unknown, fileUrl: string, policy: unknown}) {
     const isEdit = !!policy;
 
     // Initial form state with safe defaults
@@ -688,7 +688,7 @@ export default function PolicyForm({extracted, fileUrl, policy}: {extracted: any
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            {data.investments.map((inv: any, idx: number) => (
+                                                            {data.investments.map((inv: unknown, idx: number) => (
                                                                 <tr key={idx}>
                                                                     <td>
                                                                         <input 
@@ -742,7 +742,7 @@ export default function PolicyForm({extracted, fileUrl, policy}: {extracted: any
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            {data.riders.map((rider: any, idx: number) => (
+                                                            {data.riders.map((rider: unknown, idx: number) => (
                                                                     <tr key={idx}>
                                                                     <td>
                                                                         <input 

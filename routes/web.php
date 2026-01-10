@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 use App\Http\Controllers\PolicyController;
+use App\Http\Controllers\AgentController;
 use Illuminate\Support\Facades\Cache;
 
 Route::get('/', function () {

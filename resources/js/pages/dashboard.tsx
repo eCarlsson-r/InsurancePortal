@@ -1,6 +1,6 @@
 import TemplateLayout from '@/layouts/TemplateLayout';
 import { Head } from '@inertiajs/react';
-import { ProgressBar, Table } from 'react-bootstrap';
+import { ProgressBar } from 'react-bootstrap';
 import PerfectScrollbar from 'react-perfect-scrollbar';
 
 import BarChart from '@/components/dashboard/BarChart';
@@ -10,7 +10,6 @@ import LineChart2 from '@/components/dashboard/LineChart2';
 import TestimonialSlider from '@/components/dashboard/TestimonialSlider';
 import Timeline from '@/components/dashboard/Timeline';
 import TodoList from '@/components/dashboard/TodoList';
-import UsaMap from '@/components/dashboard/UsaMap';
 
 export default function Dashboard() {
     return (
@@ -162,58 +161,6 @@ export default function Dashboard() {
                         </div>
                         <div className="card-body">
                             <LineChart2 />
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div className="row">
-                <div className="col-lg-6 col-sm-6">
-                    <div className="card">
-                        <div className="card-header">
-                            <h4 className="card-title">Regional Traffic</h4>
-                        </div>
-                        <div className="card-body">
-                            <div style={{ height: '300px' }}>
-                                <UsaMap />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className="col-lg-6 col-sm-6">
-                    <div className="card">
-                        <div className="card-header">
-                            <h4 className="card-title">New Orders</h4>
-                        </div>
-                        <div className="card-body">
-                            <div className="table-responsive">
-                                <Table>
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Name</th>
-                                            <th>Product</th>
-                                            <th>Quantity</th>
-                                            <th>Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {[1, 2, 3, 1, 2].map((id, idx) => (
-                                            <tr key={idx}>
-                                                <td>
-                                                    <div className="round-img">
-                                                        <img width="35" src={`/images/avatar/${id}.png`} alt="" className="rounded-circle" />
-                                                    </div>
-                                                </td>
-                                                <td>Lew Shawon</td>
-                                                <td><span>Product-{id}</span></td>
-                                                <td><span>{idx + 10} pcs</span></td>
-                                                <td><span className={`badge badge-${idx % 2 === 0 ? 'success' : 'warning'}`}>{idx % 2 === 0 ? 'Done' : 'Pending'}</span></td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </Table>
-                            </div>
                         </div>
                     </div>
                 </div>

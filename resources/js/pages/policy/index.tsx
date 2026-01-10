@@ -1,6 +1,7 @@
 import TemplateLayout from "@/layouts/TemplateLayout";
 import { Head, Link, router } from "@inertiajs/react";
 import { FormEvent, useState } from "react";
+import { Table } from "react-bootstrap";
 import UploadOcrModal from "@/components/upload-ocr-modal";
 
 interface PolicyData {
@@ -101,12 +102,7 @@ export default function Policy({ policies = [], query = "" }: PolicyProps) {
                                 </form>
 
                                 <div className="table-responsive">
-                                    <table 
-                                        id="table-case" 
-                                        className="display nowrap table table-hover table-striped table-bordered"
-                                        cellSpacing="0" 
-                                        width="100%"
-                                    >
+                                    <Table hover striped bordered>
                                         <thead>
                                             <tr>
                                                 <th className="col-1">Actions</th>
@@ -164,7 +160,7 @@ export default function Policy({ policies = [], query = "" }: PolicyProps) {
                                                 </tr>
                                             )}
                                         </tbody>
-                                    </table>
+                                    </Table>
                                 </div>
                             </div>
                         </div>

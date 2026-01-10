@@ -16,7 +16,7 @@ const Todo = ({ todo, remove, update, toggleComplete }: {
     const [isEditing, setIsEditing] = useState(false);
     const [task, setTask] = useState(todo.task);
 
-    const handleUpdate = (evt: any) => {
+    const handleUpdate = (evt: unknown) => {
         evt.preventDefault();
         update(todo.id, task);
         setIsEditing(false);
@@ -57,7 +57,7 @@ const Todo = ({ todo, remove, update, toggleComplete }: {
 const NewTodoForm = ({ createTodo }: { createTodo: (todo: TodoItem) => void }) => {
     const [task, setTask] = useState("");
 
-    const handleSubmit = (evt: any) => {
+    const handleSubmit = (evt: unknown) => {
         evt.preventDefault();
         createTodo({ task, id: uuidv4(), completed: false });
         setTask("");
@@ -87,7 +87,7 @@ function TodoList() {
     { id: uuidv4(), task: "Implement authentication", completed: false },
   ]);
 
-  const create = (newTodo: any) => setTodos([...todos, newTodo]);
+  const create = (newTodo: unknown) => setTodos([...todos, newTodo]);
   const remove = (id: string) => setTodos(todos.filter(todo => todo.id !== id));
   const update = (id: string, updatedTask: string) => {
     setTodos(todos.map(todo => (todo.id === id ? { ...todo, task: updatedTask } : todo)));

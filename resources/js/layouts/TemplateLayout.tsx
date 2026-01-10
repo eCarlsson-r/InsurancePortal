@@ -9,9 +9,9 @@ export default function TemplateLayout({ children }: PropsWithChildren) {
 
     useEffect(() => {
         // Initialize MetisMenu
-        let mm: any;
+        let mm: unknown;
         if (sideMenuRef.current) {
-            mm = new (MetisMenu as any)(sideMenuRef.current);
+            mm = new (MetisMenu as unknown)(sideMenuRef.current);
         }
 
         // Sidebar toggle logic
