@@ -2,53 +2,81 @@
 
 namespace App\Models;
 
+use App\Models\Customer;
+use App\Models\Agent;
 use App\Models\File;
-
 use Illuminate\Database\Eloquent\Model;
 
 class Policy extends Model
 {
-    protected $table = "case";
-    protected $primaryKey = 'case-code';
+    protected $table = 'cases';
     public $timestamps = false;
     protected $keyType = 'string';
+    public $incrementing = false;
+
     protected $fillable = [
-        'policy-no', 
-        'case-agent',
-        'case-customer', 
-        'case-insured', 
-        'hubungan',
-        'case-tagih', 
-        'insured-name',
-        'insured-birthplace',
-        'insured-birthdate',
-        'insured-gender',
-        'insured-marital',
-        'insured-profession',
-        'insure-holder',
-        'insured-homeaddress',
-        'insured-homepostal',
-        'insured-homecity',
-        'insured-workaddress',
-        'insured-workpostal',
-        'insured-workcity',
-        'case-entry-date',
-        'case-product',
-        'case-insure-period',
-        'case-pay-period',
-        'case-currency',
-        'case-curr-rate',
-        'case-start-date',
-        'case-base-insure',
-        'case-premium',
-        'case-pay-method',
-        'case-description',
-        'case-subagent'
+        'policy_no',
+        'holder_id',
+        'insured_id',
+        'agent_id',
+        'holder_insured_relationship',
+        'entry_date',
+        'case_tagih',
+        'is_insure_holder',
+        'product_id',
+        'insure_period',
+        'pay_period',
+        'currency_id',
+        'curr_rate',
+        'start_date',
+        'base_insure',
+        'premium',
+        'pay_method',
+        'description',
+        'subagent_id',
     ];
-    protected $guarded = ['case-code'];
+
+    protected $guarded = ['id'];
+
+    protected $casts = [
+        'entry_date' => 'date',
+        'start_date' => 'date',
+        'is_insure_holder' => 'boolean',
+        'curr_rate' => 'decimal:4',
+    ];
 
     public function files()
     {
-        return $this->hasMany(File::class, 'file-document-id', 'case-code');
+        return $this->hasMany(File::class, 'file-document-id', 'case_code');
+    }
+
+    public function holder()
+    {
+        return $this->belongsTo(Customer::class, 'customer_id');
+    }
+
+    public function insured()
+    {
+        return $this->belongsTo(Customer::class, 'insured_id');
+    }
+
+    public function agent()
+    {
+        return $this->belongsTo(Agent::class, 'agent_id');
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class, 'product_id');
+    }
+
+    public function riders()
+    {
+        return $this->hasMany(Rider::class, 'case_id');
+    }
+
+    public function investments()
+    {
+        return $this->hasMany(Investment::class, 'case_id');
     }
 }

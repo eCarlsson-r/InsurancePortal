@@ -1,9 +1,5 @@
 import InputError from '@/components/input-error';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Spinner } from '@/components/ui/spinner';
+import { Button, Spinner } from 'react-bootstrap';
 import { register } from '@/wayfinder/routes';
 import { store } from '@/wayfinder/routes/login';
 import { request } from '@/wayfinder/routes/password';
@@ -51,8 +47,8 @@ export default function Login({
                                             {({ processing, errors }) => (
                                                 <>
                                                     <div className="form-group mb-3">
-                                                        <Label htmlFor="email" className="mb-1"><strong>Email</strong></Label>
-                                                        <Input
+                                                        <label htmlFor="email" className="mb-1"><strong>Email</strong></label>
+                                                        <input
                                                             id="email"
                                                             type="email"
                                                             name="email"
@@ -67,8 +63,8 @@ export default function Login({
                                                     </div>
                                                     
                                                     <div className="form-group mb-3">
-                                                        <Label htmlFor="password" className="mb-1"><strong>Password</strong></Label>
-                                                        <Input
+                                                        <label htmlFor="password" className="mb-1"><strong>Password</strong></label>
+                                                        <input
                                                             id="password"
                                                             type="password"
                                                             name="password"
@@ -84,13 +80,14 @@ export default function Login({
                                                     <div className="form-row d-flex justify-content-between mt-4 mb-2">
                                                         <div className="form-group">
                                                             <div className="custom-control custom-checkbox ml-1">
-                                                                <Checkbox
+                                                                <input
+                                                                    type="checkbox"
                                                                     id="remember"
                                                                     name="remember"
                                                                     className="custom-control-input"
                                                                     tabIndex={3}
                                                                 />
-                                                                <Label className="custom-control-label" htmlFor="remember">Remember me</Label>
+                                                                <label className="custom-control-label" htmlFor="remember">Remember me</label>
                                                             </div>
                                                         </div>
                                                         <div className="form-group">

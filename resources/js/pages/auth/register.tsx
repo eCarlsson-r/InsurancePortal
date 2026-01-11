@@ -1,14 +1,10 @@
 import { login } from '@/wayfinder/routes';
 import { store } from '@/wayfinder/routes/register';
 import { Form, Head, Link } from '@inertiajs/react';
-
+import { Button, Spinner } from 'react-bootstrap';
 import InputError from '@/components/input-error';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Spinner } from '@/components/ui/spinner';
 
-export default function Register() {
+export default function Register() {    
     return (
         <div className="authincation vh-100">
             <Head title="Register" />
@@ -34,8 +30,8 @@ export default function Register() {
                                             {({ processing, errors }) => (
                                                 <>
                                                     <div className="form-group mb-3">
-                                                        <Label htmlFor="name" className="mb-1"><strong>Username</strong></Label>
-                                                        <Input
+                                                        <label htmlFor="name" className="mb-1"><strong>Username</strong></label>
+                                                        <input
                                                             id="name"
                                                             type="text"
                                                             className="form-control"
@@ -50,8 +46,8 @@ export default function Register() {
                                                     </div>
 
                                                     <div className="form-group mb-3">
-                                                        <Label htmlFor="email" className="mb-1"><strong>Email</strong></Label>
-                                                        <Input
+                                                        <label htmlFor="email" className="mb-1"><strong>Email</strong></label>
+                                                        <input
                                                             id="email"
                                                             type="email"
                                                             className="form-control"
@@ -65,8 +61,8 @@ export default function Register() {
                                                     </div>
 
                                                     <div className="form-group mb-3">
-                                                        <Label htmlFor="password" className="mb-1"><strong>Password</strong></Label>
-                                                        <Input
+                                                        <label htmlFor="password" className="mb-1"><strong>Password</strong></label>
+                                                        <input
                                                             id="password"
                                                             type="password"
                                                             className="form-control"
@@ -80,8 +76,8 @@ export default function Register() {
                                                     </div>
 
                                                     <div className="form-group mb-4">
-                                                        <Label htmlFor="password_confirmation" className="mb-1"><strong>Confirm Password</strong></Label>
-                                                        <Input
+                                                        <label htmlFor="password_confirmation" className="mb-1"><strong>Confirm Password</strong></label>
+                                                        <input
                                                             id="password_confirmation"
                                                             type="password"
                                                             className="form-control"

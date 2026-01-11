@@ -1,6 +1,6 @@
 import { useState, useRef, ChangeEvent } from "react";
 import { router } from "@inertiajs/react";
-import OCRTracker from './dashboard/OCRTracker'; // The component we built earlier
+import OCRTracker from './OCRTracker'; // The component we built earlier
 
 interface UploadOcrModalProps {
     show: boolean;
