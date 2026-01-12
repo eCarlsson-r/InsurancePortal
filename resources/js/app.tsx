@@ -1,5 +1,6 @@
-import '../css/app.css';
+import '../../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import '../../node_modules/metismenujs/dist/metismenujs.css';
+import '../css/app.css';
 
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';

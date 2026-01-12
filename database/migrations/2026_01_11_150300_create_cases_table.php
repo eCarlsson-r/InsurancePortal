@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('agent_id')->constrained('agents')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('holder_insured_relationship', 50)->default('');
             $table->date('entry_date');
-            $table->unsignedInteger('case_tagih');
+            $table->unsignedInteger('bill_at');
             $table->boolean('is_insure_holder');
             $table->foreignId('product_id')->constrained('products')->cascadeOnUpdate()->cascadeOnDelete();
             $table->unsignedInteger('insure_period');
@@ -28,7 +28,6 @@ return new class extends Migration
             $table->unsignedInteger('premium');
             $table->unsignedInteger('pay_method');
             $table->text('description');
-            $table->foreignId('subagent_id')->constrained('subagents')->cascadeOnUpdate()->cascadeOnDelete();
         });
     }
 

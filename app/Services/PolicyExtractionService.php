@@ -16,61 +16,64 @@ class PolicyExtractionService {
     {
         $map = [
             // Group 1: Customer Basic & ID
-            'policy_holder_full_name'      => 'customer_name',
-            'policy_holder_gender'         => 'customer_gender',
-            'policy_holder_ktp_nik_number' => 'customer_identity',
-            'policy_holder_mobile_phone'   => 'customer_mobile',
-            'policy_holder_email_address'  => 'customer_email',
-            'policy_holder_birth_date'     => 'customer_birthdate',
-            'policy_holder_city_of_birth'  => 'customer_birthplace',
-            'policy_holder_religion'       => 'customer_religion',
-            'policy_holder_marital_status' => 'customer_marital',
-            'policy_holder_current_profession' => 'customer_profession',
+            'policy_holder_full_name'      => 'customer.name',
+            'policy_holder_gender'         => 'customer.gender',
+            'policy_holder_ktp_nik_number' => 'customer.identity_number',
+            'policy_holder_mobile_phone'   => 'customer.mobile',
+            'policy_holder_email_address'  => 'customer.email',
+            'policy_holder_birth_date'     => 'customer.birth_date',
+            'policy_holder_city_of_birth'  => 'customer.birth_place',
+            'policy_holder_religion'       => 'customer.religion',
+            'policy_holder_marital_status' => 'customer.marital',
+            'policy_holder_current_profession' => 'customer.profession',
 
             // Group 2: Customer Address
-            'policy_holder_home_address_street' => 'customer_homeaddress',
-            'policy_holder_home_postal_code'    => 'customer_homepostal',
-            'policy_holder_home_city'           => 'customer_homecity',
-            'policy_holder_work_office_address' => 'customer_workaddress',
-            'policy_holder_work_postal_code'    => 'customer_workpostal',
-            'policy_holder_work_city'           => 'customer_workcity',
+            'policy_holder_home_address_street' => 'customer.home_address',
+            'policy_holder_home_postal_code'    => 'customer.home_postal',
+            'policy_holder_home_city'           => 'customer.home_city',
+            'policy_holder_work_office_address' => 'customer.work_address',
+            'policy_holder_work_postal_code'    => 'customer.work_postal',
+            'policy_holder_work_city'           => 'customer.work_city',
 
             // Group 3: Insured Details
-            'insured_person_full_name'      => 'insured_name',
-            'insured_person_city_of_birth'  => 'insured_birthplace',
-            'insured_person_birth_date'     => 'insured_birthdate',
-            'insured_person_gender'         => 'insured_gender',
-            'insured_person_marital_status' => 'insured_marital',
-            'insured_person_current_profession' => 'insured_profession',
-            'insured_person_home_address'   => 'insured_homeaddress',
-            'insured_person_home_postal'    => 'insured_homepostal',
-            'insured_person_home_city'      => 'insured_homecity',
+            'insured_person_full_name'      => 'insured.name',
+            'insured_person_city_of_birth'  => 'insured.birth_place',
+            'insured_person_birth_date'     => 'insured.birth_date',
+            'insured_person_gender'         => 'insured.gender',
+            'insured_person_marital_status' => 'insured.marital',
+            'insured_person_current_profession' => 'insured.profession',
+            'insured_person_home_address'   => 'insured.home_address',
+            'insured_person_home_postal'    => 'insured.home_postal',
+            'insured_person_home_city'      => 'insured.home_city',
 
             // Group 4: Policy & Finance
             'insurance_policy_number'       => 'policy_no',
-            'policy_start_effective_date'   => 'case_start_date',
-            'total_sum_assured_benefit_amount' => 'case_base_insure',
-            'total_premium_amount_to_pay'   => 'case_premium',
-            'premium_payment_frequency'     => 'case_pay_method',
-            'currency_code'      => 'case_currency',
-            'insurance_coverage_period_years' => 'case_insure_period',
-            'premium_paying_period_years'   => 'case_pay_period',
+            'policy_start_effective_date'   => 'start_date',
+            'total_sum_assured_benefit_amount' => 'base_insure',
+            'total_premium_amount_to_pay'   => 'premium',
+            'premium_payment_frequency'     => 'pay_method',
+            'currency_code'      => 'currency_id',
+            'insurance_coverage_period_years' => 'insure_period',
+            'premium_paying_period_years'   => 'pay_period'
         ];
 
         $mappedData = [];
         foreach ($aiData as $aiKey => $value) {
             $dbKey = $map[$aiKey] ?? $aiKey;
-            
-            // Clean up the value
-            $mappedData[$dbKey] = $this->sanitizeValue($dbKey, $value);
+            if (str_contains($dbKey, ".")) {
+                $objectKey = explode(".", $dbKey);
+                $mappedData[$objectKey[0]][$objectKey[1]] = $this->sanitizeValue($dbKey, $value);
+            } else {
+                $mappedData[$dbKey] = $this->sanitizeValue($dbKey, $value);
+            }
 
             if ($aiKey === 'distribution_header') {
-                $mappedData['case_code'] = explode(" : ", $value[1]["value"])[1];
+                $mappedData['id'] = explode(" : ", $value[1]["value"])[1];
                 unset($mappedData['distribution_header']);
             }
 
             if ($aiKey === 'signature_info') {
-                $mappedData['case_entry_date'] = $this->cleanSignatureDate(array_values($value)[0]);
+                $mappedData['entry_date'] = $this->cleanSignatureDate(array_values($value)[0]);
                 unset($mappedData['signature_info']);
             }
 
@@ -80,10 +83,10 @@ class PolicyExtractionService {
 
                 // If names are identical or insured is 'SDA', relationship is always Self (1)
                 if ($policyHolder === $insured || $insured === 'SDA' || str_contains($insured, 'SAMA DENGAN')) {
-                    $mappedData['insured_relationship'] = "1";
+                    $mappedData['holder_insured_relationship'] = "1";
                 }
 
-                $mappedData['insured_relationship'] = $this->cleanRelationship($value);
+                $mappedData['holder_insured_relationship'] = $this->cleanRelationship($value);
             }
         }
 

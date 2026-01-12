@@ -27,11 +27,6 @@ export default function Login({
                             <div className="row no-gutters">
                                 <div className="col-xl-12">
                                     <div className="auth-form">
-                                        <div className="text-center mb-3">
-                                            <Link href="/">
-                                                <img src="/images/logo-full.png" alt="" style={{ maxWidth: '150px' }} />
-                                            </Link>
-                                        </div>
                                         <h4 className="text-center mb-4">Sign in your account</h4>
                                         
                                         {status && (

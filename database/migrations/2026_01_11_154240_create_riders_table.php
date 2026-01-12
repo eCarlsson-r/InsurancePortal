@@ -12,11 +12,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('case_id')->constrained('cases')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('product_id')->constrained('products')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->unsignedInteger('rider_insure');
-            $table->unsignedInteger('rider_premium');
-            $table->unsignedTinyInteger('rider_insure_period');
-            $table->unsignedTinyInteger('rider_pay_period');
-            $table->date('rider_add_date')->nullable();
+            $table->unsignedInteger('insure_amount');
+            $table->unsignedInteger('premium');
+            $table->unsignedTinyInteger('insure_period');
+            $table->unsignedTinyInteger('pay_period');
+            $table->date('add_date')->nullable();
             $table->timestamps();
 
             $table->index(['case_id', 'product_id']);

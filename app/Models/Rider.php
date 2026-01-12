@@ -9,15 +9,15 @@ class Rider extends Model
     protected $fillable = [
         'case_id',
         'product_id',
-        'rider_insure',
-        'rider_premium',
-        'rider_insure_period',
-        'rider_pay_period',
-        'rider_add_date',
+        'insure_amount',
+        'premium',
+        'insure_period',
+        'pay_period',
+        'add_date',
     ];
 
     protected $casts = [
-        'rider_add_date' => 'date',
+        'add_date' => 'date',
     ];
 
     public function policy()

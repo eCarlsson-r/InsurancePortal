@@ -22,7 +22,7 @@ export default defineConfig({
     },
     resolve: {
         alias: {
-        '@': path.resolve(__dirname, './resources/js'), // Adjust the './resources/js' to your actual source directory
+            '@': path.resolve(__dirname, './resources/js'), // Adjust the './resources/js' to your actual source directory
         },
     }
 });

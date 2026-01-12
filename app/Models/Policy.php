@@ -21,7 +21,7 @@ class Policy extends Model
         'agent_id',
         'holder_insured_relationship',
         'entry_date',
-        'case_tagih',
+        'bill_at',
         'is_insure_holder',
         'product_id',
         'insure_period',
@@ -32,8 +32,7 @@ class Policy extends Model
         'base_insure',
         'premium',
         'pay_method',
-        'description',
-        'subagent_id',
+        'description'
     ];
 
     protected $guarded = ['id'];
@@ -47,7 +46,7 @@ class Policy extends Model
 
     public function files()
     {
-        return $this->hasMany(File::class, 'file-document-id', 'case_code');
+        return $this->hasMany(File::class, 'file_document_id', 'case_code');
     }
 
     public function holder()

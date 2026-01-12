@@ -1,19 +1,19 @@
 import TemplateLayout from "@/layouts/TemplateLayout";
 import { Head, Link, router } from "@inertiajs/react";
 import { FormEvent, useState } from "react";
-import { Table } from "react-bootstrap";
+import { Form, Table, InputGroup } from "react-bootstrap";
 import UploadOcrModal from "@/components/upload-ocr-modal";
 
 interface PolicyData {
-    "case-code": string;
-    "policy-no": string;
-    "customer-name": string;
-    "insured-name": string;
-    "case-product": string;
-    "case-agent": string;
-    "case-premium": number;
-    "topup-premium": number;
-    "case-base-insure": number;
+    "id": string;
+    "policy_no": string;
+    "customer": {"name": string};
+    "insured": {"name": string};
+    "product": {"name": string};
+    "agent": {"name": string};
+    "premium": number;
+    "topup_premium": number;
+    "base_insure": number;
 }
 
 interface PolicyProps {
@@ -76,36 +76,38 @@ export default function Policy({ policies = [], query = "" }: PolicyProps) {
                     <div className="col-md-12">
                         <div className="card">
                             <div className="card-body">
-                                <form onSubmit={handleSearch} id="case-toolbar" className="row card-title toolbar form-inline input-group mb-4">
-                                    <h4 className="col-md-2 col-6" data-i18n="case-list">Daftar SP / Polis</h4>
-                                    <button 
-                                        type="button" 
-                                        onClick={handleCreateNew}
-                                        id="createCase" 
-                                        className="col-md-2 col-6 btn btn-primary"
-                                    >
-                                        <i className="fa fa-file"></i> <span data-i18n="new-case">SP / Polis Baru</span>
-                                    </button>
-                                    <p className="col-sm-1">&#8194;</p>
-                                    <label className="input-group-text">Nasabah / No. Polis / No. SP : </label>
-                                    <input 
-                                        type="text" 
-                                        name="q" 
-                                        id="case-query" 
-                                        className="col-sm-10 col-md-5 form-control" 
-                                        value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                    />
-                                    <button id="case-search" type="submit" className="btn btn-primary">
-                                        <i className="fa fa-search"></i>
-                                    </button>
-                                </form>
+                                <Form onSubmit={handleSearch}>
+                                    <InputGroup className="row card-title toolbar form-inline mb-4">
+                                        <h4 className="col-md-2 col-6" data-i18n="case-list">Daftar SP / Polis</h4>
+                                        <button 
+                                            type="button" 
+                                            onClick={handleCreateNew}
+                                            id="createCase" 
+                                            className="col-md-2 col-6 btn btn-primary"
+                                        >
+                                            <i className="fa fa-file"></i> <span data-i18n="new-case">SP / Polis Baru</span>
+                                        </button>
+                                        <p className="col-md-1 hidden-sm-down">&#8194;</p>
+                                        <InputGroup.Text className="col-3">Nasabah / No. Polis / No. SP : </InputGroup.Text>
+                                        <Form.Control
+                                            type="text" 
+                                            name="q" 
+                                            id="case-query" 
+                                            className="col-8 col-md-5" 
+                                            value={searchQuery}
+                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                        />
+                                        <button id="case-search" type="submit" className="btn btn-primary col-1">
+                                            <i className="fa fa-search"></i>
+                                        </button>
+                                    </InputGroup>
+                                </Form>
 
                                 <div className="table-responsive">
                                     <Table hover striped bordered>
                                         <thead>
                                             <tr>
-                                                <th className="col-1">Actions</th>
+                                                <th className="col-1"></th>
                                                 <th className="col-1">No. SP</th>
                                                 <th className="col-1">No. Polis</th>
                                                 <th className="col-2">Nama Pemegang Polis</th>
@@ -120,17 +122,17 @@ export default function Policy({ policies = [], query = "" }: PolicyProps) {
                                         <tbody>
                                             {policies.length > 0 ? (
                                                 policies.map((policy) => (
-                                                    <tr key={policy["case-code"]}>
+                                                    <tr key={policy["id"]}>
                                                         <td>
                                                             <button 
-                                                                onClick={() => handleUpload(policy["case-code"])}
+                                                                onClick={() => handleUpload(policy["id"])}
                                                                 className="btn btn-sm btn-primary me-1"
                                                                 title="Upload"
                                                             >
                                                                 <i className="la la-upload"></i>
                                                             </button>
                                                             <button 
-                                                                onClick={() => handleDelete(policy["case-code"])}
+                                                                onClick={() => handleDelete(policy["id"])}
                                                                 className="btn btn-sm btn-danger"
                                                                 title="Delete"
                                                             >
@@ -138,18 +140,18 @@ export default function Policy({ policies = [], query = "" }: PolicyProps) {
                                                             </button>
                                                         </td>
                                                         <td>
-                                                            <Link href={`/sales/policy/${policy["case-code"]}/edit`}>
-                                                                {policy["case-code"]}
+                                                            <Link href={`/sales/policy/${policy["id"]}/edit`}>
+                                                                {policy["id"]}
                                                             </Link>
                                                         </td>
-                                                        <td>{policy["policy-no"]}</td>
-                                                        <td>{policy["customer-name"]}</td>
-                                                        <td>{policy["insured-name"]}</td>
-                                                        <td>{policy["case-product"]}</td>
-                                                        <td>{policy["case-agent"]}</td>
-                                                        <td>{formatCurrency(policy["case-premium"])}</td>
-                                                        <td>{formatCurrency(policy["topup-premium"])}</td>
-                                                        <td>{formatCurrency(policy["case-base-insure"])}</td>
+                                                        <td>{policy.policy_no}</td>
+                                                        <td>{policy.customer.name}</td>
+                                                        <td>{policy.insured.name}</td>
+                                                        <td>{policy.product.name}</td>
+                                                        <td>{policy.agent.name}</td>
+                                                        <td>{formatCurrency(policy.premium)}</td>
+                                                        <td>{formatCurrency(policy.topup_premium)}</td>
+                                                        <td>{formatCurrency(policy.base_insure)}</td>
                                                     </tr>
                                                 ))
                                             ) : (

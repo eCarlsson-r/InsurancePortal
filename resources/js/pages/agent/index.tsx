@@ -1,19 +1,11 @@
 import TemplateLayout from "@/layouts/TemplateLayout";
 import { Table } from "react-bootstrap";
 import { Head, Link } from "@inertiajs/react";
-
-interface AgentData {
-    "agent-code": "number",
-    "agent-number": "string",
-    "agent-name": "string",
-    "agent-level": "string",
-    "agent-email": "string",
-    "agent-birth-date": "string",
-    "agent-mobile": "string"
-}
+import { agentSchema } from "@/schemas/models";
+import { z } from "zod";
 
 interface AgentProps {
-    agents: AgentData[];
+    agents: z.infer<typeof agentSchema>[];
 }
 
 export default function Agent({ agents = [] }: AgentProps) {
@@ -58,18 +50,18 @@ export default function Agent({ agents = [] }: AgentProps) {
                                         <tbody>
                                             {agents.length > 0 ? (
                                                 agents.map((agent) => (
-                                                    <tr key={agent["agent-code"]}>
+                                                    <tr key={agent["id"]}>
                                                         <td>
-                                                            <Link href={`/sales/agent/${agent["agent-code"]}/edit`}>
-                                                                {agent["agent-code"]}
+                                                            <Link href={`/sales/agent/${agent.id}/edit`}>
+                                                                {agent.id}
                                                             </Link>
                                                         </td>
-                                                        <td>{agent["agent-number"]}</td>
-                                                        <td>{agent["agent-name"]}</td>
-                                                        <td>{agent["agent-level"]}</td>
-                                                        <td>{agent["agent-email"]}</td>
-                                                        <td>{agent["agent-birth-date"]}</td>
-                                                        <td>{agent["agent-mobile"]}</td>
+                                                        <td>{agent.official_number}</td>
+                                                        <td>{agent.name}</td>
+                                                        <td>{agent.programs[0].position}</td>
+                                                        <td>{agent.email}</td>
+                                                        <td>{agent.birth_date.toLocaleString('id-ID')}</td>
+                                                        <td>{agent.mobile}</td>
                                                     </tr>
                                                 ))
                                             ) : (

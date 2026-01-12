@@ -52,12 +52,14 @@ class PolicyController extends Controller
         $extracted = null;
         if ($request->has('ocr_id')) {
             $extracted = Cache::get("ocr_result_" . $request->ocr_id);
-        }
 
-        return Inertia::render('policy/form', [
-            'extracted' => $extracted['data'],
-            'fileUrl' => route('ocr.view-file', ['ocrId' => $request->ocr_id])
-        ]);
+            return Inertia::render('policy/form', [
+                'extracted' => $extracted['data'],
+                'fileUrl' => route('ocr.view-file', ['ocrId' => $request->ocr_id])
+            ]);
+        } else {
+            return Inertia::render('policy/form');
+        }
     }
 
     public function edit($id)
