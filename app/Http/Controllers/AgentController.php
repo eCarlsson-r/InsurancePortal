@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Agent;
+use App\Models\Program;
 use App\Models\Agency;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -16,7 +17,7 @@ class AgentController extends Controller
         $logo = "images/logo.png";
         $logoText = "images/logo-text.png";
         $action = __FUNCTION__;
-        
+
         return Inertia::render('agent/index', [
             'agents' => Agent::all(),
         ]);
@@ -29,11 +30,11 @@ class AgentController extends Controller
         $logo = "images/logo.png";
         $logoText = "images/logo-text.png";
         $action = __FUNCTION__;
-        
+
         return Inertia::render('agent/form', [
             'agents' => Agent::all(),
             'agencies' => Agency::all(),
-            'programs' => [], // TODO: Fetch from actual table if exists
+            'programs' => Program::all()
         ]);
     }
 
@@ -44,14 +45,14 @@ class AgentController extends Controller
         $logo = "images/logo.png";
         $logoText = "images/logo-text.png";
         $action = __FUNCTION__;
-        
+
         $agent = Agent::findOrFail($id);
-        
+
         return Inertia::render('agent/form', [
             'agent' => $agent,
             'agents' => Agent::all(),
             'agencies' => Agency::all(),
-            'programs' => [], // TODO: Fetch from actual table if exists
+            'programs' => Program::all()
         ]);
     }
 }

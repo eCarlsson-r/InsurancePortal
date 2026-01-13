@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Agency;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class AgencyController extends Controller
 {
@@ -13,9 +14,10 @@ class AgencyController extends Controller
         $page_description = 'View agencies';
 		$logo = "images/logo.png";
 		$logoText = "images/logo-text.png";
-		$agency = Agency::all();
 		$action = __FUNCTION__;
-        
-        return view('pages.agency', compact('page_title', 'page_description','action','logo','logoText', 'agency'));
+
+        return Inertia::render('agency/index', [
+            'agency' => Agency::all(),
+        ]);
     }
 }

@@ -11,29 +11,29 @@ use Illuminate\Support\Facades\Cache;
 
 class PolicyExtractionService {
     use PolicySanitizer;
-    
+
     private function mapAiResponseToDatabase(array $aiData): array
     {
         $map = [
             // Group 1: Customer Basic & ID
-            'policy_holder_full_name'      => 'customer.name',
-            'policy_holder_gender'         => 'customer.gender',
-            'policy_holder_ktp_nik_number' => 'customer.identity_number',
-            'policy_holder_mobile_phone'   => 'customer.mobile',
-            'policy_holder_email_address'  => 'customer.email',
-            'policy_holder_birth_date'     => 'customer.birth_date',
-            'policy_holder_city_of_birth'  => 'customer.birth_place',
-            'policy_holder_religion'       => 'customer.religion',
-            'policy_holder_marital_status' => 'customer.marital',
-            'policy_holder_current_profession' => 'customer.profession',
+            'policy_holder_full_name'      => 'holder.name',
+            'policy_holder_gender'         => 'holder.gender',
+            'policy_holder_ktp_nik_number' => 'holder.identity_number',
+            'policy_holder_mobile_phone'   => 'holder.mobile',
+            'policy_holder_email_address'  => 'holder.email',
+            'policy_holder_birth_date'     => 'holder.birth_date',
+            'policy_holder_city_of_birth'  => 'holder.birth_place',
+            'policy_holder_religion'       => 'holder.religion',
+            'policy_holder_marital_status' => 'holder.marital',
+            'policy_holder_current_profession' => 'holder.profession',
 
             // Group 2: Customer Address
-            'policy_holder_home_address_street' => 'customer.home_address',
-            'policy_holder_home_postal_code'    => 'customer.home_postal',
-            'policy_holder_home_city'           => 'customer.home_city',
-            'policy_holder_work_office_address' => 'customer.work_address',
-            'policy_holder_work_postal_code'    => 'customer.work_postal',
-            'policy_holder_work_city'           => 'customer.work_city',
+            'policy_holder_home_address_street' => 'holder.home_address',
+            'policy_holder_home_postal_code'    => 'holder.home_postal',
+            'policy_holder_home_city'           => 'holder.home_city',
+            'policy_holder_work_office_address' => 'holder.work_address',
+            'policy_holder_work_postal_code'    => 'holder.work_postal',
+            'policy_holder_work_city'           => 'holder.work_city',
 
             // Group 3: Insured Details
             'insured_person_full_name'      => 'insured.name',
@@ -96,7 +96,7 @@ class PolicyExtractionService {
     public function extractFullPolicyData(string $summaryText, string $spajText, string $jobId): array
     {
         $finalData = [];
-        
+
         // Group definitions with their designated data source
         $groups = [
             'policy_metadata' => [
@@ -134,10 +134,10 @@ class PolicyExtractionService {
                 $sections = $this->getSectionsForAi($config['source']);
                 $config['source'] = $sections['TU'] ?? $config['source']; // Focus only on Section IV (TU)
             }
-            
+
             // Pass the specific source text for this group
             $result = $this->askOllamaForFields($config['source'], $config['fields']);
-            
+
             // Map the descriptive AI names back to your DB keys
             $mappedResult = $this->mapAiResponseToDatabase($result);
             $finalData = array_merge($finalData, $mappedResult);
@@ -169,7 +169,7 @@ class PolicyExtractionService {
     private function askOllamaForFields(string $text, string $fields): array
     {
         // 1. Shorten the text to only the first 3000 characters if it's a huge PDF
-        $truncatedText = mb_substr($text, 0, 3000); 
+        $truncatedText = mb_substr($text, 0, 3000);
 
         $response = Http::timeout(360)->post("http://localhost:11434/api/generate", [
             'model' => 'llama3.2:1b',

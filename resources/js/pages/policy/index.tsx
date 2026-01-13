@@ -58,11 +58,11 @@ export default function Policy({ policies = [], query = "" }: PolicyProps) {
     return (
         <TemplateLayout>
             <Head title="SP / Polis" />
-            
+
             <div className="container-fluid">
                 <div className="row page-titles mx-0">
                     <div className="col-6 p-md-0">
-                        <h3 className="text-primary d-inline" data-i18n="case">SP / Polis</h3> 
+                        <h3 className="text-primary d-inline" data-i18n="case">SP / Polis</h3>
                     </div>
                     <div className="col-6 p-md-0 justify-content-end mt-2 d-flex">
                         <ol className="breadcrumb">
@@ -71,7 +71,7 @@ export default function Policy({ policies = [], query = "" }: PolicyProps) {
                         </ol>
                     </div>
                 </div>
-                
+
                 <div className="row">
                     <div className="col-md-12">
                         <div className="card">
@@ -79,10 +79,10 @@ export default function Policy({ policies = [], query = "" }: PolicyProps) {
                                 <Form onSubmit={handleSearch}>
                                     <InputGroup className="row card-title toolbar form-inline mb-4">
                                         <h4 className="col-md-2 col-6" data-i18n="case-list">Daftar SP / Polis</h4>
-                                        <button 
-                                            type="button" 
+                                        <button
+                                            type="button"
                                             onClick={handleCreateNew}
-                                            id="createCase" 
+                                            id="createCase"
                                             className="col-md-2 col-6 btn btn-primary"
                                         >
                                             <i className="fa fa-file"></i> <span data-i18n="new-case">SP / Polis Baru</span>
@@ -90,10 +90,10 @@ export default function Policy({ policies = [], query = "" }: PolicyProps) {
                                         <p className="col-md-1 hidden-sm-down">&#8194;</p>
                                         <InputGroup.Text className="col-3">Nasabah / No. Polis / No. SP : </InputGroup.Text>
                                         <Form.Control
-                                            type="text" 
-                                            name="q" 
-                                            id="case-query" 
-                                            className="col-8 col-md-5" 
+                                            type="text"
+                                            name="q"
+                                            id="case-query"
+                                            className="col-8 col-md-5"
                                             value={searchQuery}
                                             onChange={(e) => setSearchQuery(e.target.value)}
                                         />
@@ -124,14 +124,14 @@ export default function Policy({ policies = [], query = "" }: PolicyProps) {
                                                 policies.map((policy) => (
                                                     <tr key={policy["id"]}>
                                                         <td>
-                                                            <button 
+                                                            <button
                                                                 onClick={() => handleUpload(policy["id"])}
                                                                 className="btn btn-sm btn-primary me-1"
                                                                 title="Upload"
                                                             >
                                                                 <i className="la la-upload"></i>
                                                             </button>
-                                                            <button 
+                                                            <button
                                                                 onClick={() => handleDelete(policy["id"])}
                                                                 className="btn btn-sm btn-danger"
                                                                 title="Delete"

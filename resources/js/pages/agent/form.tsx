@@ -61,10 +61,10 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
         programs: [
             {
                 program_start: new Date(),
-                position: '', 
-                agent_leader_id: '', 
-                program_id: null, 
-                allowance: null 
+                position: '',
+                agent_leader_id: '',
+                program_id: null,
+                allowance: null
             }
         ]
     });
@@ -80,13 +80,13 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
     // Helper to add program row
     const addProgram = () => {
         setData('programs', [
-            ...data.programs, 
+            ...data.programs,
             {
                 program_start: new Date(),
-                position: '', 
-                agent_leader_id: '', 
-                program_id: null, 
-                allowance: null 
+                position: '',
+                agent_leader_id: '',
+                program_id: null,
+                allowance: null
             }
         ]);
     };
@@ -136,14 +136,14 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                 <Accordion.Header as="h4">
                                     Data Pribadi
                                 </Accordion.Header>
-                                
+
                                 <Accordion.Body>
                                     <div className="row form-group mb-3">
                                         <label className="col-sm-3 col-form-label" data-i18n="name-as-id">Nama sesuai KTP</label>
                                         <div className="col-sm-9">
-                                            <input 
-                                                type="text" 
-                                                className="form-control" 
+                                            <input
+                                                type="text"
+                                                className="form-control"
                                                 value={data.name}
                                                 onChange={e => setData('name', e.target.value)}
                                                 data-i18n="[placeholder]agent_name_inst"
@@ -154,8 +154,8 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                     <div className="row form-group mb-3">
                                         <label className="col-sm-3 col-form-label" data-i18n="gender">Jenis Kelamin</label>
                                         <div className="col-sm-9">
-                                            <select 
-                                                className="form-control" 
+                                            <select
+                                                className="form-control"
                                                 value={data.gender}
                                                 onChange={e => setData('gender', e.target.value === '' ? '' : parseInt(e.target.value, 10))}
                                             >
@@ -168,14 +168,14 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                     <div className="row form-group mb-3">
                                         <label className="col-sm-3 col-form-label" data-i18n="place_date_birth">Tempat dan Tanggal Lahir</label>
                                         <div className="col-sm-9 d-flex gap-2">
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 className="form-control flex-grow-1"
                                                 value={data.birth_place}
                                                 onChange={e => setData('birth_place', e.target.value)}
                                             />
-                                            <input 
-                                                type="date" 
+                                            <input
+                                                type="date"
                                                 className="form-control"
                                                 style={{ width: 'auto' }}
                                                 value={data.birth_date.toLocaleString('id-ID')}
@@ -187,8 +187,8 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                     <div className="row form-group mb-3">
                                         <label className="col-sm-3 col-form-label" data-i18n="address">Alamat</label>
                                         <div className="col-sm-9">
-                                            <textarea 
-                                                rows={2} 
+                                            <textarea
+                                                rows={2}
                                                 className="form-control"
                                                 value={data.address}
                                                 onChange={e => setData('address', e.target.value)}
@@ -199,8 +199,8 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                     <div className="row form-group mb-3">
                                         <label className="col-sm-3 col-form-label" data-i18n="religion">Agama</label>
                                         <div className="col-sm-9">
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 className="form-control"
                                                 value={data.religion}
                                                 onChange={e => setData('religion', e.target.value)}
@@ -211,8 +211,8 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                     <div className="row form-group mb-3">
                                         <label className="col-sm-3 col-form-label" data-i18n="id-number">No. KTP</label>
                                         <div className="col-sm-9">
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 className="form-control"
                                                 value={data.identity_number}
                                                 onChange={e => setData('identity_number', e.target.value)}
@@ -223,8 +223,8 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                     <div className="row form-group mb-3">
                                         <label className="col-sm-3 col-form-label" data-i18n="tax-number">NPWP</label>
                                         <div className="col-sm-9">
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 className="form-control"
                                                 value={data.tax_number}
                                                 onChange={e => setData('tax_number', e.target.value)}
@@ -235,8 +235,8 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                     <div className="row form-group mb-3">
                                         <label className="col-sm-3 col-form-label" data-i18n="marketing-city">Kota Marketing</label>
                                         <div className="col-sm-9">
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 className="form-control"
                                                 value={data.city}
                                                 onChange={e => setData('city', e.target.value)}
@@ -247,8 +247,8 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                     <div className="row form-group mb-3">
                                         <label className="col-sm-3 col-form-label" data-i18n="province">Provinsi</label>
                                         <div className="col-sm-9">
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 className="form-control"
                                                 value={data.province}
                                                 onChange={e => setData('province', e.target.value)}
@@ -259,8 +259,8 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                     <div className="row form-group mb-3">
                                         <label className="col-sm-3 col-form-label" data-i18n="postal-code">Kode Pos</label>
                                         <div className="col-sm-9">
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 className="form-control"
                                                 value={data.postal_code}
                                                 onChange={e => setData('postal_code', e.target.value)}
@@ -271,8 +271,8 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                     <div className="row form-group mb-3">
                                         <label className="col-sm-3 col-form-label" data-i18n="last-education">Pendidikan Terakhir</label>
                                         <div className="col-sm-9">
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 className="form-control"
                                                 value={data.education}
                                                 onChange={e => setData('education', e.target.value)}
@@ -283,8 +283,8 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                     <div className="row form-group mb-3">
                                         <label className="col-sm-3 col-form-label" data-i18n="phone-number">Nomor Telfon</label>
                                         <div className="col-sm-9">
-                                            <input 
-                                                type="tel" 
+                                            <input
+                                                type="tel"
                                                 className="form-control"
                                                 value={data.phone}
                                                 onChange={e => setData('phone', e.target.value)}
@@ -295,8 +295,8 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                     <div className="row form-group mb-3">
                                         <label className="col-sm-3 col-form-label" data-i18n="mobile-number">Nomor Ponsel</label>
                                         <div className="col-sm-9">
-                                            <input 
-                                                type="tel" 
+                                            <input
+                                                type="tel"
                                                 className="form-control"
                                                 value={data.mobile}
                                                 onChange={e => setData('mobile', e.target.value)}
@@ -307,8 +307,8 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                     <div className="row form-group mb-3">
                                         <label className="col-sm-3 col-form-label" data-i18n="email-address">Alamat e-Mail</label>
                                         <div className="col-sm-9">
-                                            <input 
-                                                type="email" 
+                                            <input
+                                                type="email"
                                                 className="form-control"
                                                 value={data.email}
                                                 onChange={e => setData('email', e.target.value)}
@@ -319,8 +319,8 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                     <div className="row form-group mb-3">
                                         <label className="col-sm-3 col-form-label" data-i18n="status">Status</label>
                                         <div className="col-sm-9">
-                                            <select 
-                                                className="form-control" 
+                                            <select
+                                                className="form-control"
                                                 value={data.status}
                                                 onChange={e => setData('status', e.target.value === '' ? '' : parseInt(e.target.value, 10))}
                                             >
@@ -333,9 +333,9 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                     <div className="row form-group mb-3">
                                         <label className="col-sm-3 col-form-label" data-i18n="spouse-name">Nama Suami / Isteri</label>
                                         <div className="col-sm-9">
-                                            <input 
-                                                type="text" 
-                                                className="form-control" 
+                                            <input
+                                                type="text"
+                                                className="form-control"
                                                 placeholder="Diisi bila menikah"
                                                 value={data.spouse}
                                                 onChange={e => setData('spouse', e.target.value)}
@@ -346,8 +346,8 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                     <div className="row form-group mb-3">
                                         <label className="col-sm-3 col-form-label" data-i18n="occupation">Pekerjaan</label>
                                         <div className="col-sm-9">
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 className="form-control"
                                                 value={data.occupation}
                                                 onChange={e => setData('occupation', e.target.value)}
@@ -359,8 +359,8 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                         <label className="col-sm-3 col-form-label" data-i18n="number-dependents">Jumlah Tanggungan</label>
                                         <div className="col-sm-9">
                                             <div className="input-group">
-                                                <input 
-                                                    type="number" 
+                                                <input
+                                                    type="number"
                                                     className="form-control"
                                                     value={data.dependents}
                                                     onChange={e => setData('dependents', e.target.value === '' ? '' : Number(e.target.value))}
@@ -373,8 +373,8 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                     <div className="row form-group mb-3">
                                         <label className="col-sm-3 col-form-label" data-i18n="notes">Catatan</label>
                                         <div className="col-sm-9">
-                                            <textarea 
-                                                rows={2} 
+                                            <textarea
+                                                rows={2}
                                                 className="form-control"
                                                 value={data.notes}
                                                 onChange={e => setData('notes', e.target.value)}
@@ -392,8 +392,8 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                     <div className="row form-group mb-3">
                                         <label className="col-sm-3 col-form-label" data-i18n="apply-date">Tanggal Pengisian</label>
                                         <div className="col-sm-9">
-                                            <input 
-                                                type="date" 
+                                            <input
+                                                type="date"
                                                 className="form-control"
                                                 value={data.apply_date.toISOString().split('T')[0]}
                                                 onChange={e => setData('apply_date', new Date(e.target.value))}
@@ -403,8 +403,8 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                     <div className="row form-group mb-3">
                                         <label className="col-sm-3 col-form-label" data-i18n="apply-place">Tempat Pengisian</label>
                                         <div className="col-sm-9">
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 className="form-control"
                                                 value={data.apply_place}
                                                 onChange={e => setData('apply_place', e.target.value)}
@@ -414,7 +414,7 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                     <div className="row form-group mb-3">
                                         <label className="col-sm-3 col-form-label" data-i18n="apply-agency">Agency / Regional</label>
                                         <div className="col-sm-9">
-                                            <select 
+                                            <select
                                                 className="form-control"
                                                 value={data.agency_id}
                                                 onChange={e => setData('agency_id', e.target.value === '' ? '' : parseInt(e.target.value, 10))}
@@ -431,9 +431,9 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                     <div className="row form-group mb-3">
                                         <label className="col-sm-3 col-form-label" data-i18n="official_number">Kode Agen</label>
                                         <div className="col-sm-9">
-                                            <input 
-                                                type="text" 
-                                                className="form-control" 
+                                            <input
+                                                type="text"
+                                                className="form-control"
                                                 value={data.official_number}
                                                 onChange={e => setData('official_number', e.target.value)}
                                                 data-i18n="[placeholder]agent_code_inst"
@@ -443,8 +443,8 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                     <div className="row form-group mb-3">
                                         <label className="col-sm-3 col-form-label" data-i18n="license">Nomor Lisensi</label>
                                         <div className="col-sm-9">
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 className="form-control"
                                                 value={data.license}
                                                 onChange={e => setData('license', e.target.value)}
@@ -454,8 +454,8 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                     <div className="row form-group mb-3">
                                         <label className="col-sm-3 col-form-label" data-i18n="payable-date">Jatuh Tempo</label>
                                         <div className="col-sm-9">
-                                            <input 
-                                                type="date" 
+                                            <input
+                                                type="date"
                                                 className="form-control"
                                                 value={data.due_date.toISOString().split('T')[0]}
                                                 onChange={e => setData('due_date', new Date(e.target.value))}
@@ -465,7 +465,7 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                     <div className="row form-group mb-3">
                                         <label className="col-sm-3 col-form-label" data-i18n="recruiter">Perekruit</label>
                                         <div className="col-sm-9">
-                                            <select 
+                                            <select
                                                 className="form-control"
                                                 value={data.recruiter_id}
                                                 onChange={e => setData('recruiter_id', e.target.value === '' ? '' : parseInt(e.target.value, 10))}
@@ -504,8 +504,8 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                                     {data.programs.map((program: z.infer<typeof agentProgramSchema>, idx: number) => (
                                                     <tr key={idx}>
                                                             <td>
-                                                                <input 
-                                                                    type="date" 
+                                                                <input
+                                                                    type="date"
                                                                     className="form-control form-control-sm"
                                                                     value={program.program_start.toISOString().split('T')[0]}
                                                                     onChange={e => {
@@ -516,7 +516,7 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                                                 />
                                                             </td>
                                                             <td>
-                                                                <select 
+                                                                <select
                                                                     className="form-control"
                                                                     value={program.position}
                                                                     onChange={e => {
@@ -532,9 +532,9 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                                                 </select>
                                                             </td>
                                                             <td>
-                                                                <select 
-                                                                    className="form-control" 
-                                                                    value={program.agent_leader_id} 
+                                                                <select
+                                                                    className="form-control"
+                                                                    value={program.agent_leader_id}
                                                                     onChange={e => {
                                                                         const newPrograms = [...data.programs];
                                                                         newPrograms[idx] = { ...newPrograms[idx], agent_leader_id: e.target.value === '' ? '' : parseInt(e.target.value, 10) };
@@ -548,9 +548,9 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                                                 </select>
                                                             </td>
                                                             <td>
-                                                                <select 
-                                                                    className="form-control" 
-                                                                    value={program.program_id ?? ''} 
+                                                                <select
+                                                                    className="form-control"
+                                                                    value={program.program_id ?? ''}
                                                                     onChange={e => {
                                                                         const newPrograms = [...data.programs];
                                                                         newPrograms[idx] = { ...newPrograms[idx], program_id: e.target.value === '' ? null : parseInt(e.target.value, 10) };
@@ -563,8 +563,8 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                                                 </select>
                                                             </td>
                                                             <td>
-                                                                <input 
-                                                                    type="number" 
+                                                                <input
+                                                                    type="number"
                                                                     className="form-control form-control-sm"
                                                                     value={program.allowance ?? ''}
                                                                     onChange={e => {
@@ -575,7 +575,7 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                                                 />
                                                             </td>
                                                             <td>
-                                                                <button 
+                                                                <button
                                                                     onClick={() => removeProgram(idx)}
                                                                     className="btn btn-sm btn-danger"
                                                                     title="Delete"

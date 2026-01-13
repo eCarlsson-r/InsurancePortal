@@ -173,7 +173,6 @@ export const policySchema = z.object({
 
 export const productSchema = z.object({
   id: z.number().int().optional(),
-  code: z.string(),
   name: z.string(),
   type: z.string(),
 });
@@ -207,6 +206,7 @@ export const programSchema = z.object({
   duration: z.number().int(),
   direct_calculation: z.number().int(),
   indirect_calculation: z.number().int(),
+  targets: z.array(z.lazy(() => programTargetSchema))
 });
 
 export const programTargetSchema = z.object({

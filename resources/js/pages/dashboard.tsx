@@ -1,15 +1,37 @@
 import TemplateLayout from '@/layouts/TemplateLayout';
 import { Head } from '@inertiajs/react';
-import { ProgressBar } from 'react-bootstrap';
-import PerfectScrollbar from 'react-perfect-scrollbar';
 
 export default function Dashboard() {
     return (
         <TemplateLayout>
             <Head title="Dashboard" />
-            
+
             <div className="container-fluid">
-                <div className="infobox-container"></div>
+                <div className="infobox-container">
+                    {/*
+                    var homeHTML = '<div class="row">';
+            response["empire-stats"].forEach(function(stats) {
+                var statsBox = '<div class="col-xl-3 col-xxl-3 col-lg-3 col-md-6 col-sm-6">';
+                statsBox += '<div class="widget-stat card"><div class="card-body"><div class="media ai-icon">';
+                statsBox += '<span class="mr-3"><h2 class="mb-0">'+stats["agent-no"]+'</h2></span>';
+                statsBox += '<div class="media-body"><p class="mb-1">agen mendapatkan</p>';
+                statsBox += '<h4 class="mb-0">'+stats["current-trip"]+'</h4>';
+                statsBox += '</div></div></div></div></div>';
+                homeHTML += statsBox;
+            });
+
+            response["mdrt-stats"].forEach(function(stats) {
+                var statsBox = '<div class="col-xl-4 col-xxl-4 col-lg-4 col-md-4 col-sm-4">';
+                statsBox += '<div class="widget-stat card"><div class="card-body"><div class="media ai-icon">';
+                statsBox += '<span class="mr-3"><h2 class="mb-0">'+stats["agent-no"]+'</h2></span>';
+                statsBox += '<div class="media-body"><p class="mb-1">agen mencapai</p>';
+                statsBox += '<h4 class="mb-0">'+stats["current-level"]+'</h4>';
+                statsBox += '</div></div></div></div></div>';
+                homeHTML += statsBox;
+            });
+            homeHTML += '</div>';
+                     */}
+                </div>
                 <div className="row">
                     <div className="col-xl-6 col-xxl-6 col-lg-6">
                         <div className="card">

@@ -33,6 +33,17 @@ export const menuItems: MenuItem[] = [
                 title: 'Agent',
                 type: 'link',
                 href: '/master/agent'
+            },
+            {
+                title: 'Program',
+                type: 'link',
+                href: '/master/program'
+            },
+            ,
+            {
+                title: 'Product',
+                type: 'link',
+                href: '/master/product'
             }
         ]
     }

@@ -5,6 +5,8 @@ use Inertia\Inertia;
 use Laravel\Fortify\Features;
 use App\Http\Controllers\PolicyController;
 use App\Http\Controllers\AgentController;
+use App\Http\Controllers\ProgramController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Cache;
 
 Route::get('/', function () {
@@ -23,6 +25,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('agent', [AgentController::class, 'index'])->name('agent.index');
         Route::get('agent/create', [AgentController::class, 'create'])->name('agent.create');
         Route::get('agent/{agent}/edit', [AgentController::class, 'edit'])->name('agent.edit');
+        Route::get('program', [ProgramController::class, 'index'])->name('program.index');
+        Route::get('program/create', [ProgramController::class, 'create'])->name('program.create');
+        Route::get('program/{program}/edit', [ProgramController::class, 'edit'])->name('program.edit');
+        Route::get('product', [ProductController::class, 'index'])->name('product.index');
     });
 
     Route::prefix('sales')->name('sales.')->group(function () {
@@ -34,7 +40,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/extraction-status/{id}', function ($id) {
         $status = Cache::get("extraction_status_{$id}", 'Initializing...');
-        
+
         // Determine progress percentage for the UI
         if (str_contains($status, '(')) {
             $percentage = explode('(', $status)[1];
@@ -45,7 +51,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         } else {
             $percentage = 0;
         }
-        
+
         return response()->json([
             'status' => $status,
             'percentage' => $percentage,
