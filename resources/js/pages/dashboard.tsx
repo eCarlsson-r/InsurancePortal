@@ -40,7 +40,10 @@ export default function Dashboard() {
                             </div>
                             <div className="card-body">
                                 <div className="table-responsive">
-                                    <table id="table-summaryEmpire" className="table vertical-middle table-responsive-md">
+                                    <table
+                                        id="table-summaryEmpire"
+                                        className="table vertical-middle table-responsive-md"
+                                    >
                                         <thead>
                                             <tr>
                                                 <th scope="col">Agent</th>
@@ -65,7 +68,10 @@ export default function Dashboard() {
                             </div>
                             <div className="card-body">
                                 <div className="table-responsive">
-                                    <table id="table-summaryMDRT" className="table verticle-middle table-responsive-md">
+                                    <table
+                                        id="table-summaryMDRT"
+                                        className="table verticle-middle table-responsive-md"
+                                    >
                                         <thead>
                                             <tr>
                                                 <th scope="col">Agent</th>
@@ -85,4 +91,3 @@ export default function Dashboard() {
         </TemplateLayout>
     );
 }
-

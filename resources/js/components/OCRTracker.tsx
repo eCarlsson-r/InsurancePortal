@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { ProgressBar } from 'react-bootstrap';
 
 interface ProgressData {
@@ -7,11 +7,17 @@ interface ProgressData {
     is_finished: boolean;
 }
 
-const OCRTracker = ({ ocrId, onFinish }: { 
-    ocrId: string, 
-    onFinish: () => void
+const OCRTracker = ({
+    ocrId,
+    onFinish,
+}: {
+    ocrId: string;
+    onFinish: () => void;
 }) => {
-    const [progress, setProgress] = useState({ status: 'initializing...', percentage: 0 });
+    const [progress, setProgress] = useState({
+        status: 'initializing...',
+        percentage: 0,
+    });
 
     useEffect(() => {
         if (!ocrId) return;
@@ -24,7 +30,8 @@ const OCRTracker = ({ ocrId, onFinish }: {
 
                 setProgress({
                     status: result.status,
-                    percentage: result.percentage || (result.is_finished ? 100 : 0)
+                    percentage:
+                        result.percentage || (result.is_finished ? 100 : 0),
                 });
 
                 if (result.is_finished || result.status === 'completed') {
@@ -32,7 +39,7 @@ const OCRTracker = ({ ocrId, onFinish }: {
                     if (onFinish) onFinish();
                 }
             } catch (e) {
-                console.error("Tracker polling failed", e);
+                console.error('Tracker polling failed', e);
             }
         }, 3000);
 
@@ -42,10 +49,17 @@ const OCRTracker = ({ ocrId, onFinish }: {
     return (
         <div className="p-4 border rounded shadow-sm bg-white">
             <div className="d-flex justify-content-between mb-2">
-                <small className="text-primary font-weight-bold text-uppercase">{progress.status}</small>
+                <small className="text-primary font-weight-bold text-uppercase">
+                    {progress.status}
+                </small>
                 <small>{progress.percentage}%</small>
             </div>
-            <ProgressBar variant="primary" animated now={progress.percentage} style={{height: '10px'}} />
+            <ProgressBar
+                variant="primary"
+                animated
+                now={progress.percentage}
+                style={{ height: '10px' }}
+            />
         </div>
     );
 };

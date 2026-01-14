@@ -16,8 +16,8 @@ export const menuItems: MenuItem[] = [
                 title: 'Cases / Policies',
                 type: 'link',
                 href: '/sales/policy',
-            }
-        ]
+            },
+        ],
     },
     {
         title: 'Master',
@@ -27,24 +27,24 @@ export const menuItems: MenuItem[] = [
             {
                 title: 'Agency',
                 type: 'link',
-                href: '/master/agency'
+                href: '/master/agency',
             },
             {
                 title: 'Agent',
                 type: 'link',
-                href: '/master/agent'
+                href: '/master/agent',
             },
             {
                 title: 'Program',
                 type: 'link',
-                href: '/master/program'
+                href: '/master/program',
             },
             ,
             {
                 title: 'Product',
                 type: 'link',
-                href: '/master/product'
-            }
-        ]
-    }
+                href: '/master/product',
+            },
+        ],
+    },
 ];

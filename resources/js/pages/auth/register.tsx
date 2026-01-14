@@ -1,10 +1,10 @@
+import InputError from '@/components/input-error';
 import { login } from '@/wayfinder/routes';
 import { store } from '@/wayfinder/routes/register';
 import { Form, Head, Link } from '@inertiajs/react';
 import { Button, Spinner } from 'react-bootstrap';
-import InputError from '@/components/input-error';
 
-export default function Register() {    
+export default function Register() {
     return (
         <div className="authincation vh-100">
             <Head title="Register" />
@@ -15,17 +15,29 @@ export default function Register() {
                             <div className="row no-gutters">
                                 <div className="col-xl-12">
                                     <div className="auth-form">
-                                        <h4 className="text-center mb-4">Sign up your account</h4>
-                                        
+                                        <h4 className="text-center mb-4">
+                                            Sign up your account
+                                        </h4>
+
                                         <Form
                                             {...store.form()}
-                                            resetOnSuccess={['password', 'password_confirmation']}
+                                            resetOnSuccess={[
+                                                'password',
+                                                'password_confirmation',
+                                            ]}
                                             disableWhileProcessing
                                         >
                                             {({ processing, errors }) => (
                                                 <>
                                                     <div className="form-group mb-3">
-                                                        <label htmlFor="name" className="mb-1"><strong>Username</strong></label>
+                                                        <label
+                                                            htmlFor="name"
+                                                            className="mb-1"
+                                                        >
+                                                            <strong>
+                                                                Username
+                                                            </strong>
+                                                        </label>
                                                         <input
                                                             id="name"
                                                             type="text"
@@ -37,11 +49,22 @@ export default function Register() {
                                                             name="name"
                                                             placeholder="Full name"
                                                         />
-                                                        <InputError message={errors.name} />
+                                                        <InputError
+                                                            message={
+                                                                errors.name
+                                                            }
+                                                        />
                                                     </div>
 
                                                     <div className="form-group mb-3">
-                                                        <label htmlFor="email" className="mb-1"><strong>Email</strong></label>
+                                                        <label
+                                                            htmlFor="email"
+                                                            className="mb-1"
+                                                        >
+                                                            <strong>
+                                                                Email
+                                                            </strong>
+                                                        </label>
                                                         <input
                                                             id="email"
                                                             type="email"
@@ -52,11 +75,22 @@ export default function Register() {
                                                             name="email"
                                                             placeholder="hello@example.com"
                                                         />
-                                                        <InputError message={errors.email} />
+                                                        <InputError
+                                                            message={
+                                                                errors.email
+                                                            }
+                                                        />
                                                     </div>
 
                                                     <div className="form-group mb-3">
-                                                        <label htmlFor="password" className="mb-1"><strong>Password</strong></label>
+                                                        <label
+                                                            htmlFor="password"
+                                                            className="mb-1"
+                                                        >
+                                                            <strong>
+                                                                Password
+                                                            </strong>
+                                                        </label>
                                                         <input
                                                             id="password"
                                                             type="password"
@@ -67,11 +101,22 @@ export default function Register() {
                                                             name="password"
                                                             placeholder="Password"
                                                         />
-                                                        <InputError message={errors.password} />
+                                                        <InputError
+                                                            message={
+                                                                errors.password
+                                                            }
+                                                        />
                                                     </div>
 
                                                     <div className="form-group mb-4">
-                                                        <label htmlFor="password_confirmation" className="mb-1"><strong>Confirm Password</strong></label>
+                                                        <label
+                                                            htmlFor="password_confirmation"
+                                                            className="mb-1"
+                                                        >
+                                                            <strong>
+                                                                Confirm Password
+                                                            </strong>
+                                                        </label>
                                                         <input
                                                             id="password_confirmation"
                                                             type="password"
@@ -82,7 +127,11 @@ export default function Register() {
                                                             name="password_confirmation"
                                                             placeholder="Confirm password"
                                                         />
-                                                        <InputError message={errors.password_confirmation} />
+                                                        <InputError
+                                                            message={
+                                                                errors.password_confirmation
+                                                            }
+                                                        />
                                                     </div>
 
                                                     <div className="text-center">
@@ -90,9 +139,13 @@ export default function Register() {
                                                             type="submit"
                                                             className="btn btn-primary btn-block"
                                                             tabIndex={5}
-                                                            disabled={processing}
+                                                            disabled={
+                                                                processing
+                                                            }
                                                         >
-                                                            {processing && <Spinner className="mr-2" />}
+                                                            {processing && (
+                                                                <Spinner className="mr-2" />
+                                                            )}
                                                             Sign me up
                                                         </Button>
                                                     </div>
@@ -101,7 +154,15 @@ export default function Register() {
                                         </Form>
 
                                         <div className="new-account mt-3 text-center">
-                                            <p>Already have an account? <Link href={login()} className="text-primary">Sign in</Link></p>
+                                            <p>
+                                                Already have an account?{' '}
+                                                <Link
+                                                    href={login()}
+                                                    className="text-primary"
+                                                >
+                                                    Sign in
+                                                </Link>
+                                            </p>
                                         </div>
                                     </div>
                                 </div>

@@ -1,10 +1,9 @@
 import InputError from '@/components/input-error';
-import { Button, Spinner } from 'react-bootstrap';
 import { register } from '@/wayfinder/routes';
 import { store } from '@/wayfinder/routes/login';
 import { request } from '@/wayfinder/routes/password';
 import { Form, Head, Link } from '@inertiajs/react';
-
+import { Button, Spinner } from 'react-bootstrap';
 
 interface LoginProps {
     status?: string;
@@ -27,8 +26,10 @@ export default function Login({
                             <div className="row no-gutters">
                                 <div className="col-xl-12">
                                     <div className="auth-form">
-                                        <h4 className="text-center mb-4">Sign in your account</h4>
-                                        
+                                        <h4 className="text-center mb-4">
+                                            Sign in your account
+                                        </h4>
+
                                         {status && (
                                             <div className="alert alert-success text-center mb-4">
                                                 {status}
@@ -42,7 +43,14 @@ export default function Login({
                                             {({ processing, errors }) => (
                                                 <>
                                                     <div className="form-group mb-3">
-                                                        <label htmlFor="email" className="mb-1"><strong>Email</strong></label>
+                                                        <label
+                                                            htmlFor="email"
+                                                            className="mb-1"
+                                                        >
+                                                            <strong>
+                                                                Email
+                                                            </strong>
+                                                        </label>
                                                         <input
                                                             id="email"
                                                             type="email"
@@ -54,11 +62,22 @@ export default function Login({
                                                             autoComplete="email"
                                                             placeholder="hello@example.com"
                                                         />
-                                                        <InputError message={errors.email} />
+                                                        <InputError
+                                                            message={
+                                                                errors.email
+                                                            }
+                                                        />
                                                     </div>
-                                                    
+
                                                     <div className="form-group mb-3">
-                                                        <label htmlFor="password" className="mb-1"><strong>Password</strong></label>
+                                                        <label
+                                                            htmlFor="password"
+                                                            className="mb-1"
+                                                        >
+                                                            <strong>
+                                                                Password
+                                                            </strong>
+                                                        </label>
                                                         <input
                                                             id="password"
                                                             type="password"
@@ -69,7 +88,11 @@ export default function Login({
                                                             autoComplete="current-password"
                                                             placeholder="Password"
                                                         />
-                                                        <InputError message={errors.password} />
+                                                        <InputError
+                                                            message={
+                                                                errors.password
+                                                            }
+                                                        />
                                                     </div>
 
                                                     <div className="form-row d-flex justify-content-between mt-4 mb-2">
@@ -82,13 +105,23 @@ export default function Login({
                                                                     className="custom-control-input"
                                                                     tabIndex={3}
                                                                 />
-                                                                <label className="custom-control-label" htmlFor="remember">Remember me</label>
+                                                                <label
+                                                                    className="custom-control-label"
+                                                                    htmlFor="remember"
+                                                                >
+                                                                    Remember me
+                                                                </label>
                                                             </div>
                                                         </div>
                                                         <div className="form-group">
                                                             {canResetPassword && (
-                                                                <Link href={request()} className="text-primary" tabIndex={5}>
-                                                                    Forgot Password?
+                                                                <Link
+                                                                    href={request()}
+                                                                    className="text-primary"
+                                                                    tabIndex={5}
+                                                                >
+                                                                    Forgot
+                                                                    Password?
                                                                 </Link>
                                                             )}
                                                         </div>
@@ -99,9 +132,13 @@ export default function Login({
                                                             type="submit"
                                                             className="btn btn-primary btn-block"
                                                             tabIndex={4}
-                                                            disabled={processing}
+                                                            disabled={
+                                                                processing
+                                                            }
                                                         >
-                                                            {processing && <Spinner className="mr-2" />}
+                                                            {processing && (
+                                                                <Spinner className="mr-2" />
+                                                            )}
                                                             Sign me in
                                                         </Button>
                                                     </div>
@@ -111,7 +148,15 @@ export default function Login({
 
                                         {canRegister && (
                                             <div className="new-account mt-3 text-center">
-                                                <p>Don't have an account? <Link href={register()} className="text-primary">Sign up</Link></p>
+                                                <p>
+                                                    Don't have an account?{' '}
+                                                    <Link
+                                                        href={register()}
+                                                        className="text-primary"
+                                                    >
+                                                        Sign up
+                                                    </Link>
+                                                </p>
                                             </div>
                                         )}
                                     </div>

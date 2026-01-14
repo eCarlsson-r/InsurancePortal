@@ -1,6 +1,6 @@
-declare module "@svg-maps/usa";
-declare module "react-slick";
-declare module "react-circular-progressbar";
+declare module '@svg-maps/usa';
+declare module 'react-slick';
+declare module 'react-circular-progressbar';
 
 // jQuery declarations for Bootstrap modals
 declare global {
@@ -22,4 +22,3 @@ declare global {
 }
 
 export {};
-
