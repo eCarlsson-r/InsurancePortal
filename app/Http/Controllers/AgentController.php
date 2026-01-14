@@ -19,7 +19,7 @@ class AgentController extends Controller
         $action = __FUNCTION__;
 
         return Inertia::render('agent/index', [
-            'agents' => Agent::all(),
+            'agents' => Agent::with('programs')->get(),
         ]);
     }
 

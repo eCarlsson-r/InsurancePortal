@@ -15,13 +15,15 @@ return new class extends Migration
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
             $table->foreignId('program_id')
+                ->nullable()
                 ->constrained('programs')
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
             $table->string('position', 6);
             $table->date('program_start');
-            $table->date('program_end');
+            $table->date('program_end')->nullable();
             $table->foreignId('agent_leader_id')
+                ->nullable()
                 ->constrained('agents')
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();

@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('agents', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('official_number');
-            $table->date('apply_date');
+            $table->date('apply_date')->nullable();
             $table->string('apply_place', 200);
             $table->unsignedBigInteger('agency_id');
             $table->string('name', 500);
@@ -33,8 +33,8 @@ return new class extends Migration
             $table->string('spouse', 1000);
             $table->string('occupation', 200);
             $table->unsignedTinyInteger('dependents')->default(0);
-            $table->string('license', 100);
-            $table->date('due_date');
+            $table->string('license', 100)->nullable();
+            $table->date('due_date')->nullable();
             $table->unsignedBigInteger('recruiter_id');
             $table->string('notes', 1000);
         });

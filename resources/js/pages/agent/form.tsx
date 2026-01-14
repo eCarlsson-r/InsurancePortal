@@ -4,15 +4,6 @@ import { Accordion } from "react-bootstrap";
 import { agentSchema, agencySchema, programSchema, agentProgramSchema } from "@/schemas/models";
 import { z } from "zod";
 
-type AgentProgramFormData = Omit<
-    z.infer<typeof agentProgramSchema>,
-    'program_id' | 'allowance' | 'agent_leader_id'
-> & {
-    program_id: number | '' | null | undefined;
-    allowance: number | '' | null | undefined;
-    agent_leader_id: number | '';
-};
-
 type AgentFormData = Omit<
     z.infer<typeof agentSchema>,
     'agency_id' | 'gender' | 'status' | 'dependents' | 'recruiter_id' | 'programs'
@@ -22,7 +13,7 @@ type AgentFormData = Omit<
     status: number | '';
     dependents: number | '';
     recruiter_id: number | '';
-    programs: AgentProgramFormData[];
+    programs: z.infer<typeof agentProgramSchema>[];
 };
 
 export default function AgentForm({ fileUrl, agent, agencies, programs, agents }: { fileUrl: string, agent?: z.infer<typeof agentSchema> | null, agencies: z.infer<typeof agencySchema>[], programs: z.infer<typeof programSchema>[], agents: z.infer<typeof agentSchema>[] }) {
@@ -30,15 +21,14 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
 
     // Initial form state with safe defaults
     const { data, setData, post, put, processing } = useForm<AgentFormData>(isEdit && agent ? agent : {
-        id: '',
         official_number: '',
-        apply_date: new Date(),
+        apply_date: '',
         apply_place: '',
         agency_id: '',
         name: '',
         gender: '',
         birth_place: '',
-        birth_date: new Date(),
+        birth_date: '',
         address: '',
         religion: '',
         identity_number: '',
@@ -55,14 +45,14 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
         occupation: '',
         dependents: '',
         license: '',
-        due_date: new Date(),
+        due_date: '',
         recruiter_id: '',
         notes: '',
         programs: [
             {
-                program_start: new Date(),
+                program_start: '',
                 position: '',
-                agent_leader_id: '',
+                agent_leader_id: null,
                 program_id: null,
                 allowance: null
             }
@@ -82,9 +72,9 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
         setData('programs', [
             ...data.programs,
             {
-                program_start: new Date(),
+                program_start: '',
                 position: '',
-                agent_leader_id: '',
+                agent_leader_id: null,
                 program_id: null,
                 allowance: null
             }
@@ -178,8 +168,8 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                                 type="date"
                                                 className="form-control"
                                                 style={{ width: 'auto' }}
-                                                value={data.birth_date.toLocaleString('id-ID')}
-                                                onChange={e => setData('birth_date', new Date(e.target.value))}
+                                                value={data.birth_date}
+                                                onChange={e => setData('birth_date', e.target.value)}
                                             />
                                         </div>
                                     </div>
@@ -395,8 +385,8 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                             <input
                                                 type="date"
                                                 className="form-control"
-                                                value={data.apply_date.toISOString().split('T')[0]}
-                                                onChange={e => setData('apply_date', new Date(e.target.value))}
+                                                value={data.apply_date}
+                                                onChange={e => setData('apply_date', e.target.value)}
                                             />
                                         </div>
                                     </div>
@@ -457,8 +447,8 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                             <input
                                                 type="date"
                                                 className="form-control"
-                                                value={data.due_date.toISOString().split('T')[0]}
-                                                onChange={e => setData('due_date', new Date(e.target.value))}
+                                                value={data.due_date}
+                                                onChange={e => setData('due_date', e.target.value)}
                                             />
                                         </div>
                                     </div>
@@ -501,89 +491,89 @@ export default function AgentForm({ fileUrl, agent, agencies, programs, agents }
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {data.programs.map((program: z.infer<typeof agentProgramSchema>, idx: number) => (
+                                                    {data.programs && data.programs.map((program: z.infer<typeof agentProgramSchema>, idx: number) => (
                                                     <tr key={idx}>
-                                                            <td>
-                                                                <input
-                                                                    type="date"
-                                                                    className="form-control form-control-sm"
-                                                                    value={program.program_start.toISOString().split('T')[0]}
-                                                                    onChange={e => {
-                                                                        const newPrograms = [...data.programs];
-                                                                        newPrograms[idx] = { ...newPrograms[idx], program_start: new Date(e.target.value) };
-                                                                        setData('programs', newPrograms);
-                                                                    }}
-                                                                />
-                                                            </td>
-                                                            <td>
-                                                                <select
-                                                                    className="form-control"
-                                                                    value={program.position}
-                                                                    onChange={e => {
-                                                                        const newPrograms = [...data.programs];
-                                                                        newPrograms[idx] = { ...newPrograms[idx], position: e.target.value };
-                                                                        setData('programs', newPrograms);
-                                                                    }}
-                                                                >
-                                                                    <option value="FC">Financial Consultant</option>
-                                                                    <option value="BP*">Business Partner Bintang 1</option>
-                                                                    <option value="BP**">Business Partner Bintang 2</option>
-                                                                    <option value="BP***">Business Partner Bintang 3</option>
-                                                                </select>
-                                                            </td>
-                                                            <td>
-                                                                <select
-                                                                    className="form-control"
-                                                                    value={program.agent_leader_id}
-                                                                    onChange={e => {
-                                                                        const newPrograms = [...data.programs];
-                                                                        newPrograms[idx] = { ...newPrograms[idx], agent_leader_id: e.target.value === '' ? '' : parseInt(e.target.value, 10) };
-                                                                        setData('programs', newPrograms);
-                                                                    }}
-                                                                >
-                                                                    <option value="">Select Leader</option>
-                                                                    {agents.map((agent: z.infer<typeof agentSchema>, idx: number) => (
-                                                                        <option key={idx} value={agent.id}>{agent.name}</option>
-                                                                    ))}
-                                                                </select>
-                                                            </td>
-                                                            <td>
-                                                                <select
-                                                                    className="form-control"
-                                                                    value={program.program_id ?? ''}
-                                                                    onChange={e => {
-                                                                        const newPrograms = [...data.programs];
-                                                                        newPrograms[idx] = { ...newPrograms[idx], program_id: e.target.value === '' ? null : parseInt(e.target.value, 10) };
-                                                                        setData('programs', newPrograms);
-                                                                    }}
-                                                                >
-                                                                    {programs.map((program: z.infer<typeof programSchema>, idx: number) => (
-                                                                        <option key={idx} value={program.id}>{program.name}</option>
-                                                                    ))}
-                                                                </select>
-                                                            </td>
-                                                            <td>
-                                                                <input
-                                                                    type="number"
-                                                                    className="form-control form-control-sm"
-                                                                    value={program.allowance ?? ''}
-                                                                    onChange={e => {
-                                                                        const newPrograms = [...data.programs];
-                                                                        newPrograms[idx] = { ...newPrograms[idx], allowance: e.target.value === '' ? null : parseInt(e.target.value, 10) };
-                                                                        setData('programs', newPrograms);
-                                                                    }}
-                                                                />
-                                                            </td>
-                                                            <td>
-                                                                <button
-                                                                    onClick={() => removeProgram(idx)}
-                                                                    className="btn btn-sm btn-danger"
-                                                                    title="Delete"
-                                                                >
-                                                                    <i className="la la-ban"></i>
-                                                                </button>
-                                                            </td>
-                                                        </tr>
+                                                        <td>
+                                                            <input
+                                                                type="date"
+                                                                className="form-control form-control-sm"
+                                                                value={program.program_start}
+                                                                onChange={e => {
+                                                                    const newPrograms = [...data.programs];
+                                                                    newPrograms[idx] = { ...newPrograms[idx], program_start: e.target.value };
+                                                                    setData('programs', newPrograms);
+                                                                }}
+                                                            />
+                                                        </td>
+                                                        <td>
+                                                            <select
+                                                                className="form-control"
+                                                                value={program.position}
+                                                                onChange={e => {
+                                                                    const newPrograms = [...data.programs];
+                                                                    newPrograms[idx] = { ...newPrograms[idx], position: e.target.value };
+                                                                    setData('programs', newPrograms);
+                                                                }}
+                                                            >
+                                                                <option value="FC">Financial Consultant</option>
+                                                                <option value="BP*">Business Partner Bintang 1</option>
+                                                                <option value="BP**">Business Partner Bintang 2</option>
+                                                                <option value="BP***">Business Partner Bintang 3</option>
+                                                            </select>
+                                                        </td>
+                                                        <td>
+                                                            <select
+                                                                className="form-control"
+                                                                value={program.agent_leader_id || ''}
+                                                                onChange={e => {
+                                                                    const newPrograms = [...data.programs];
+                                                                    newPrograms[idx] = { ...newPrograms[idx], agent_leader_id: parseInt(e.target.value, 10) };
+                                                                    setData('programs', newPrograms);
+                                                                }}
+                                                            >
+                                                                <option value="">Select Leader</option>
+                                                                {agents.map((agent: z.infer<typeof agentSchema>, idx: number) => (
+                                                                    <option key={idx} value={agent.id}>{agent.name}</option>
+                                                                ))}
+                                                            </select>
+                                                        </td>
+                                                        <td>
+                                                            <select
+                                                                className="form-control"
+                                                                value={program.program_id ?? ''}
+                                                                onChange={e => {
+                                                                    const newPrograms = [...data.programs];
+                                                                    newPrograms[idx] = { ...newPrograms[idx], program_id: parseInt(e.target.value, 10) };
+                                                                    setData('programs', newPrograms);
+                                                                }}
+                                                            >
+                                                                {programs.map((program: z.infer<typeof programSchema>, idx: number) => (
+                                                                    <option key={idx} value={program.id}>{program.name}</option>
+                                                                ))}
+                                                            </select>
+                                                        </td>
+                                                        <td>
+                                                            <input
+                                                                type="number"
+                                                                className="form-control form-control-sm"
+                                                                value={program.allowance ?? ''}
+                                                                onChange={e => {
+                                                                    const newPrograms = [...data.programs];
+                                                                    newPrograms[idx] = { ...newPrograms[idx], allowance: e.target.value === '' ? null : parseInt(e.target.value, 10) };
+                                                                    setData('programs', newPrograms);
+                                                                }}
+                                                            />
+                                                        </td>
+                                                        <td>
+                                                            <button
+                                                                onClick={() => removeProgram(idx)}
+                                                                className="btn btn-sm btn-danger"
+                                                                title="Delete"
+                                                            >
+                                                                <i className="la la-ban"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
                                                     ))}
                                                 </tbody>
                                             </table>

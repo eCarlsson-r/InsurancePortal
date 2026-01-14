@@ -1,6 +1,6 @@
 import TemplateLayout from "@/layouts/TemplateLayout";
 import { Table } from "react-bootstrap";
-import { Head } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import { agencySchema, agentSchema } from "@/schemas/models";
 import { z } from "zod";
 
@@ -10,6 +10,12 @@ interface AgencyProps {
 }
 
 export default function Agency({ agencies = [], agents = [] }: AgencyProps) {
+    const handleDelete = (agencyCode: string) => {
+        if (confirm('Are you sure you want to delete this agency?')) {
+            router.delete(`/master/agency/${agencyCode}`);
+        }
+    };
+
     return (
         <TemplateLayout>
             <Head title="Agency" />
@@ -53,7 +59,15 @@ export default function Agency({ agencies = [], agents = [] }: AgencyProps) {
                                                         <td>{agency.city}</td>
                                                         <td>{agency.director}</td>
                                                         <td>{agency.leader}</td>
-                                                        <td></td>
+                                                        <td>
+                                                            <button
+                                                                onClick={() => handleDelete(agency.id?.toString() || '')}
+                                                                className="btn btn-sm btn-danger"
+                                                                title="Delete"
+                                                            >
+                                                                <i className="la la-ban"></i>
+                                                            </button>
+                                                        </td>
                                                     </tr>
                                                 ))
                                             ) : (

@@ -1,7 +1,7 @@
 import TemplateLayout from "@/layouts/TemplateLayout";
 import { Table } from "react-bootstrap";
-import { Head } from "@inertiajs/react";
-import { productSchema } from "@/schemas/models";
+import { Head, router, useForm } from "@inertiajs/react";
+import { productCommissionSchema, productSchema } from "@/schemas/models";
 import { z } from "zod";
 import { useState } from "react";
 
@@ -11,6 +11,31 @@ interface ProductProps {
 
 export default function Product({ products = [] }: ProductProps) {
     const [product, setProduct] = useState<z.infer<typeof productSchema> | null>(null);
+
+    const isEdit = !!product;
+
+    // Initial form state with safe defaults
+    const { data, setData, post, put } = useForm<z.infer<typeof productSchema>>(isEdit && product ? product : {
+        name: '',
+        type: '',
+        commissions: [],
+        credits: []
+    });
+
+    const handleDelete = (productCode: string) => {
+        if (confirm('Are you sure you want to delete this product?')) {
+            router.delete(`/master/product/${productCode}`);
+        }
+    };
+
+    const handleSubmit = () => {
+        if (isEdit) {
+            put(`/master/product/${product.id}`);
+        } else {
+            post("/master/product");
+        }
+    };
+
     return (
         <TemplateLayout>
             <Head title="Product" />
@@ -38,7 +63,6 @@ export default function Product({ products = [] }: ProductProps) {
                                     <Table hover striped bordered>
                                         <thead>
                                         <tr>
-                                            <th className="col-xs-2" data-field="product-code">Kode Produk</th>
                                             <th className="col-xs-3" data-field="product-name">Nama Produk</th>
                                             <th className="col-xs-2" data-field="product-type" data-formatter="productTypeFormatter">Jenis Produk</th>
                                             <th className="col-xs-1" data-formatter="productActionFormatter" data-events="productActionHandler"></th>
@@ -49,7 +73,6 @@ export default function Product({ products = [] }: ProductProps) {
                                                 products.length > 0 ? (
                                                     products.map((product) => (
                                                         <tr key={product.id} onClick={() => setProduct(product)}>
-                                                            <td>{product.id}</td>
                                                             <td>{product.name}</td>
                                                             <td>
                                                                 {(() => {
@@ -68,6 +91,15 @@ export default function Product({ products = [] }: ProductProps) {
                                                                             return 'Unknown';
                                                                     }
                                                                 })()}
+                                                            </td>
+                                                            <td>
+                                                                <button
+                                                                    onClick={() => handleDelete(product.id?.toString() || '')}
+                                                                    className="btn btn-sm btn-danger"
+                                                                    title="Delete"
+                                                                >
+                                                                    <i className="la la-ban"></i>
+                                                                </button>
                                                             </td>
                                                         </tr>
                                                     ))
@@ -95,26 +127,20 @@ export default function Product({ products = [] }: ProductProps) {
                                             <h6 data-i18n="edit-product-inst">Masukkan informasi komisi yang diterima Agen.</h6>
                                         </div>
                                         <div className="col-md-3 col-sm-2 col-4">
-                                            <button className="btn btn-primary pull-right" id="product-submit" data-i18n="submit-btn">Perbarui</button>
+                                            <button className="btn btn-primary pull-right" onClick={handleSubmit} data-i18n="submit-btn">Perbarui</button>
                                         </div>
                                     </div>
                                     <div className="basic-form">
                                         <div className="row form-group">
-                                            <label className="col-sm-3" data-i18n="product-code">Kode Produk</label>
+                                            <label className="col-sm-3">Nama Produk</label>
                                             <div className="col-sm-9">
-                                                {product ? <input type="text" className="form-control" value={product?.id}/> : <input type="text" className="form-control"/>}
-                                            </div>
-                                        </div>
-                                        <div className="row form-group">
-                                            <label className="col-sm-3" htmlFor="product-name" data-i18n="product-name">Nama Produk</label>
-                                            <div className="col-sm-9">
-                                                {product ? <input type="text" className="form-control" value={product?.name}/> : <input type="text" className="form-control"/>}
+                                                <input type="text" className="form-control" value={data.name || ''} onChange={e => setData('name', e.target.value)}/>
                                             </div>
                                         </div>
                                         <div className="row form-group">
                                             <label className="col-sm-3" htmlFor="product-type" data-i18n="product-type">Jenis Produk</label>
                                             <div className="col-sm-9">
-                                                <select className="form-control selectpicker" value={product?.type}>
+                                                <select className="form-control selectpicker" value={data.type} onChange={e => setData('type', e.target.value)}>
                                                     <option value="1" data-i18n="term">Term</option>
                                                     <option value="2" data-i18n="whole-life">Whole Life</option>
                                                     <option value="3" data-i18n="endowment">Endowment</option>
@@ -126,13 +152,13 @@ export default function Product({ products = [] }: ProductProps) {
                                         <div className="row form-group">
                                             <label className="col-sm-3" htmlFor="producion-credit" data-i18n="production-credit">Rate Produksi</label>
                                             <div className="col-sm-9">
-                                                <input type="number" id="production-credit" min="0" max="100" value="100" className="form-control"/>
+                                                <input type="number" id="production-credit" min="0" max="100" value={(data.credits)?data.credits[0].production_credit:100} className="form-control"/>
                                             </div>
                                         </div>
                                         <div className="row form-group">
                                             <label className="col-sm-3" htmlFor="contest-credit" data-i18n="contest-credit">Rate Kontes</label>
                                             <div className="col-sm-9">
-                                                <input type="number" id="contest-credit" min="0" max="100" value="100" className="form-control"/>
+                                                <input type="number" id="contest-credit" min="0" max="100" value={(data.credits)?data.credits[0].contest_credit:100} className="form-control"/>
                                             </div>
                                         </div>
 
@@ -146,14 +172,63 @@ export default function Product({ products = [] }: ProductProps) {
                                             </div>
                                         </div>
                                         <table id="table-prodcomm" data-toggle="table">
-                                            <thead>
-                                                <th data-field="payment-method" data-editable="true" data-editable-mode="inline" data-editable-type="select" data-editable-source="[{value:1,text:'Tahunan'},{value:2,text:'Semester'},{value:3,text:'Triwulan'},{value:4,text:'Bulanan'},{value:5,text:'Sekaligus'}]">Cara Bayar</th>
-                                                <th data-field="currency" data-editable="true" data-editable-mode="inline" data-editable-type="select" data-editable-source="[{value:1,text:'Rupiah'},{value:2,text:'Dollar'}]">Cara Bayar</th>
-                                                <th data-field="year" data-editable="true" data-editable-mode="inline">Tahun</th>
-                                                <th data-field="payment-period" data-editable="true" data-editable-mode="inline">Tahun</th>
-                                                <th data-field="commision-rate" data-editable="true" data-editable-mode="inline">Komisi (%)</th>
-                                            </thead>
-                                            <tbody></tbody>
+                                            <thead><tr>
+                                                <th>Cara Bayar</th>
+                                                <th>Cara Bayar</th>
+                                                <th>Tahun</th>
+                                                <th>Tahun</th>
+                                                <th>Komisi (%)</th>
+                                            </tr></thead>
+                                            <tbody>
+                                                {
+                                                    data.commissions && data.commissions.length > 0 ? (
+                                                        data.commissions.map((commission: z.infer<typeof productCommissionSchema>, index: number) => (
+                                                            <tr key={index}>
+                                                                <td>
+                                                                    {(() => {
+                                                                        switch (commission.payment_method) {
+                                                                            case 1:
+                                                                                return 'Tahunan';
+                                                                            case 2:
+                                                                                return 'Semester';
+                                                                            case 3:
+                                                                                return 'Triwulan';
+                                                                            case 4:
+                                                                                return 'Bulanan';
+                                                                            case 5:
+                                                                                return 'Sekaligus';
+                                                                            default:
+                                                                                return 'Unknown';
+                                                                        }
+                                                                    })()}
+                                                                </td>
+                                                                <td>
+                                                                    {(() => {
+                                                                        switch (commission.currency) {
+                                                                            case 1:
+                                                                                return 'Rupiah';
+                                                                            case 2:
+                                                                                return 'Dollar';
+                                                                            default:
+                                                                                return 'Unknown';
+                                                                        }
+                                                                    })()}
+                                                                </td>
+                                                                <td>{commission.year}</td>
+                                                                <td>{commission.payment_period}</td>
+                                                                <td>{commission.commission_rate}</td>
+                                                                <td>{commission.extra_commission}</td>
+                                                            </tr>
+                                                        ))
+                                                    ) : (
+                                                        <tr>
+                                                            <td colSpan={5} className="text-center text-muted py-4">
+                                                                No commissions found.
+                                                            </td>
+                                                        </tr>
+                                                    )
+                                                }
+                                            </tbody>
                                         </table>
                                     </div>
                                 </form>

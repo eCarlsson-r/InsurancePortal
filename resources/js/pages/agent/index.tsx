@@ -1,6 +1,6 @@
 import TemplateLayout from "@/layouts/TemplateLayout";
 import { Table } from "react-bootstrap";
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, router } from "@inertiajs/react";
 import { agentSchema } from "@/schemas/models";
 import { z } from "zod";
 
@@ -9,10 +9,16 @@ interface AgentProps {
 }
 
 export default function Agent({ agents = [] }: AgentProps) {
+    const handleDelete = (agentCode: string) => {
+        if (confirm('Are you sure you want to delete this agent?')) {
+            router.delete(`/master/agent/${agentCode}`);
+        }
+    };
+
     return (
         <TemplateLayout>
             <Head title="Agen" />
-            
+
             <div className="container-fluid">
                 <div className="row page-titles mx-0">
                     <div className="col-6 p-md-0">
@@ -51,17 +57,24 @@ export default function Agent({ agents = [] }: AgentProps) {
                                             {agents.length > 0 ? (
                                                 agents.map((agent) => (
                                                     <tr key={agent["id"]}>
-                                                        <td>
-                                                            <Link href={`/sales/agent/${agent.id}/edit`}>
-                                                                {agent.id}
-                                                            </Link>
-                                                        </td>
                                                         <td>{agent.official_number}</td>
                                                         <td>{agent.name}</td>
                                                         <td>{agent.programs[0].position}</td>
                                                         <td>{agent.email}</td>
-                                                        <td>{agent.birth_date.toLocaleString('id-ID')}</td>
+                                                        <td>{new Date(agent.birth_date).toDateString()}</td>
                                                         <td>{agent.mobile}</td>
+                                                        <td>
+                                                            <Link className="btn btn-sm btn-primary me-1" href={`/master/agent/${agent.id}/edit`}>
+                                                                <i className="fa fa-edit"></i>
+                                                            </Link>
+                                                            <button
+                                                                onClick={() => handleDelete(agent.id?.toString() || "")}
+                                                                className="btn btn-sm btn-danger"
+                                                                title="Delete"
+                                                            >
+                                                                <i className="la la-ban"></i>
+                                                            </button>
+                                                        </td>
                                                     </tr>
                                                 ))
                                             ) : (

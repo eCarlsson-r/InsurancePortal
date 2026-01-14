@@ -48,22 +48,8 @@ class Agent extends Model
         'due_date' => 'date',
     ];
 
-    public function agentPrograms()
-    {
-        return $this->hasMany(AgentProgram::class);
-    }
-
     public function programs()
     {
-        return $this->belongsToMany(Program::class)
-            ->using(AgentProgram::class)
-            ->withPivot([
-                'position',
-                'program_start',
-                'program_end',
-                'agent_leader_id',
-                'allowance',
-            ])
-            ->withTimestamps();
+        return $this->hasMany(AgentProgram::class);
     }
 }

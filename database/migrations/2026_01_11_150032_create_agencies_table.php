@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('agencies', function (Blueprint $table) {
             $table->id();
+            $table->string('name', 50);
+            $table->string('city', 30);
+            $table->string('director', 200);
+            $table->integer('leader');
             $table->timestamps();
         });
     }

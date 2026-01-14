@@ -11,12 +11,12 @@ export const agencySchema = z.object({
 export const agentProgramSchema = z.object({
   id: z.number().int().optional(),
   agent_id: z.number().int().optional(),
-  program_id: z.number().int().optional(),
+  program_id: z.number().int().nullable(),
   position: z.string(),
-  program_start: z.coerce.date(),
+  program_start: z.string(),
   program_end: z.coerce.date().optional(),
-  agent_leader_id: z.number().int(),
-  allowance: z.number().int().optional(),
+  agent_leader_id: z.number().int().nullable(),
+  allowance: z.number().int().nullable(),
   created_at: z.coerce.date().optional(),
   updated_at: z.coerce.date().optional(),
 });
@@ -24,13 +24,13 @@ export const agentProgramSchema = z.object({
 export const agentSchema = z.object({
   id: z.number().int().optional(),
   official_number: z.string(),
-  apply_date: z.coerce.date(),
+  apply_date: z.string(),
   apply_place: z.string(),
   agency_id: z.number().int(),
   name: z.string(),
   gender: z.number().int(),
   birth_place: z.string(),
-  birth_date: z.coerce.date(),
+  birth_date: z.string(),
   address: z.string(),
   religion: z.string(),
   identity_number: z.string(),
@@ -47,7 +47,7 @@ export const agentSchema = z.object({
   occupation: z.string(),
   dependents: z.number().int(),
   license: z.string(),
-  due_date: z.coerce.date(),
+  due_date: z.string(),
   recruiter_id: z.number().int(),
   notes: z.string(),
   programs: z.array(agentProgramSchema),
@@ -57,8 +57,8 @@ export const contestSchema = z.object({
   id: z.number().int().optional(),
   name: z.string(),
   type: z.string(),
-  start: z.coerce.date(),
-  end: z.coerce.date(),
+  start: z.string(),
+  end: z.string(),
   product: z.string(),
   level: z.string(),
   minimum_commision: z.number().int(),
@@ -171,17 +171,11 @@ export const policySchema = z.object({
     }
 });
 
-export const productSchema = z.object({
-  id: z.number().int().optional(),
-  name: z.string(),
-  type: z.string(),
-});
-
 export const productCommissionSchema = z.object({
   id: z.number().int().optional(),
   product_id: z.number().int(),
   payment_method: z.number().int(),
-  currency: z.string(),
+  currency: z.number().int(),
   year: z.number().int(),
   payment_period: z.number().int(),
   commission_rate: z.number(),
@@ -195,6 +189,14 @@ export const productCreditSchema = z.object({
   contest_credit: z.number(),
   credit_start: z.coerce.date(),
   credit_end: z.coerce.date(),
+});
+
+export const productSchema = z.object({
+  id: z.number().int().optional(),
+  name: z.string(),
+  type: z.string(),
+  commissions: z.array(productCommissionSchema),
+  credits: z.array(productCreditSchema)
 });
 
 export const programSchema = z.object({
