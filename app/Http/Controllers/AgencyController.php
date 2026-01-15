@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Agency;
+use App\Models\Agency;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -16,7 +16,7 @@ class AgencyController extends Controller
 		$logoText = "images/logo-text.png";
 		$action = __FUNCTION__;
 
-        return Inertia::render('agency/index', [
+        return Inertia::render('agency', [
             'agency' => Agency::all(),
         ]);
     }

@@ -1,7 +1,6 @@
 import TemplateLayout from '@/layouts/TemplateLayout';
 import { productCommissionSchema, productSchema } from '@/schemas/models';
 import { Head, router, useForm } from '@inertiajs/react';
-import { useState } from 'react';
 import { Table } from 'react-bootstrap';
 import { z } from 'zod';
 
@@ -10,23 +9,17 @@ interface ProductProps {
 }
 
 export default function Product({ products = [] }: ProductProps) {
-    const [product, setProduct] = useState<z.infer<
-        typeof productSchema
-    > | null>(null);
-
-    const isEdit = !!product;
-
     // Initial form state with safe defaults
     const { data, setData, post, put } = useForm<z.infer<typeof productSchema>>(
-        isEdit && product
-            ? product
-            : {
-                  name: '',
-                  type: '',
-                  commissions: [],
-                  credits: [],
-              },
+        {
+            id: undefined,
+            name: '',
+            type: '',
+            commissions: [],
+            credits: [],
+        }
     );
+    const isEdit = !!data.id;
 
     const handleDelete = (productCode: string) => {
         if (confirm('Are you sure you want to delete this product?')) {
@@ -36,7 +29,7 @@ export default function Product({ products = [] }: ProductProps) {
 
     const handleSubmit = () => {
         if (isEdit) {
-            put(`/master/product/${product.id}`);
+            put(`/master/product/${data.id}`);
         } else {
             post('/master/product');
         }
@@ -114,7 +107,7 @@ export default function Product({ products = [] }: ProductProps) {
                                                     <tr
                                                         key={product.id}
                                                         onClick={() =>
-                                                            setProduct(product)
+                                                            setData(product)
                                                         }
                                                     >
                                                         <td>{product.name}</td>
@@ -280,7 +273,7 @@ export default function Product({ products = [] }: ProductProps) {
                                                     min="0"
                                                     max="100"
                                                     value={
-                                                        data.credits
+                                                        data.credits.length > 0
                                                             ? data.credits[0]
                                                                   .production_credit
                                                             : 100
@@ -304,7 +297,7 @@ export default function Product({ products = [] }: ProductProps) {
                                                     min="0"
                                                     max="100"
                                                     value={
-                                                        data.credits
+                                                        data.credits.length > 0
                                                             ? data.credits[0]
                                                                   .contest_credit
                                                             : 100
@@ -331,10 +324,7 @@ export default function Product({ products = [] }: ProductProps) {
                                                 </button>
                                             </div>
                                         </div>
-                                        <table
-                                            id="table-prodcomm"
-                                            data-toggle="table"
-                                        >
+                                        <Table striped bordered>
                                             <thead>
                                                 <tr>
                                                     <th>Cara Bayar</th>
@@ -342,6 +332,7 @@ export default function Product({ products = [] }: ProductProps) {
                                                     <th>Tahun</th>
                                                     <th>Tahun</th>
                                                     <th>Komisi (%)</th>
+                                                    <th>Extra Komisi (%)</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -364,11 +355,11 @@ export default function Product({ products = [] }: ProductProps) {
                                                                                 return 'Tahunan';
                                                                             case 2:
                                                                                 return 'Semester';
-                                                                            case 3:
-                                                                                return 'Triwulan';
                                                                             case 4:
+                                                                                return 'Triwulan';
+                                                                            case 12:
                                                                                 return 'Bulanan';
-                                                                            case 5:
+                                                                            case 0:
                                                                                 return 'Sekaligus';
                                                                             default:
                                                                                 return 'Unknown';
@@ -389,42 +380,25 @@ export default function Product({ products = [] }: ProductProps) {
                                                                         }
                                                                     })()}
                                                                 </td>
-                                                                <td>
-                                                                    {
-                                                                        commission.year
-                                                                    }
-                                                                </td>
-                                                                <td>
-                                                                    {
-                                                                        commission.payment_period
-                                                                    }
-                                                                </td>
-                                                                <td>
-                                                                    {
-                                                                        commission.commission_rate
-                                                                    }
-                                                                </td>
-                                                                <td>
-                                                                    {
-                                                                        commission.extra_commission
-                                                                    }
-                                                                </td>
+                                                                <td>{commission.year}</td>
+                                                                <td>{commission.payment_period}</td>
+                                                                <td>{commission.commission_rate}</td>
+                                                                <td>{commission.extra_commission}</td>
                                                             </tr>
                                                         ),
                                                     )
                                                 ) : (
                                                     <tr>
                                                         <td
-                                                            colSpan={5}
+                                                            colSpan={6}
                                                             className="text-center text-muted py-4"
                                                         >
-                                                            No commissions
-                                                            found.
+                                                            No commissions found.
                                                         </td>
                                                     </tr>
                                                 )}
                                             </tbody>
-                                        </table>
+                                        </Table>
                                     </div>
                                 </form>
                             </div>

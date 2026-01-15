@@ -15,6 +15,10 @@ export default function Agent({ agents = [] }: AgentProps) {
         }
     };
 
+    const handleRowClick = (agentId: number | undefined) => {
+        if (agentId) router.get(`/master/agent/${agentId}/edit`);
+    }
+
     return (
         <TemplateLayout>
             <Head title="Agen" />
@@ -118,20 +122,10 @@ export default function Agent({ agents = [] }: AgentProps) {
                                         <tbody>
                                             {agents.length > 0 ? (
                                                 agents.map((agent) => (
-                                                    <tr key={agent['id']}>
-                                                        <td>
-                                                            {
-                                                                agent.official_number
-                                                            }
-                                                        </td>
+                                                    <tr key={agent.id} onClick={() => handleRowClick(agent.id)}>
+                                                        <td>{agent.official_number}</td>
                                                         <td>{agent.name}</td>
-                                                        <td>
-                                                            {
-                                                                agent
-                                                                    .programs[0]
-                                                                    .position
-                                                            }
-                                                        </td>
+                                                        <td>{agent.programs[0].position}</td>
                                                         <td>{agent.email}</td>
                                                         <td>
                                                             {new Date(
@@ -140,12 +134,6 @@ export default function Agent({ agents = [] }: AgentProps) {
                                                         </td>
                                                         <td>{agent.mobile}</td>
                                                         <td>
-                                                            <Link
-                                                                className="btn btn-sm btn-primary me-1"
-                                                                href={`/master/agent/${agent.id}/edit`}
-                                                            >
-                                                                <i className="fa fa-edit"></i>
-                                                            </Link>
                                                             <button
                                                                 onClick={() =>
                                                                     handleDelete(

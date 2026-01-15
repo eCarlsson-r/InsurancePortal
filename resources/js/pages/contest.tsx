@@ -1,7 +1,6 @@
 import TemplateLayout from '@/layouts/TemplateLayout';
 import { contestSchema } from '@/schemas/models';
 import { Head, router, useForm } from '@inertiajs/react';
-import { useState } from 'react';
 import { Table } from 'react-bootstrap';
 import { z } from 'zod';
 
@@ -10,42 +9,35 @@ interface ContestProps {
 }
 
 export default function Contest({ contests = [] }: ContestProps) {
-    const [contest, setContest] = useState<z.infer<
-        typeof contestSchema
-    > | null>(null);
-
     const handleDelete = (contestCode: string) => {
         if (confirm('Are you sure you want to delete this contest?')) {
             router.delete(`/master/contest/${contestCode}`);
         }
     };
 
-    const isEdit = !!contest;
-
     // Initial form state with safe defaults
-    const { data, setData, post, put } = useForm<z.infer<typeof contestSchema>>(
-        isEdit && contest
-            ? contest
-            : {
-                  id: undefined,
-                  name: '',
-                  type: 'annual',
-                  start: '',
-                  end: '',
-                  product: '',
-                  level: '',
-                  minimum_commision: 0,
-                  minimum_premium: 0,
-                  minimum_policy: 0,
-                  bonus_percent: 0,
-                  bonus_amount: 0,
-                  reward: '',
-              },
-    );
+    const { data, setData, post, put } = useForm<z.infer<typeof contestSchema>>({
+        id: undefined,
+        name: '',
+        type: 'annual',
+        start: '',
+        end: '',
+        product: '',
+        level: '',
+        minimum_commision: 0,
+        minimum_premium: 0,
+        minimum_policy: 0,
+        bonus_percent: 0,
+        bonus_amount: 0,
+        reward: '',
+    });
+
+    const isEdit = !!data.id;
+
 
     const handleSubmit = () => {
         if (isEdit) {
-            put(`/master/contest/${contest?.id}`);
+            put(`/master/contest/${data?.id}`);
         } else {
             post('/master/contest');
         }
@@ -122,9 +114,7 @@ export default function Contest({ contests = [] }: ContestProps) {
                                                     <tr
                                                         key={contestItem.id}
                                                         onClick={() =>
-                                                            setContest(
-                                                                contestItem,
-                                                            )
+                                                            setData(contestItem)
                                                         }
                                                     >
                                                         <td>
@@ -283,7 +273,7 @@ export default function Contest({ contests = [] }: ContestProps) {
                                             <div className="col-sm-9">
                                                 <input
                                                     type="date"
-                                                    value={contest?.start}
+                                                    value={data.start.split("T")[0] || ''}
                                                     onChange={(e) =>
                                                         setData(
                                                             'start',
@@ -301,7 +291,7 @@ export default function Contest({ contests = [] }: ContestProps) {
                                             <div className="col-sm-9">
                                                 <input
                                                     type="date"
-                                                    value={contest?.end}
+                                                    value={data.end.split("T")[0] || ''}
                                                     onChange={(e) =>
                                                         setData(
                                                             'end',
@@ -324,7 +314,7 @@ export default function Contest({ contests = [] }: ContestProps) {
                                                 <input
                                                     type="number"
                                                     value={
-                                                        contest?.minimum_premium
+                                                        data.minimum_premium
                                                     }
                                                     onChange={(e) =>
                                                         setData(
@@ -346,7 +336,7 @@ export default function Contest({ contests = [] }: ContestProps) {
                                                 <input
                                                     type="number"
                                                     value={
-                                                        contest?.bonus_percent
+                                                        data.bonus_percent
                                                     }
                                                     onChange={(e) =>
                                                         setData(
@@ -370,7 +360,7 @@ export default function Contest({ contests = [] }: ContestProps) {
                                                 <input
                                                     type="number"
                                                     value={
-                                                        contest?.bonus_amount
+                                                        data.bonus_amount
                                                     }
                                                     onChange={(e) =>
                                                         setData(
@@ -390,8 +380,7 @@ export default function Contest({ contests = [] }: ContestProps) {
                                             </label>
                                             <div className="col-sm-9">
                                                 <input
-                                                    type="number"
-                                                    value={contest?.reward}
+                                                    value={data.reward}
                                                     onChange={(e) =>
                                                         setData(
                                                             'reward',

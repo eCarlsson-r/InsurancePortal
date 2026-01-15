@@ -11,7 +11,7 @@ export default function TemplateLayout({ children }: PropsWithChildren) {
         // Initialize MetisMenu
         let mm: unknown;
         if (sideMenuRef.current) {
-            mm = new (MetisMenu as unknown)(sideMenuRef.current);
+            mm = new MetisMenu(sideMenuRef.current);
         }
 
         // Sidebar toggle logic
@@ -184,10 +184,10 @@ export default function TemplateLayout({ children }: PropsWithChildren) {
                 <div className="copyright">
                     <p>
                         Copyright © Designed &amp; Developed by{' '}
-                        <a href="http://dexignzone.com/" target="_blank">
-                            DexignZone
+                        <a href="http://carlssonstudio.com/" target="_blank">
+                            Carlsson Studio
                         </a>{' '}
-                        2020
+                        2022
                     </p>
                 </div>
             </div>

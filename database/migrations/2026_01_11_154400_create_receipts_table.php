@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('receipts', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('case_id')->constrained('cases')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->string('policy_no', 20);
             $table->foreignId('agent_id')->constrained('agents')->cascadeOnUpdate()->cascadeOnDelete();
             $table->unsignedInteger('premium');
             $table->decimal('curr_rate', 11, 4);

@@ -76,7 +76,7 @@ export const customerSchema = z.object({
     identity_number: z.string(),
     mobile: z.string(),
     email: z.string().email(),
-    birth_date: z.coerce.date(),
+    birth_date: z.string(),
     birth_place: z.string(),
     religion: z.number().int(),
     marital: z.number().int(),
@@ -103,7 +103,6 @@ export const fileSchema = z.object({
 
 export const fundSchema = z.object({
     id: z.number().int().optional(),
-    code: z.string(),
     name: z.string(),
     currency: z.string(),
 });
@@ -113,6 +112,35 @@ export const investmentSchema = z.object({
     case_id: z.number().int().optional(),
     fund_id: z.number().int(),
     allocation: z.number(),
+});
+
+
+export const productCommissionSchema = z.object({
+    id: z.number().int().optional(),
+    product_id: z.number().int(),
+    payment_method: z.number().int(),
+    currency: z.number().int(),
+    year: z.number().int(),
+    payment_period: z.number().int(),
+    commission_rate: z.number(),
+    extra_commission: z.number(),
+});
+
+export const productCreditSchema = z.object({
+    id: z.number().int().optional(),
+    product_id: z.number().int(),
+    production_credit: z.number(),
+    contest_credit: z.number(),
+    credit_start: z.coerce.date(),
+    credit_end: z.coerce.date(),
+});
+
+export const productSchema = z.object({
+    id: z.number().int().optional(),
+    name: z.string(),
+    type: z.string(),
+    commissions: z.array(productCommissionSchema),
+    credits: z.array(productCreditSchema),
 });
 
 export const riderSchema = z.object({
@@ -151,6 +179,8 @@ export const policySchema = z
         insured: customerSchema,
         investments: z.array(investmentSchema),
         riders: z.array(riderSchema),
+        customer: customerSchema.optional(),
+        product: productSchema.optional()
     })
     .superRefine((values, ctx) => {
         // If they are NOT the same person, make insured fields mandatory
@@ -174,35 +204,8 @@ export const policySchema = z
                 });
             }
         }
-    });
-
-export const productCommissionSchema = z.object({
-    id: z.number().int().optional(),
-    product_id: z.number().int(),
-    payment_method: z.number().int(),
-    currency: z.number().int(),
-    year: z.number().int(),
-    payment_period: z.number().int(),
-    commission_rate: z.number(),
-    extra_commission: z.number(),
-});
-
-export const productCreditSchema = z.object({
-    id: z.number().int().optional(),
-    product_id: z.number().int(),
-    production_credit: z.number(),
-    contest_credit: z.number(),
-    credit_start: z.coerce.date(),
-    credit_end: z.coerce.date(),
-});
-
-export const productSchema = z.object({
-    id: z.number().int().optional(),
-    name: z.string(),
-    type: z.string(),
-    commissions: z.array(productCommissionSchema),
-    credits: z.array(productCreditSchema),
-});
+    }
+);
 
 export const programSchema = z.object({
     id: z.number().int().optional(),
@@ -226,16 +229,17 @@ export const programTargetSchema = z.object({
 });
 
 export const receiptSchema = z.object({
-    receipt_code: z.number().int().optional(),
+    id: z.number().int().optional(),
     policy_code: z.string(),
-    agent_id: z.number().int(),
+    agent_id: z.number().int().nullable(),
     premium: z.number().int(),
-    curr_rate: z.number(),
+    currency_rate: z.number(),
     pay_method: z.number().int(),
-    pay_date: z.coerce.date(),
-    paid_date: z.coerce.date(),
+    pay_date: z.string(),
+    paid_date: z.string(),
     paid_amount: z.number().int(),
     description: z.string(),
+    policy: policySchema.optional()
 });
 
 export type Agency = z.infer<typeof agencySchema>;

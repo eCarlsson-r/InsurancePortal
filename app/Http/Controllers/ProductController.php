@@ -12,7 +12,7 @@ class ProductController extends Controller
     {
         $page_title = 'Product';
         $page_description = 'View products';
-        $products = Product::all();
+        $products = Product::with(['commissions', 'credits'])->get();
 
         return Inertia::render('product', [
             'products' => $products,

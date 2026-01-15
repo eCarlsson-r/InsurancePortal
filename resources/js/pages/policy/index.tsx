@@ -51,6 +51,10 @@ export default function Policy({ policies = [], query = '' }: PolicyProps) {
         }
     };
 
+    const handleRowClick = (policyId: string) => {
+        router.get(`/sales/policy/${policyId}/edit`);
+    };
+
     const formatCurrency = (value: number) => {
         return new Intl.NumberFormat('id-ID', {
             style: 'currency',
@@ -169,29 +173,17 @@ export default function Policy({ policies = [], query = '' }: PolicyProps) {
                                         <tbody>
                                             {policies.length > 0 ? (
                                                 policies.map((policy) => (
-                                                    <tr key={policy['id']}>
+                                                    <tr key={policy.id} onClick={() => handleRowClick(policy.id)}>
                                                         <td>
                                                             <button
-                                                                onClick={() =>
-                                                                    handleUpload(
-                                                                        policy[
-                                                                            'id'
-                                                                        ],
-                                                                    )
-                                                                }
+                                                                onClick={() => handleUpload(policy.id)}
                                                                 className="btn btn-sm btn-primary me-1"
                                                                 title="Upload"
                                                             >
                                                                 <i className="la la-upload"></i>
                                                             </button>
                                                             <button
-                                                                onClick={() =>
-                                                                    handleDelete(
-                                                                        policy[
-                                                                            'id'
-                                                                        ],
-                                                                    )
-                                                                }
+                                                                onClick={() => handleDelete(policy.id)}
                                                                 className="btn btn-sm btn-danger"
                                                                 title="Delete"
                                                             >
@@ -205,45 +197,14 @@ export default function Policy({ policies = [], query = '' }: PolicyProps) {
                                                                 {policy['id']}
                                                             </Link>
                                                         </td>
-                                                        <td>
-                                                            {policy.policy_no}
-                                                        </td>
-                                                        <td>
-                                                            {
-                                                                policy.customer
-                                                                    .name
-                                                            }
-                                                        </td>
-                                                        <td>
-                                                            {
-                                                                policy.insured
-                                                                    .name
-                                                            }
-                                                        </td>
-                                                        <td>
-                                                            {
-                                                                policy.product
-                                                                    .name
-                                                            }
-                                                        </td>
-                                                        <td>
-                                                            {policy.agent.name}
-                                                        </td>
-                                                        <td>
-                                                            {formatCurrency(
-                                                                policy.premium,
-                                                            )}
-                                                        </td>
-                                                        <td>
-                                                            {formatCurrency(
-                                                                policy.topup_premium,
-                                                            )}
-                                                        </td>
-                                                        <td>
-                                                            {formatCurrency(
-                                                                policy.base_insure,
-                                                            )}
-                                                        </td>
+                                                        <td>{policy.policy_no}</td>
+                                                        <td>{policy.customer.name}</td>
+                                                        <td>{policy.insured.name}</td>
+                                                        <td>{policy.product.name}</td>
+                                                        <td>{policy.agent.name}</td>
+                                                        <td>{formatCurrency(policy.premium)}</td>
+                                                        <td>{formatCurrency(policy.topup_premium)}</td>
+                                                        <td>{formatCurrency(policy.base_insure)}</td>
                                                     </tr>
                                                 ))
                                             ) : (

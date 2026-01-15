@@ -1,21 +1,14 @@
-import InputError from '@/components/input-error';
-import { register } from '@/wayfinder/routes';
+import CheckboxInput from '@/components/form/checkbox-input';
+import SubmitButton from '@/components/form/submit-button';
+import TextInput from '@/components/form/text-input';
 import { store } from '@/wayfinder/routes/login';
-import { request } from '@/wayfinder/routes/password';
-import { Form, Head, Link } from '@inertiajs/react';
-import { Button, Spinner } from 'react-bootstrap';
+import { Form, Head } from '@inertiajs/react';
 
 interface LoginProps {
     status?: string;
-    canResetPassword: boolean;
-    canRegister: boolean;
 }
 
-export default function Login({
-    status,
-    canResetPassword,
-    canRegister,
-}: LoginProps) {
+export default function Login({status}: LoginProps) {
     return (
         <div className="authincation vh-100">
             <Head title="Log in" />
@@ -42,123 +35,52 @@ export default function Login({
                                         >
                                             {({ processing, errors }) => (
                                                 <>
-                                                    <div className="form-group mb-3">
-                                                        <label
-                                                            htmlFor="email"
-                                                            className="mb-1"
-                                                        >
-                                                            <strong>
-                                                                Email
-                                                            </strong>
-                                                        </label>
-                                                        <input
-                                                            id="email"
-                                                            type="email"
-                                                            name="email"
-                                                            className="form-control"
-                                                            required
-                                                            autoFocus
-                                                            tabIndex={1}
-                                                            autoComplete="email"
-                                                            placeholder="hello@example.com"
-                                                        />
-                                                        <InputError
-                                                            message={
-                                                                errors.email
-                                                            }
-                                                        />
-                                                    </div>
+                                                    <TextInput
+                                                        id="email"
+                                                        type="email"
+                                                        name="email"
+                                                        label="Email"
+                                                        error={errors.email}
+                                                        required
+                                                        autoFocus
+                                                        tabIndex={1}
+                                                        autoComplete="email"
+                                                        placeholder="hello@example.com"
+                                                    />
 
-                                                    <div className="form-group mb-3">
-                                                        <label
-                                                            htmlFor="password"
-                                                            className="mb-1"
-                                                        >
-                                                            <strong>
-                                                                Password
-                                                            </strong>
-                                                        </label>
-                                                        <input
-                                                            id="password"
-                                                            type="password"
-                                                            name="password"
-                                                            className="form-control"
-                                                            required
-                                                            tabIndex={2}
-                                                            autoComplete="current-password"
-                                                            placeholder="Password"
-                                                        />
-                                                        <InputError
-                                                            message={
-                                                                errors.password
-                                                            }
-                                                        />
-                                                    </div>
+                                                    <TextInput
+                                                        id="password"
+                                                        type="password"
+                                                        name="password"
+                                                        label="Password"
+                                                        error={errors.password}
+                                                        required
+                                                        tabIndex={2}
+                                                        autoComplete="current-password"
+                                                        placeholder="Password"
+                                                    />
 
                                                     <div className="form-row d-flex justify-content-between mt-4 mb-2">
-                                                        <div className="form-group">
-                                                            <div className="custom-control custom-checkbox ml-1">
-                                                                <input
-                                                                    type="checkbox"
-                                                                    id="remember"
-                                                                    name="remember"
-                                                                    className="custom-control-input"
-                                                                    tabIndex={3}
-                                                                />
-                                                                <label
-                                                                    className="custom-control-label"
-                                                                    htmlFor="remember"
-                                                                >
-                                                                    Remember me
-                                                                </label>
-                                                            </div>
-                                                        </div>
-                                                        <div className="form-group">
-                                                            {canResetPassword && (
-                                                                <Link
-                                                                    href={request()}
-                                                                    className="text-primary"
-                                                                    tabIndex={5}
-                                                                >
-                                                                    Forgot
-                                                                    Password?
-                                                                </Link>
-                                                            )}
-                                                        </div>
+                                                        <CheckboxInput
+                                                            id="remember"
+                                                            name="remember"
+                                                            label="Remember me"
+                                                            error={errors.remember}
+                                                            tabIndex={3}
+                                                        />
                                                     </div>
 
                                                     <div className="text-center">
-                                                        <Button
-                                                            type="submit"
-                                                            className="btn btn-primary btn-block"
+                                                        <SubmitButton
+                                                            processing={processing}
                                                             tabIndex={4}
-                                                            disabled={
-                                                                processing
-                                                            }
                                                         >
-                                                            {processing && (
-                                                                <Spinner className="mr-2" />
-                                                            )}
                                                             Sign me in
-                                                        </Button>
+                                                        </SubmitButton>
                                                     </div>
                                                 </>
                                             )}
                                         </Form>
-
-                                        {canRegister && (
-                                            <div className="new-account mt-3 text-center">
-                                                <p>
-                                                    Don't have an account?{' '}
-                                                    <Link
-                                                        href={register()}
-                                                        className="text-primary"
-                                                    >
-                                                        Sign up
-                                                    </Link>
-                                                </p>
-                                            </div>
-                                        )}
                                     </div>
                                 </div>
                             </div>

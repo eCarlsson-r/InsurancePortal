@@ -1,6 +1,6 @@
 import TemplateLayout from '@/layouts/TemplateLayout';
 import { programSchema } from '@/schemas/models';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { Table } from 'react-bootstrap';
 import { z } from 'zod';
 
@@ -9,6 +9,10 @@ interface ProgramProps {
 }
 
 export default function Program({ programs = [] }: ProgramProps) {
+    const handleRowClick = (programId: number | undefined) => {
+        if (programId) router.get(`/master/program/${programId}/edit`);
+    };
+
     return (
         <TemplateLayout>
             <Head title="Program" />
@@ -96,7 +100,7 @@ export default function Program({ programs = [] }: ProgramProps) {
                                         <tbody>
                                             {programs.length > 0 ? (
                                                 programs.map((program) => (
-                                                    <tr key={program.id}>
+                                                    <tr key={program.id} onClick={() => handleRowClick(program.id)}>
                                                         <td>{program.name}</td>
                                                         <td>
                                                             {program.position}
@@ -111,7 +115,9 @@ export default function Program({ programs = [] }: ProgramProps) {
                                                                 program.max_allowance
                                                             }
                                                         </td>
-                                                        <td></td>
+                                                        <td>
+
+                                                        </td>
                                                     </tr>
                                                 ))
                                             ) : (

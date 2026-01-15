@@ -7,14 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class Receipt extends Model
 {
     protected $table = 'receipts';
-    protected $primaryKey = 'receipt_code';
     public $timestamps = false;
 
     protected $fillable = [
-        'policy_code',
+        'case_id',
         'agent_id',
         'premium',
-        'curr_rate',
+        'currency_rate',
         'pay_method',
         'pay_date',
         'paid_date',
@@ -25,14 +24,14 @@ class Receipt extends Model
     protected $casts = [
         'pay_date' => 'date',
         'paid_date' => 'date',
-        'curr_rate' => 'decimal:4',
+        'currency_rate' => 'decimal:4',
     ];
 
     protected $guarded = ['id'];
 
     public function policy()
     {
-        return $this->belongsTo(Policy::class, 'policy_code', 'case_code');
+        return $this->belongsTo(Policy::class);
     }
 
     public function agent()

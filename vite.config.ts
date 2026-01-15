@@ -22,7 +22,10 @@ export default defineConfig({
     },
     resolve: {
         alias: {
-            '@': path.resolve(__dirname, './resources/js'), // Adjust the './resources/js' to your actual source directory
+            '@/css': path.resolve(__dirname, './resources/css'),
+            '@/components': path.resolve(__dirname, './resources/js/components'),
+            '@/layouts': path.resolve(__dirname, './resources/js/layouts'),
+            '@/schemas': path.resolve(__dirname, './resources/js/schemas')
         },
     }
 });

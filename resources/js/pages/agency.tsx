@@ -1,6 +1,6 @@
 import TemplateLayout from '@/layouts/TemplateLayout';
 import { agencySchema, agentSchema } from '@/schemas/models';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import { Table } from 'react-bootstrap';
 import { z } from 'zod';
 
@@ -10,9 +10,30 @@ interface AgencyProps {
 }
 
 export default function Agency({ agencies = [], agents = [] }: AgencyProps) {
+    // Initial form state with safe defaults
+    const { data, setData, post, put } = useForm<z.infer<typeof agencySchema>>(
+        {
+            id: undefined,
+            name: '',
+            city: '',
+            director: '',
+            leader: '',
+        }
+    );
+
+    const isEdit = !!data.id;
+
     const handleDelete = (agencyCode: string) => {
         if (confirm('Are you sure you want to delete this agency?')) {
             router.delete(`/master/agency/${agencyCode}`);
+        }
+    };
+
+    const handleSubmit = () => {
+        if (isEdit) {
+            put(`/master/agency/${data.id}`);
+        } else {
+            post('/master/agency');
         }
     };
 
@@ -147,14 +168,13 @@ export default function Agency({ agencies = [], agents = [] }: AgencyProps) {
                                                 Sunting Agency
                                             </h4>
                                             <h6 data-i18n="edit-agency-inst">
-                                                Masukkan informasi mengenai
-                                                Agency.
+                                                Masukkan informasi mengenai Agency.
                                             </h6>
                                         </div>
                                         <div className="col-md-3 col-sm-2 col-4">
                                             <button
                                                 className="btn btn-primary pull-right"
-                                                id="agency-submit"
+                                                onClick={handleSubmit}
                                                 data-i18n="submit-btn"
                                             >
                                                 Perbarui
@@ -173,6 +193,8 @@ export default function Agency({ agencies = [], agents = [] }: AgencyProps) {
                                                 <input
                                                     type="text"
                                                     className="form-control"
+                                                    value={data.name}
+                                                    onChange={(e) => setData('name', e.target.value)}
                                                 />
                                             </div>
                                         </div>
@@ -188,6 +210,8 @@ export default function Agency({ agencies = [], agents = [] }: AgencyProps) {
                                                 <input
                                                     type="text"
                                                     className="form-control"
+                                                    value={data.city}
+                                                    onChange={(e) => setData('city', e.target.value)}
                                                 />
                                             </div>
                                         </div>
@@ -200,7 +224,7 @@ export default function Agency({ agencies = [], agents = [] }: AgencyProps) {
                                                 Direktur Agency
                                             </label>
                                             <div className="col-sm-9">
-                                                <select className="form-control">
+                                                <select className="form-control" value={data.director} onChange={(e) => setData('director', e.target.value)}>
                                                     {agents.map((agent) => (
                                                         <option
                                                             key={agent.id}
@@ -221,7 +245,7 @@ export default function Agency({ agencies = [], agents = [] }: AgencyProps) {
                                                 Agency Atasan
                                             </label>
                                             <div className="col-sm-9">
-                                                <select className="form-control">
+                                                <select className="form-control" value={data.leader} onChange={(e) => setData('leader', e.target.value)}>
                                                     {agencies.map((agency) => (
                                                         <option
                                                             key={agency.id}
