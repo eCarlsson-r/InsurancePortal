@@ -21,4 +21,26 @@ class CustomerController extends Controller
             'customers' => Customer::all(),
         ]);
     }
+
+    public function create()
+    {
+        $page_title = 'Customer';
+        $page_description = 'Create customer';
+		$logo = "images/logo.png";
+		$logoText = "images/logo-text.png";
+		$action = __FUNCTION__;
+        return Inertia::render('customer/form');
+    }
+
+    public function edit(Customer $customer)
+    {
+        $page_title = 'Customer';
+        $page_description = 'Edit customer';
+		$logo = "images/logo.png";
+		$logoText = "images/logo-text.png";
+		$action = __FUNCTION__;
+        return Inertia::render('customer/form', [
+            'customer' => $customer,
+        ]);
+    }
 }

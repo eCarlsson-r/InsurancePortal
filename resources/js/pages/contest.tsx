@@ -57,7 +57,7 @@ export default function Contest({ contests = [] }: ContestProps) {
                             Kontes
                         </h3>
                     </div>
-                    <div className="col-6 p-md-0 justify-content-end mt-2 mt-0 d-flex">
+                    <div className="col-6 p-md-0 justify-content-end d-flex">
                         <ol className="breadcrumb">
                             <li className="breadcrumb-item">
                                 <a href="javascript:void(0)" data-i18n="master">
@@ -93,9 +93,6 @@ export default function Contest({ contests = [] }: ContestProps) {
                                                 <th data-field="contest-name">
                                                     Nama Kontes
                                                 </th>
-                                                <th data-field="contest-type">
-                                                    Jenis Kontes
-                                                </th>
                                                 <th data-field="contest-start">
                                                     Mulai Kontes
                                                 </th>
@@ -117,12 +114,7 @@ export default function Contest({ contests = [] }: ContestProps) {
                                                             setData(contestItem)
                                                         }
                                                     >
-                                                        <td>
-                                                            {contestItem.name}
-                                                        </td>
-                                                        <td>
-                                                            {contestItem.type}
-                                                        </td>
+                                                        <td>{contestItem.name}</td>
                                                         <td>
                                                             {new Date(
                                                                 contestItem.start,
@@ -134,9 +126,13 @@ export default function Contest({ contests = [] }: ContestProps) {
                                                             ).toLocaleDateString()}
                                                         </td>
                                                         <td>
-                                                            {
-                                                                contestItem.minimum_premium
-                                                            }
+                                                            {contestItem.minimum_premium.toLocaleString(
+                                                                'id-ID',
+                                                                {
+                                                                    style: 'currency',
+                                                                    currency: 'IDR',
+                                                                },
+                                                            )}
                                                         </td>
                                                         <td>
                                                             <button
@@ -156,7 +152,7 @@ export default function Contest({ contests = [] }: ContestProps) {
                                             ) : (
                                                 <tr>
                                                     <td
-                                                        colSpan={6}
+                                                        colSpan={5}
                                                         className="text-center"
                                                         data-i18n="no-contest"
                                                     >

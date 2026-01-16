@@ -106,14 +106,22 @@ export default function Program({ programs = [] }: ProgramProps) {
                                                             {program.position}
                                                         </td>
                                                         <td>
-                                                            {
-                                                                program.min_allowance
-                                                            }
+                                                            {program.min_allowance.toLocaleString(
+                                                                'id-ID',
+                                                                {
+                                                                    style: 'currency',
+                                                                    currency: 'IDR',
+                                                                },
+                                                            )}
                                                         </td>
                                                         <td>
-                                                            {
-                                                                program.max_allowance
-                                                            }
+                                                            {program.max_allowance.toLocaleString(
+                                                                'id-ID',
+                                                                {
+                                                                    style: 'currency',
+                                                                    currency: 'IDR',
+                                                                },
+                                                            )}
                                                         </td>
                                                         <td>
 

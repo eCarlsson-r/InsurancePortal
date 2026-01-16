@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('name', 50);
             $table->string('city', 30);
-            $table->string('director', 200);
-            $table->integer('leader');
+            $table->foreignId('director')->constrained('agents')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('leader')->nullable()->constrained('agents')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }

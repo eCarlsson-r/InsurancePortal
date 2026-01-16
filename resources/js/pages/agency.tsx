@@ -97,19 +97,6 @@ export default function Agency({ agencies = [], agents = [] }: AgencyProps) {
                                                     Kota Agency
                                                 </th>
                                                 <th
-                                                    className="col-xs-3"
-                                                    data-field="agency-director"
-                                                >
-                                                    Direktur Agency
-                                                </th>
-                                                <th
-                                                    className="col-xs-3"
-                                                    data-field="agency-leader"
-                                                    data-formatter="agencyLeaderFormat"
-                                                >
-                                                    Agency Atasan
-                                                </th>
-                                                <th
                                                     className="col-xs-1"
                                                     data-formatter="agencyActionFormatter"
                                                     data-events="agencyActionHandler"
@@ -119,13 +106,9 @@ export default function Agency({ agencies = [], agents = [] }: AgencyProps) {
                                         <tbody>
                                             {agencies.length > 0 ? (
                                                 agencies.map((agency) => (
-                                                    <tr key={agency.id}>
+                                                    <tr key={agency.id} onClick={() => setData(agency)}>
                                                         <td>{agency.name}</td>
                                                         <td>{agency.city}</td>
-                                                        <td>
-                                                            {agency.director}
-                                                        </td>
-                                                        <td>{agency.leader}</td>
                                                         <td>
                                                             <button
                                                                 onClick={() =>

@@ -38,7 +38,7 @@ class ProgramController extends Controller
         $logoText = "images/logo-text.png";
         $action = __FUNCTION__;
 
-        $program = Program::findOrFail($id);
+        $program = Program::with('targets')->findOrFail($id);
 
         return Inertia::render('program/form', [
             'program' => $program

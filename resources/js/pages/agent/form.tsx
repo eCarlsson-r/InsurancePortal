@@ -9,7 +9,7 @@ import {
     programSchema,
 } from '@/schemas/models';
 import { Head, useForm } from '@inertiajs/react';
-import { Accordion } from 'react-bootstrap';
+import { Accordion, Table } from 'react-bootstrap';
 import { z } from 'zod';
 
 type AgentFormData = Omit<
@@ -532,10 +532,7 @@ export default function AgentForm({
                                     </div>
                                     <div className="row form-group">
                                         <div className="col-sm-12">
-                                            <table
-                                                id="table-agentprogram"
-                                                data-toggle="table"
-                                            >
+                                            <Table>
                                                 <thead>
                                                     <tr>
                                                         <th
@@ -625,173 +622,74 @@ export default function AgentForm({
                                                                     <td>
                                                                         <select
                                                                             className="form-control"
-                                                                            value={
-                                                                                program.position
-                                                                            }
+                                                                            value={program.position}
                                                                             onChange={(
                                                                                 e,
                                                                             ) => {
-                                                                                const newPrograms =
-                                                                                    [
-                                                                                        ...data.programs,
-                                                                                    ];
-                                                                                newPrograms[
-                                                                                    idx
-                                                                                ] =
-                                                                                    {
-                                                                                        ...newPrograms[
-                                                                                            idx
-                                                                                        ],
-                                                                                        position:
-                                                                                            e
-                                                                                                .target
-                                                                                                .value,
-                                                                                    };
-                                                                                setData(
-                                                                                    'programs',
-                                                                                    newPrograms,
-                                                                                );
+                                                                                const newPrograms = [...data.programs];
+                                                                                newPrograms[idx] = {
+                                                                                    ...newPrograms[idx],
+                                                                                    position: e.target.value,
+                                                                                };
+                                                                                setData('programs', newPrograms);
                                                                             }}
                                                                         >
                                                                             <option value="FC">
-                                                                                Financial
-                                                                                Consultant
+                                                                                Financial Consultant
                                                                             </option>
                                                                             <option value="BP*">
-                                                                                Business
-                                                                                Partner
-                                                                                Bintang
-                                                                                1
+                                                                                Business Partner Bintang 1
                                                                             </option>
                                                                             <option value="BP**">
-                                                                                Business
-                                                                                Partner
-                                                                                Bintang
-                                                                                2
+                                                                                Business Partner Bintang 2
                                                                             </option>
                                                                             <option value="BP***">
-                                                                                Business
-                                                                                Partner
-                                                                                Bintang
-                                                                                3
+                                                                                Business Partner Bintang 3
                                                                             </option>
                                                                         </select>
                                                                     </td>
                                                                     <td>
                                                                         <select
                                                                             className="form-control"
-                                                                            value={
-                                                                                program.agent_leader_id ||
-                                                                                ''
-                                                                            }
-                                                                            onChange={(
-                                                                                e,
-                                                                            ) => {
-                                                                                const newPrograms =
-                                                                                    [
-                                                                                        ...data.programs,
-                                                                                    ];
-                                                                                newPrograms[
-                                                                                    idx
-                                                                                ] =
-                                                                                    {
-                                                                                        ...newPrograms[
-                                                                                            idx
-                                                                                        ],
-                                                                                        agent_leader_id:
-                                                                                            parseInt(
-                                                                                                e
-                                                                                                    .target
-                                                                                                    .value,
-                                                                                                10,
-                                                                                            ),
-                                                                                    };
-                                                                                setData(
-                                                                                    'programs',
-                                                                                    newPrograms,
-                                                                                );
+                                                                            value={program.agent_leader_id || ''}
+                                                                            onChange={(e) => {
+                                                                                const newPrograms = [...data.programs];
+                                                                                newPrograms[idx] = {
+                                                                                    ...newPrograms[idx],
+                                                                                    agent_leader_id: parseInt(e.target.value, 10),
+                                                                                };
+                                                                                setData('programs', newPrograms);
                                                                             }}
                                                                         >
-                                                                            <option value="">
-                                                                                Select
-                                                                                Leader
-                                                                            </option>
-                                                                            {agents.map(
-                                                                                (
-                                                                                    agent: z.infer<
-                                                                                        typeof agentSchema
-                                                                                    >,
-                                                                                    idx: number,
-                                                                                ) => (
-                                                                                    <option
-                                                                                        key={
-                                                                                            idx
-                                                                                        }
-                                                                                        value={
-                                                                                            agent.id
-                                                                                        }
-                                                                                    >
-                                                                                        {
-                                                                                            agent.name
-                                                                                        }
-                                                                                    </option>
-                                                                                ),
-                                                                            )}
+                                                                            <option value="">Select Leader</option>
+                                                                            {agents.map((agent: z.infer<typeof agentSchema>, idx: number) => (
+                                                                                <option key={idx} value={agent.id}>{agent.name}</option>
+                                                                            ))}
                                                                         </select>
                                                                     </td>
                                                                     <td>
                                                                         <select
                                                                             className="form-control"
-                                                                            value={
-                                                                                program.program_id ??
-                                                                                ''
-                                                                            }
-                                                                            onChange={(
-                                                                                e,
-                                                                            ) => {
-                                                                                const newPrograms =
-                                                                                    [
-                                                                                        ...data.programs,
-                                                                                    ];
-                                                                                newPrograms[
-                                                                                    idx
-                                                                                ] =
-                                                                                    {
-                                                                                        ...newPrograms[
-                                                                                            idx
-                                                                                        ],
-                                                                                        program_id:
-                                                                                            parseInt(
-                                                                                                e
-                                                                                                    .target
-                                                                                                    .value,
-                                                                                                10,
-                                                                                            ),
-                                                                                    };
-                                                                                setData(
-                                                                                    'programs',
-                                                                                    newPrograms,
-                                                                                );
+                                                                            value={program.program_id ?? ''}
+                                                                            onChange={(e) => {
+                                                                                const newPrograms = [...data.programs];
+                                                                                newPrograms[idx] = {
+                                                                                    ...newPrograms[idx],
+                                                                                    program_id: parseInt(e.target.value, 10),
+                                                                                };
+                                                                                setData('programs', newPrograms);
                                                                             }}
                                                                         >
                                                                             {programs.map(
                                                                                 (
-                                                                                    program: z.infer<
-                                                                                        typeof programSchema
-                                                                                    >,
+                                                                                    program: z.infer<typeof programSchema>,
                                                                                     idx: number,
                                                                                 ) => (
                                                                                     <option
-                                                                                        key={
-                                                                                            idx
-                                                                                        }
-                                                                                        value={
-                                                                                            program.id
-                                                                                        }
+                                                                                        key={idx}
+                                                                                        value={program.id}
                                                                                     >
-                                                                                        {
-                                                                                            program.name
-                                                                                        }
+                                                                                        {program.name}
                                                                                     </option>
                                                                                 ),
                                                                             )}
@@ -801,41 +699,17 @@ export default function AgentForm({
                                                                         <input
                                                                             type="number"
                                                                             className="form-control form-control-sm"
-                                                                            value={
-                                                                                program.allowance ??
-                                                                                ''
-                                                                            }
-                                                                            onChange={(
-                                                                                e,
-                                                                            ) => {
-                                                                                const newPrograms =
-                                                                                    [
-                                                                                        ...data.programs,
-                                                                                    ];
-                                                                                newPrograms[
-                                                                                    idx
-                                                                                ] =
-                                                                                    {
-                                                                                        ...newPrograms[
-                                                                                            idx
-                                                                                        ],
-                                                                                        allowance:
-                                                                                            e
-                                                                                                .target
-                                                                                                .value ===
-                                                                                            ''
-                                                                                                ? null
-                                                                                                : parseInt(
-                                                                                                      e
-                                                                                                          .target
-                                                                                                          .value,
-                                                                                                      10,
-                                                                                                  ),
-                                                                                    };
-                                                                                setData(
-                                                                                    'programs',
-                                                                                    newPrograms,
-                                                                                );
+                                                                            value={program.allowance ?? ''}
+                                                                            onChange={(e) => {
+                                                                                const newPrograms = [...data.programs];
+                                                                                newPrograms[idx] = {
+                                                                                    ...newPrograms[idx],
+                                                                                    allowance:
+                                                                                        e.target.value === ''
+                                                                                            ? null
+                                                                                            : parseInt(e.target.value, 10)
+                                                                                };
+                                                                                setData('programs', newPrograms);
                                                                             }}
                                                                         />
                                                                     </td>
@@ -856,7 +730,7 @@ export default function AgentForm({
                                                             ),
                                                         )}
                                                 </tbody>
-                                            </table>
+                                            </Table>
                                         </div>
                                     </div>
                                 </Accordion.Body>

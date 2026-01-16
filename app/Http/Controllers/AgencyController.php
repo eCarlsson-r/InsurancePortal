@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Agency;
+use App\Models\Agent;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -17,7 +18,8 @@ class AgencyController extends Controller
 		$action = __FUNCTION__;
 
         return Inertia::render('agency', [
-            'agency' => Agency::all(),
+            'agencies' => Agency::all(),
+            'agents' => Agent::all()
         ]);
     }
 }

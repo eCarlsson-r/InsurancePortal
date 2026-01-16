@@ -24,13 +24,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     Route::prefix('master')->name('master.')->group(function () {
-        Route::get('customer', [CustomerController::class, 'index'])->name('customer.index');
-        Route::get('agent', [AgentController::class, 'index'])->name('agent.index');
-        Route::get('agent/create', [AgentController::class, 'create'])->name('agent.create');
-        Route::get('agent/{agent}/edit', [AgentController::class, 'edit'])->name('agent.edit');
-        Route::get('program', [ProgramController::class, 'index'])->name('program.index');
-        Route::get('program/create', [ProgramController::class, 'create'])->name('program.create');
-        Route::get('program/{program}/edit', [ProgramController::class, 'edit'])->name('program.edit');
+        Route::controller(CustomerController::class)->group(function() {
+            Route::get('customer', 'index')->name('customer.index');
+            Route::get('customer/create', 'create')->name('customer.create');
+            Route::get('customer/{customer}/edit', 'edit')->name('customer.edit');
+        });
+
+        Route::controller(AgentController::class)->group(function() {
+            Route::get('agent', 'index')->name('agent.index');
+            Route::get('agent/create', 'create')->name('agent.create');
+            Route::get('agent/{agent}/edit', 'edit')->name('agent.edit');
+        });
+
+        Route::controller(ProgramController::class)->group(function() {
+            Route::get('program', 'index')->name('program.index');
+            Route::get('program/create', 'create')->name('program.create');
+            Route::get('program/{program}/edit', 'edit')->name('program.edit');
+        });
+        
         Route::get('product', [ProductController::class, 'index'])->name('product.index');
         Route::get('fund', [FundController::class, 'index'])->name('fund.index');
         Route::get('agency', [AgencyController::class, 'index'])->name('agency.index');
@@ -38,10 +49,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::prefix('sales')->name('sales.')->group(function () {
-        Route::get('policy', [PolicyController::class, 'index'])->name('policy.index');
-        Route::post('policy/process-ocr', [PolicyController::class, 'processOcr'])->name('policy.process-ocr');
-        Route::get('policy/create', [PolicyController::class, 'create'])->name('policy.create');
-        Route::get('policy/{policy}/edit', [PolicyController::class, 'edit'])->name('policy.edit');
+        Route::controller(PolicyController::class)->group(function() {
+            Route::get('policy', 'index')->name('policy.index');
+            Route::post('policy/process-ocr', 'processOcr')->name('policy.process-ocr');
+            Route::get('policy/create', 'create')->name('policy.create');
+            Route::get('policy/{policy}/edit', 'edit')->name('policy.edit');
+        });
+        
         Route::get('receipt', [ReceiptController::class, 'index'])->name('receipt.index');
     });
 

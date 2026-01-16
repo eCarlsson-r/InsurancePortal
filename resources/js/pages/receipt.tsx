@@ -51,7 +51,7 @@ export default function Receipt({ receipts = [], products = [], customers = [], 
                     <div className="col-sm-6 p-md-0">
                         <h3 className="text-primary d-inline" data-i18n="receipt">Kwitansi</h3>
                     </div>
-                    <div className="col-sm-6 p-md-0 justify-content-sm-end mt-2 mt-0 d-flex">
+                    <div className="col-sm-6 p-md-0 justify-content-sm-end d-flex">
                         <ol className="breadcrumb">
                             <li className="breadcrumb-item"><a href="javascript:void(0)" data-i18n="sales">Penjualan</a></li>
                             <li className="breadcrumb-item active" data-i18n="receipt">Kwitansi</li>
@@ -88,7 +88,7 @@ export default function Receipt({ receipts = [], products = [], customers = [], 
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        {receipts.map((rcpt) => (
+                                        {receipts.length > 0 ? (receipts.map((rcpt) => (
                                             <tr key={rcpt.id} onClick={() => setData(rcpt)}>
                                                 <td>{rcpt.policy_code}</td>
                                                 <td>{rcpt.policy?.customer?.name}</td>
@@ -107,7 +107,13 @@ export default function Receipt({ receipts = [], products = [], customers = [], 
                                                     </button>
                                                 </td>
                                             </tr>
-                                        ))}
+                                        ))) : (
+                                            <tr>
+                                                <td colSpan={8} className="text-center">
+                                                    No data available
+                                                </td>
+                                            </tr>
+                                        )}
                                         </tbody>
                                     </Table>
                                 </div>

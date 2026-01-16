@@ -80,8 +80,8 @@ export default function Customer({ customers = [] }: CustomerProps) {
                                         {customers.map((customer) => (
                                             <tr key={customer.id} onClick={() => handleRowClick(customer.id)} style={{ cursor: 'pointer' }}>
                                                 <td>{customer.name}</td>
-                                                <td>{customer.identity_number}</td>
-                                                <td>{customer.birth_date.toDateString()}</td>
+                                                <td>{customer.identity}</td>
+                                                <td>{new Date(customer.birth_date).toLocaleDateString()}</td>
                                                 <td>{customer.birth_place}</td>
                                                 <td>{customer.marital}</td>
                                                 <td>{customer.religion}</td>

@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Log;
 use HelgeSverre\Extractor\Facades\Text;
 use Smalot\PdfParser\Parser;
 use App\Services\Traits\PolicySanitizer;
+use App\Models\Agent;
+use App\Models\Product;
 use Illuminate\Support\Facades\Cache;
 
 class PolicyExtractionService {
@@ -88,6 +90,18 @@ class PolicyExtractionService {
 
                 $mappedData['holder_insured_relationship'] = $this->cleanRelationship($value);
             }
+
+            if ($aiKey === 'product_name') {
+                Log::info($mappedData['product_name']);
+                $mappedData['product_id'] = Product::where('name', $mappedData['product_name'])->first()->id;
+                unset($mappedData['product_name']);
+            }
+
+            if ($aiKey === 'agent_name') {
+                Log::info($mappedData['agent_name']);
+                $mappedData['agent_id'] = Agent::where('name', $mappedData['agent_name'])->first()->id;
+                unset($mappedData['agent_name']);
+            }
         }
 
         return $mappedData;
@@ -103,7 +117,7 @@ class PolicyExtractionService {
                 'source' => $summaryText,
                 'fields' => "insurance_policy_number, total_sum_assured_benefit_amount, total_premium_amount_to_pay, ".
                             "policy_start_effective_date, premium_payment_frequency, currency_code (Must be 'IDR' if document mentions Rp, Rupiah, or IDR. Must be 'USD' if document mentions $, USD, or Dollar), ".
-                            "insurance_coverage_period_years, premium_paying_period_years"
+                            "insurance_coverage_period_years, premium_paying_period_years, product_name"
             ],
             'customer_info' => [
                 'source' => $spajText,
@@ -121,7 +135,7 @@ class PolicyExtractionService {
                             "insured_person_city_of_birth, insured_person_marital_status, insured_person_current_profession, ".
                             "insured_person_home_address, insured_person_home_postal, insured_person_home_city, ".
                             "insured_relationship (Look for 'Hubungan'. If the Insured name is the same as Policy Holder or says 'SDA', return 'Self'. Otherwise return Spouse, Child, or Parent), ".
-                            "signature_info (Look for 'Ditandatangani di' or 'Signed at'. Extract the city and the date that follows it, e.g., 'Kota Medan 26-09-2025')"
+                            "signature_info (Look for 'Ditandatangani di' or 'Signed at'. Extract the city and the date that follows it, e.g., 'Kota Medan 26-09-2025'), agent_name"
             ]
         ];
 

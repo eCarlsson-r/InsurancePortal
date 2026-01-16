@@ -1,7 +1,7 @@
 import TemplateLayout from '@/layouts/TemplateLayout';
 import { programSchema, programTargetSchema } from '@/schemas/models';
 import { Head, useForm } from '@inertiajs/react';
-import { Accordion } from 'react-bootstrap';
+import { Accordion, Table } from 'react-bootstrap';
 import { z } from 'zod';
 
 export default function ProgramForm({
@@ -175,7 +175,11 @@ export default function ProgramForm({
                                     </div>
                                 </Accordion.Body>
                             </Accordion.Item>
+                        </Accordion>
+                    </div>
 
+                    <div className="col-md-6">
+                        <Accordion defaultActiveKey="1" className="mb-3">
                             <Accordion.Item eventKey="1">
                                 <Accordion.Header>
                                     Target Program
@@ -192,45 +196,13 @@ export default function ProgramForm({
                                     <div className="basic-form">
                                         <div className="row form-group">
                                             <div className="col-sm-12">
-                                                <table
-                                                    id="table-target"
-                                                    data-toggle="table"
-                                                >
+                                                <Table>
                                                     <thead>
-                                                        <th
-                                                            className="col-xs-3"
-                                                            data-field="allowance"
-                                                            data-editable="true"
-                                                            data-editable-mode="inline"
-                                                            data-formatter="targetIDRFormatter"
-                                                        >
-                                                            Allowance
-                                                        </th>
-                                                        <th
-                                                            className="col-xs-3"
-                                                            data-field="month"
-                                                            data-editable="true"
-                                                            data-editable-mode="inline"
-                                                        >
-                                                            Bulan
-                                                        </th>
-                                                        <th
-                                                            className="col-xs-2"
-                                                            data-field="case-month"
-                                                            data-editable="true"
-                                                            data-editable-mode="inline"
-                                                        >
-                                                            Case
-                                                        </th>
-                                                        <th
-                                                            className="col-xs-3"
-                                                            data-field="fyp-month"
-                                                            data-editable="true"
-                                                            data-editable-mode="inline"
-                                                            data-formatter="targetIDRFormatter"
-                                                        >
-                                                            FYP
-                                                        </th>
+                                                        <th>Bulan</th>
+                                                        <th>FYP</th>
+                                                        <th>Case</th>
+                                                        <th>Allowance</th>
+                                                        <th></th>
                                                     </thead>
                                                     <tbody>
                                                         {program &&
@@ -241,38 +213,24 @@ export default function ProgramForm({
                                                                         typeof programTargetSchema
                                                                     >,
                                                                 ) => (
-                                                                    <tr
-                                                                        key={
-                                                                            target.id
-                                                                        }
-                                                                    >
-                                                                        <td>
-                                                                            {target.allowance.toLocaleString(
-                                                                                'id-ID',
-                                                                                {
-                                                                                    style: 'currency',
-                                                                                    currency:
-                                                                                        'IDR',
-                                                                                },
-                                                                            )}
-                                                                        </td>
-                                                                        <td>
-                                                                            {
-                                                                                target.month
-                                                                            }
-                                                                        </td>
-                                                                        <td>
-                                                                            {
-                                                                                target.case_month
-                                                                            }
-                                                                        </td>
+                                                                    <tr key={target.id}>
+                                                                        <td>{target.month}</td>
                                                                         <td>
                                                                             {target.fyp_month.toLocaleString(
                                                                                 'id-ID',
                                                                                 {
                                                                                     style: 'currency',
-                                                                                    currency:
-                                                                                        'IDR',
+                                                                                    currency: 'IDR',
+                                                                                },
+                                                                            )}
+                                                                        </td>
+                                                                        <td>{target.case_month}</td>
+                                                                        <td>
+                                                                            {target.allowance.toLocaleString(
+                                                                                'id-ID',
+                                                                                {
+                                                                                    style: 'currency',
+                                                                                    currency: 'IDR',
                                                                                 },
                                                                             )}
                                                                         </td>
@@ -295,7 +253,7 @@ export default function ProgramForm({
                                                                 ),
                                                             )}
                                                     </tbody>
-                                                </table>
+                                                </Table>
                                             </div>
                                         </div>
                                     </div>

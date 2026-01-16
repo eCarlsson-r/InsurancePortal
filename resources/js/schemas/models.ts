@@ -73,7 +73,7 @@ export const customerSchema = z.object({
     id: z.number().int().optional(),
     name: z.string(),
     gender: z.number().int(),
-    identity_number: z.string(),
+    identity: z.string(),
     mobile: z.string(),
     email: z.string().email(),
     birth_date: z.string(),
