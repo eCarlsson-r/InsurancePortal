@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use App\Services\OllamaService;
 use App\Services\PolicyExtractionService;
 use App\Models\Policy;
+use App\Models\Agent;
+use App\Models\Product;
+use App\Models\Fund;
 use App\Models\Customer;
 use App\Exceptions\PdfLockedException;
 use App\Jobs\ProcessPolicyOCR;
@@ -15,6 +18,7 @@ use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Exception;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Redirect;
 
 class PolicyController extends Controller
 {
@@ -26,12 +30,17 @@ class PolicyController extends Controller
 		$logoText = "images/logo-text.png";
 
         $query = $request->get('q');
-		$policies = Policy::when($query, function ($q) use ($query) {
-            return $q->where('holder.name', 'like', "%{$query}%")
-                    ->where('insured.name', 'like', "%{$query}%")
-                    ->orWhere('policy_no', 'like', "%{$query}%")
-                    ->orWhere('id', 'like', "%{$query}%");
-        })->get();
+        $policies = Policy::with(['holder', 'insured', 'product', 'agent'])
+            ->when($query, function ($q) use ($query) {
+                return $q->where('policy_no', 'like', "%{$query}%")
+                    ->orWhere('id', 'like', "%{$query}%")
+                    ->orWhereHas('holder', function ($q) use ($query) {
+                        $q->where('name', 'like', "%{$query}%");
+                    })
+                    ->orWhereHas('insured', function ($q) use ($query) {
+                        $q->where('name', 'like', "%{$query}%");
+                    });
+            })->get();
 
         return Inertia::render('policy/index', [
             'policies' => $policies->toArray(),
@@ -39,50 +48,19 @@ class PolicyController extends Controller
         ]);
     }
 
-    public function create(Request $request)
+    public function store(Request $request) 
     {
-        $page_title = 'SP / Polis Baru';
-        $page_description = 'Input Data SP / Polis';
-        $logo = "images/logo.png";
-        $logoText = "images/logo-text.png";
-        $action = __FUNCTION__;
-
-        // Retrieve OCR data if the ocr_id exists in the URL
-        $extracted = null;
-        if ($request->has('ocr_id')) {
-            $extracted = Cache::get("ocr_result_" . $request->ocr_id);
-
-            return Inertia::render('policy/form', [
-                'extracted' => $extracted['data'],
-                'fileUrl' => route('ocr.view-file', ['ocrId' => $request->ocr_id])
-            ]);
-        } else {
-            return Inertia::render('policy/form');
-        }
-    }
-
-    public function store(Request $request) {
-        $validated = $request->validate([
-            'is_insure_holder' => 'required|boolean',
-            'customer.name' => 'required|string',
-            // Insured is only required if is_insure_holder is false
-            'insured.name' => 'required_if:is_insure_holder,false|nullable|string',
-        ]);
-
-        $holder_id = Customer::updateOrCreate($validated['customer'])->id;
+        $holder_id = Customer::updateOrCreate($request->holder)->id;
 
         if ($request->is_insure_holder) {
-            // Logic to point insured_id to the same customer record
             $insured_id = $holder_id;
         } else {
-            // Logic to create a separate insured record
-            $insured_id = Customer::updateOrCreate($validated['insured'])->id;
+            $insured_id = Customer::updateOrCreate($request->insured)->id;
         }
 
         $policy = Policy::create([
-            'id' => $request->id,
             'policy_no' => $request->policy_no,
-            'customer_id' => $holder_id,
+            'holder_id' => $holder_id,
             'insured_id' => $insured_id,
             'agent_id' => $request->agent_id,
             'holder_insured_relationship' => $request->holder_insured_relationship,
@@ -104,7 +82,88 @@ class PolicyController extends Controller
         if ($request->investments) $policy->investments()->createMany($request->investments);
         if ($request->riders) $policy->riders()->createMany($request->riders);
 
-        return Redirect::route('policy.index')->with('message', 'Data Berhasil Disimpan!');
+        return Redirect::route('sales.policy.index')->with('message', 'Data Berhasil Disimpan!');
+    }
+
+    public function create(Request $request)
+    {
+        $page_title = 'SP / Polis Baru';
+        $page_description = 'Input Data SP / Polis';
+        $logo = "images/logo.png";
+        $logoText = "images/logo-text.png";
+        $action = __FUNCTION__;
+
+        // Retrieve OCR data if the ocr_id exists in the URL
+        $extracted = null;
+        if ($request->has('ocr_id')) {
+            $extracted = Cache::get("ocr_result_" . $request->ocr_id);
+
+            return Inertia::render('policy/form', [
+                'extracted' => $extracted['data'],
+                'fileUrl' => route('ocr.view-file', ['ocrId' => $request->ocr_id]),
+                'agents' => Agent::all(), 
+                'products' => Product::all(),
+                'funds' => Fund::all()
+            ]);
+        } else {
+            return Inertia::render('policy/form');
+        }
+    }
+
+    
+
+    public function update(Request $request, $id) {
+        $policy = Policy::findOrFail($id);
+        
+        $request->validate([
+            'is_insure_holder' => 'required|boolean',
+            'holder.name' => 'required|string',
+            'insured.name' => 'required_if:is_insure_holder,false|nullable|string',
+        ]);
+
+        $holder_id = Customer::updateOrCreate(
+            ['identity' => $request->input('holder.identity')],
+            $request->input('holder')
+        )->id;
+
+        if ($request->is_insure_holder) {
+            $insured_id = $holder_id;
+        } else {
+            $insured_id = Customer::updateOrCreate(
+                ['identity' => $request->input('insured.identity')],
+                $request->input('insured')
+            )->id;
+        }
+
+        $policy->update([
+            'policy_no' => $request->policy_no,
+            'holder_id' => $holder_id,
+            'insured_id' => $insured_id,
+            'agent_id' => $request->agent_id,
+            'holder_insured_relationship' => $request->holder_insured_relationship,
+            'entry_date' => $request->entry_date,
+            'bill_at' => $request->bill_at,
+            'is_insure_holder' => $request->is_insure_holder,
+            'product_id' => $request->product_id,
+            'insure_period' => $request->insure_period,
+            'pay_period' => $request->pay_period,
+            'currency_id' => $request->currency_id,
+            'curr_rate' => $request->curr_rate,
+            'start_date' => $request->start_date,
+            'base_insure' => $request->base_insure,
+            'premium' => $request->premium,
+            'pay_method' => $request->pay_method,
+            'description' => $request->description
+        ]);
+
+        // Simple update: delete and recreate associated records
+        $policy->investments()->delete();
+        if ($request->investments) $policy->investments()->createMany($request->investments);
+        
+        $policy->riders()->delete();
+        if ($request->riders) $policy->riders()->createMany($request->riders);
+
+        return Redirect::route('sales.policy.index')->with('message', 'Data Berhasil Diperbarui!');
     }
 
     public function edit($id)
@@ -127,7 +186,7 @@ class PolicyController extends Controller
         $policy->update([
             'status' => 'cancelled',
         ]);
-        return redirect()->route('policy.index')->with('success', 'Policy cancelled successfully');
+        return redirect()->route('sales.policy.index')->with('success', 'Policy cancelled successfully');
     }
 
     public function processOcr(Request $request)

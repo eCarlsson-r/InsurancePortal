@@ -7,6 +7,7 @@ interface SubmitButtonProps {
     className?: string;
     tabIndex?: number;
     disabled?: boolean;
+    onClick: () => void;
 }
 
 export default function SubmitButton({
@@ -15,6 +16,7 @@ export default function SubmitButton({
     className = 'btn btn-primary btn-block',
     tabIndex,
     disabled,
+    onClick
 }: SubmitButtonProps) {
     return (
         <Button
@@ -22,6 +24,7 @@ export default function SubmitButton({
             className={className}
             tabIndex={tabIndex}
             disabled={processing || disabled}
+            onClick={onClick}
         >
             {processing && <Spinner className="mr-2" size="sm" />}
             {children}

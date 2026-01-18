@@ -23,7 +23,7 @@ export default function SelectInput({
         <FormField id={id} label={label} error={error} row={row} required={props.required}>
             <select
                 id={id}
-                className={`form-control ${className}`}
+                className={`form-select ${className}`}
                 {...props}
             >
                 {options

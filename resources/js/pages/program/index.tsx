@@ -1,6 +1,6 @@
-import TemplateLayout from '@/layouts/TemplateLayout';
+import TablePage from '@/layouts/TablePage';
 import { programSchema } from '@/schemas/models';
-import { Head, Link, router } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { Table } from 'react-bootstrap';
 import { z } from 'zod';
 
@@ -13,139 +13,76 @@ export default function Program({ programs = [] }: ProgramProps) {
         if (programId) router.get(`/master/program/${programId}/edit`);
     };
 
+    const formatCurrency = (amount: number) => {
+        return amount.toLocaleString('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            minimumFractionDigits: 0,
+        });
+    };
+
     return (
-        <TemplateLayout>
-            <Head title="Program" />
-
-            <div className="container-fluid">
-                <div className="row page-titles mx-0">
-                    <div className="col-sm-6 p-md-0">
-                        <h3
-                            className="text-primary d-inline"
-                            data-i18n="program"
-                        >
-                            Program
-                        </h3>{' '}
-                    </div>
-                    <div className="col-sm-6 p-md-0 justify-content-sm-end mt-2 mt-sm-0 d-flex">
-                        <ol className="breadcrumb">
-                            <li className="breadcrumb-item">
-                                <a href="javascript:void(0)" data-i18n="master">
-                                    Master
-                                </a>
-                            </li>
-                            <li
-                                className="breadcrumb-item active"
-                                data-i18n="program"
-                            >
-                                Program
-                            </li>
-                        </ol>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col-md-12">
-                        <div className="card">
-                            <div className="card-body">
-                                <div
-                                    id="program-toolbar"
-                                    className="card-title toolbar form-inline"
+        <TablePage
+            headTitle="Program"
+            title="Daftar Program"
+            i18nTitle="program"
+            breadcrumbs={[
+                { label: 'Master', href: 'javascript:void(0)', i18n: 'master' },
+                { label: 'Program', active: true, i18n: 'program' },
+            ]}
+            toolbar={
+                <Link
+                    href="/master/program/create"
+                    className="btn btn-primary"
+                >
+                    <i className="fa fa-file me-2"></i>
+                    <span data-i18n="new-program">Program Baru</span>
+                </Link>
+            }
+        >
+            <div className="table-responsive">
+                <Table hover striped bordered className="vertical-middle">
+                    <thead>
+                        <tr>
+                            <th data-i18n="program-name">Nama Program</th>
+                            <th style={{ width: '200px' }} data-i18n="agent-level">Jabatan Agen</th>
+                            <th style={{ width: '200px' }} data-i18n="min-allowance">Allowance Minimal</th>
+                            <th style={{ width: '200px' }} data-i18n="max-allowance">Allowance Maksimal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {programs.length > 0 ? (
+                            programs.map((program) => (
+                                <tr 
+                                    key={program.id} 
+                                    onClick={() => handleRowClick(program.id)}
+                                    className="cursor-pointer"
                                 >
-                                    <h4 data-i18n="program-list">
-                                        Daftar Program
-                                    </h4>
-                                    &emsp;
-                                    <Link
-                                        href="/master/program/create"
-                                        className="btn btn-primary"
-                                    >
-                                        <i className="fa fa-file"></i>{' '}
-                                        <span data-i18n="new-program">
-                                            Program Baru
-                                        </span>
-                                    </Link>
-                                </div>
-                                <div className="table-responsive">
-                                    <Table hover striped bordered>
-                                        <thead>
-                                            <tr>
-                                                <th className="col-sm-3">
-                                                    Nama Program
-                                                </th>
-                                                <th
-                                                    className="col-sm-2"
-                                                    data-formatter="LevelFormatter"
-                                                >
-                                                    Jabatan Agen
-                                                </th>
-                                                <th
-                                                    className="col-sm-2"
-                                                    data-formatter="programIDRFormatter"
-                                                >
-                                                    Allowance Minimal
-                                                </th>
-                                                <th
-                                                    className="col-sm-2"
-                                                    data-formatter="programIDRFormatter"
-                                                >
-                                                    Allowance Maksimal
-                                                </th>
-                                                <th
-                                                    className="col-sm-1"
-                                                    data-formatter="programActionFormatter"
-                                                    data-events="programActionHandler"
-                                                ></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {programs.length > 0 ? (
-                                                programs.map((program) => (
-                                                    <tr key={program.id} onClick={() => handleRowClick(program.id)}>
-                                                        <td>{program.name}</td>
-                                                        <td>
-                                                            {program.position}
-                                                        </td>
-                                                        <td>
-                                                            {program.min_allowance.toLocaleString(
-                                                                'id-ID',
-                                                                {
-                                                                    style: 'currency',
-                                                                    currency: 'IDR',
-                                                                },
-                                                            )}
-                                                        </td>
-                                                        <td>
-                                                            {program.max_allowance.toLocaleString(
-                                                                'id-ID',
-                                                                {
-                                                                    style: 'currency',
-                                                                    currency: 'IDR',
-                                                                },
-                                                            )}
-                                                        </td>
-                                                        <td>
-
-                                                        </td>
-                                                    </tr>
-                                                ))
-                                            ) : (
-                                                <tr>
-                                                    <td
-                                                        colSpan={5}
-                                                        className="text-center text-muted py-4"
-                                                    >
-                                                        No programs found.
-                                                    </td>
-                                                </tr>
-                                            )}
-                                        </tbody>
-                                    </Table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                                    <td>{program.name}</td>
+                                    <td>
+                                        {program.position === 'FC' ? 'Financial Consultant' : 
+                                         program.position === 'BP*' ? 'Business Partner *' :
+                                         program.position === 'BP**' ? 'Business Partner **' :
+                                         program.position === 'BP***' ? 'Business Partner ***' : program.position}
+                                    </td>
+                                    <td className="text-end">
+                                        {formatCurrency(program.min_allowance)}
+                                    </td>
+                                    <td className="text-end">
+                                        {formatCurrency(program.max_allowance)}
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan={4} className="text-center text-muted py-4">
+                                    No programs found.
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </Table>
             </div>
-        </TemplateLayout>
+        </TablePage>
     );
 }

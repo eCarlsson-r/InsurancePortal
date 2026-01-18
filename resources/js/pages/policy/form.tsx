@@ -1,43 +1,55 @@
+import CheckboxInput from '@/components/form/checkbox-input';
+import SelectInput from '@/components/form/select-input';
+import TextareaInput from '@/components/form/textarea-input';
+import TextInput from '@/components/form/text-input';
 import UploadOcrModal from '@/components/upload-ocr-modal';
-import TemplateLayout from '@/layouts/TemplateLayout';
-import { investmentSchema, policySchema, riderSchema } from '@/schemas/models';
-import { Head, Link, useForm } from '@inertiajs/react';
+import FormPage from '@/layouts/FormPage';
+import { policySchema, agentSchema, productSchema, fundSchema } from '@/schemas/models';
+import { Link, useForm } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import { Accordion } from 'react-bootstrap';
 import { z } from 'zod';
+import SubmitButton from '@/components/form/submit-button';
 
-export default function PolicyForm({
-    extracted,
-    fileUrl,
-    policy,
-}: {
+export default function PolicyForm({extracted, fileUrl, policy, agents, products, funds}: {
     extracted: z.infer<typeof policySchema>;
     fileUrl: string;
     policy: z.infer<typeof policySchema>;
+    agents: z.infer<typeof agentSchema>[];
+    products: z.infer<typeof productSchema>[];
+    funds: z.infer<typeof fundSchema>[];
 }) {
     const isEdit = !!policy;
 
     // Initial form state with safe defaults
-    const { data, setData, post, put, processing, errors } = useForm(
+    const { data, setData, post, put, processing, errors } = useForm<z.infer<typeof policySchema>>(
         isEdit
             ? policy
             : extracted || {
-                  // SP / Polis data
                   id: '',
-                  agent_id: '',
-                  entry_date: '',
-                  bill_at: '1',
+                  agent_id: 0,
+                  entry_date: new Date(),
+                  bill_at: 1,
                   is_insure_holder: false,
                   holder_insured_relationship: '',
-
-                  // Pemegang Polis
-                  customer: {
+                  product_id: 0,
+                  insure_period: 1,
+                  pay_period: 1,
+                  currency_id: 1,
+                  curr_rate: 1.0,
+                  start_date: new Date(),
+                  base_insure: 0,
+                  premium: 0,
+                  pay_method: 1,
+                  description: '',
+                  policy_no: '',
+                  holder: {
                       name: '',
-                      gender: '1',
+                      gender: 1,
                       birth_place: '',
                       birth_date: '',
-                      marital: '1',
-                      religion: '0',
+                      marital: 1,
+                      religion: 0,
                       identity: '',
                       profession: '',
                       mobile: '',
@@ -48,35 +60,29 @@ export default function PolicyForm({
                       work_address: '',
                       work_postal: '',
                       work_city: '',
+                      description: ''
                   },
-
-                  // Tertanggung
                   insured: {
                       name: '',
-                      gender: '1',
+                      gender: 1,
                       birth_place: '',
                       birth_date: '',
-                      marital: '1',
+                      marital: 1,
+                      religion: 1,
+                      identity: '',
                       profession: '',
+                      mobile: '',
+                      email: '',
                       home_address: '',
                       home_postal: '',
                       home_city: '',
+                      work_address: '',
+                      work_postal: '',
+                      work_city: '',
+                      description: ''
                   },
-
-                  // Data Asuransi
-                  policy_no: '',
-                  product_id: '',
-                  currency_id: '1',
-                  premium: 0,
-                  curr_rate: 1.0,
-                  pay_method: '1',
-                  base_insure: 0,
-
-                  // Investments & Riders
                   investments: [],
                   riders: [],
-
-                  description: '',
               },
     );
 
@@ -85,9 +91,8 @@ export default function PolicyForm({
     // Effect to sync holder name if checkbox is checked
     useEffect(() => {
         if (data.is_insure_holder) {
-            // Use the (key, value) syntax for cleaner nested updates
-            setData('insured', {
-                ...data.insured, // Keep existing fields like 'relationship'
+            const syncData = {
+                ...data.insured,
                 name: data.holder.name,
                 gender: data.holder.gender,
                 birth_place: data.holder.birth_place,
@@ -97,18 +102,21 @@ export default function PolicyForm({
                 home_address: data.holder.home_address,
                 home_postal: data.holder.home_postal,
                 home_city: data.holder.home_city,
-            });
-
-            setData('holder_insured_relationship', '1');
+            };
+            
+            // Check if object is different before setting to avoid loop
+            if (JSON.stringify(syncData) !== JSON.stringify(data.insured)) {
+                 setData((prev) => ({
+                    ...prev,
+                    insured: syncData,
+                    holder_insured_relationship: '1'
+                }));
+            }
         }
-    }, [
-        data.is_insure_holder,
-        data.insured,
-        data.holder, // Add this so changes to customer sync live to insured
-        setData,
-    ]);
+    }, [data.is_insure_holder, data.holder, data.insured, setData]);
 
     const handleSubmit = () => {
+        console.info("Submit policy : ", isEdit)
         if (isEdit) {
             put(`/sales/policy/${policy.id}`);
         } else {
@@ -116,7 +124,6 @@ export default function PolicyForm({
         }
     };
 
-    // Helper to add investment row
     const addInvestment = () => {
         setData('investments', [
             ...data.investments,
@@ -124,12 +131,17 @@ export default function PolicyForm({
         ]);
     };
 
-    // Helper to add rider row
+    const removeInvestment = (index: number) => {
+        const newInvestments = [...data.investments];
+        newInvestments.splice(index, 1);
+        setData('investments', newInvestments);
+    };
+
     const addRider = () => {
         setData('riders', [
             ...data.riders,
             {
-                product_id: 0,
+                product_id: '',
                 insure_amount: 0,
                 premium: 0,
                 insure_period: 0,
@@ -138,41 +150,29 @@ export default function PolicyForm({
         ]);
     };
 
-    return (
-        <TemplateLayout>
-            <Head title={isEdit ? 'Sunting Data SP' : 'Input Data SP'} />
-            <div className="container-fluid">
-                <div className="row page-titles mx-0">
-                    <div className="col-6 p-md-0">
-                        <h3 className="text-primary d-inline">
-                            {isEdit ? 'Sunting Data SP' : 'Input Data SP'}
-                        </h3>
-                        <button
-                            type="submit"
-                            className="btn btn-primary pull-right"
-                            disabled={processing}
-                        >
-                            <i className="fa fa-save me-2"></i>
-                            {isEdit ? 'Perbaharui' : 'Simpan'}
-                        </button>
-                    </div>
-                    <div className="col-6 p-md-0 justify-content-end mt-2 d-flex">
-                        <ol className="breadcrumb">
-                            <li className="breadcrumb-item" data-i18n="sales">
-                                Penjualan
-                            </li>
-                            <li className="breadcrumb-item">
-                                <Link href="/sales" data-i18n="case">
-                                    SP / Polis
-                                </Link>
-                            </li>
-                            <li className="breadcrumb-item active">
-                                {isEdit ? 'Sunting Data SP' : 'Input Data SP'}
-                            </li>
-                        </ol>
-                    </div>
-                </div>
+    const removeRider = (index: number) => {
+        const newRiders = [...data.riders];
+        newRiders.splice(index, 1);
+        setData('riders', newRiders);
+    };
 
+    return (
+        <FormPage
+            headTitle={isEdit ? 'Sunting Data SP' : 'Input Data SP'}
+            title={isEdit ? 'Sunting Data SP' : 'Input Data SP'}
+            breadcrumbs={[
+                { label: 'Penjualan', i18n: 'sales' },
+                { label: 'SP / Polis', href: '/sales', i18n: 'case' },
+                { label: isEdit ? 'Sunting' : 'Input', active: true },
+            ]}
+        >
+            <form
+                id="case-form"
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    handleSubmit();
+                }}
+            >
                 <div className="row">
                     {/* PDF Preview Sidebar (Sticky) */}
                     <div className="col-lg-6 d-none d-lg-block">
@@ -185,6 +185,7 @@ export default function PolicyForm({
                                             src={`${fileUrl}#page=3&toolbar=0&navpanes=0`}
                                             width="100%"
                                             height="600px"
+                                            style={{ border: 'none' }}
                                         />
                                     </Accordion.Body>
                                 </Accordion.Item>
@@ -194,1457 +195,664 @@ export default function PolicyForm({
 
                     {/* Form */}
                     <div className="col-lg-6">
-                        <form
-                            id="case-form"
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                handleSubmit();
-                            }}
-                        >
+                        <Accordion defaultActiveKey="0" className="mb-3">
                             {/* Section 1: Data SP */}
-                            <Accordion defaultActiveKey="0">
-                                <Accordion.Item eventKey="0">
-                                    <Accordion.Header>Data SP</Accordion.Header>
-                                    <Accordion.Body>
-                                        <div className="mb-3 row form-group">
-                                            <label
-                                                className="col-sm-3 col-form-label"
-                                                data-i18n="case-code"
+                            <Accordion.Item eventKey="0">
+                                <Accordion.Header>Data SP</Accordion.Header>
+                                <Accordion.Body>
+                                    <TextInput
+                                        id="case_no"
+                                        label="No. SP"
+                                        value={data.id}
+                                        onChange={(e) => setData('id', e.target.value)}
+                                        error={errors.id}
+                                        row
+                                    />
+
+                                    <SelectInput
+                                        id="agent_id"
+                                        label="Agen"
+                                        value={data.agent_id}
+                                        onChange={(e) => setData('agent_id', e.target.value)}
+                                        error={errors.agent_id}
+                                        options={agents.map((agent) => ({
+                                            value: agent.id || '',
+                                            label: agent.name,
+                                        }))}
+                                        row
+                                    />
+
+                                    <TextInput
+                                        id="entry_date"
+                                        label="Tanggal SP Masuk"
+                                        type="date"
+                                        value={
+                                            typeof data.entry_date === 'string'
+                                                ? data.entry_date
+                                                : data.entry_date.toISOString().split('T')[0]
+                                        }
+                                        onChange={(e) => setData('entry_date', new Date(e.target.value))}
+                                        error={errors.entry_date}
+                                        row
+                                    />
+
+                                    <SelectInput
+                                        id="bill_at"
+                                        label="Tagih"
+                                        value={data.bill_at}
+                                        onChange={(e) => setData('bill_at', parseInt(e.target.value))}
+                                        error={errors.bill_at}
+                                        options={[
+                                            { value: 1, label: 'Rumah' },
+                                            { value: 2, label: 'Kantor' },
+                                        ]}
+                                        row
+                                    />
+
+                                    <CheckboxInput
+                                        id="insure-holder"
+                                        label="Data pemegang polis sama dengan data tertanggung."
+                                        checked={data.is_insure_holder}
+                                        onChange={(e) => setData('is_insure_holder', e.target.checked)}
+                                    />
+                                </Accordion.Body>
+                            </Accordion.Item>
+
+                            {/* Section 2: Pemegang Polis */}
+                            <Accordion.Item eventKey="1">
+                                <Accordion.Header>
+                                    Data Pemegang Polis
+                                </Accordion.Header>
+                                <Accordion.Body>
+                                    <TextInput
+                                        id="holder_name"
+                                        label="Nama Lengkap"
+                                        value={data.holder.name}
+                                        onChange={(e) => setData('holder', { ...data.holder, name: e.target.value })}
+                                        row
+                                    />
+
+                                    <SelectInput
+                                        id="holder_gender"
+                                        label="Jenis Kelamin"
+                                        value={data.holder.gender}
+                                        onChange={(e) => setData('holder', { ...data.holder, gender: parseInt(e.target.value) })}
+                                        options={[
+                                            { value: 1, label: 'Pria' },
+                                            { value: 2, label: 'Wanita' },
+                                        ]}
+                                        row
+                                    />
+
+                                    <div className="mb-3 row form-group">
+                                        <label className="col-sm-3 col-form-label">Tempat dan Tanggal Lahir</label>
+                                        <div className="col-sm-9 input-group">
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                placeholder="Tempat"
+                                                value={data.holder.birth_place}
+                                                onChange={(e) => setData('holder', { ...data.holder, birth_place: e.target.value })}
+                                            />
+                                            <input
+                                                type="date"
+                                                className="form-control"
+                                                value={data.holder.birth_date}
+                                                onChange={(e) => setData('holder', { ...data.holder, birth_date: e.target.value })}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <SelectInput
+                                        id="holder_marital"
+                                        label="Status"
+                                        value={data.holder.marital}
+                                        onChange={(e) => setData('holder', { ...data.holder, marital: parseInt(e.target.value) })}
+                                        options={[
+                                            { value: 1, label: 'Single' },
+                                            { value: 2, label: 'Kawin' },
+                                            { value: 3, label: 'Duda/Janda' },
+                                            { value: 4, label: 'Cerai' },
+                                        ]}
+                                        row
+                                    />
+
+                                    <SelectInput
+                                        id="holder_religion"
+                                        label="Agama"
+                                        value={data.holder.religion}
+                                        onChange={(e) => setData('holder', { ...data.holder, religion: parseInt(e.target.value) })}
+                                        options={[
+                                            { value: 0, label: '' },
+                                            { value: 1, label: 'Budha' },
+                                            { value: 2, label: 'Kristen' },
+                                            { value: 3, label: 'Islam' },
+                                            { value: 4, label: 'Hindu' },
+                                        ]}
+                                        row
+                                    />
+
+                                    <TextInput
+                                        id="holder_identity_number"
+                                        label="Nomor Identitas"
+                                        value={data.holder.identity}
+                                        onChange={(e) => setData('holder', { ...data.holder, identity: e.target.value })}
+                                        row
+                                    />
+
+                                    <TextInput
+                                        id="holder_profession"
+                                        label="Pekerjaan"
+                                        value={data.holder.profession}
+                                        onChange={(e) => setData('holder', { ...data.holder, profession: e.target.value })}
+                                        row
+                                    />
+
+                                    <TextInput
+                                        id="holder_mobile"
+                                        label="Nomor Ponsel"
+                                        value={data.holder.mobile}
+                                        onChange={(e) => setData('holder', { ...data.holder, mobile: e.target.value })}
+                                        row
+                                    />
+
+                                    <TextInput
+                                        id="holder_email"
+                                        label="Alamat e-Mail"
+                                        type="email"
+                                        value={data.holder.email}
+                                        onChange={(e) => setData('holder', { ...data.holder, email: e.target.value })}
+                                        row
+                                    />
+
+                                    <TextInput
+                                        id="holder_home_address"
+                                        label="Alamat Rumah"
+                                        value={data.holder.home_address}
+                                        onChange={(e) => setData('holder', { ...data.holder, home_address: e.target.value })}
+                                        row
+                                    />
+
+                                    <div className="mb-3 row form-group">
+                                        <label className="col-sm-3 col-form-label">Kode Pos / Kota</label>
+                                        <div className="col-sm-9 d-flex gap-2">
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                placeholder="Kode Pos"
+                                                style={{ maxWidth: '100px' }}
+                                                value={data.holder.home_postal}
+                                                onChange={(e) => setData('holder', { ...data.holder, home_postal: e.target.value })}
+                                            />
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                placeholder="Kota"
+                                                value={data.holder.home_city}
+                                                onChange={(e) => setData('holder', { ...data.holder, home_city: e.target.value })}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <TextInput
+                                        id="holder_work_address"
+                                        label="Alamat Kantor"
+                                        value={data.holder.work_address}
+                                        onChange={(e) => setData('holder', { ...data.holder, work_address: e.target.value })}
+                                        row
+                                    />
+
+                                    <div className="mb-3 row form-group">
+                                        <label className="col-sm-3 col-form-label">Kode Pos / Kota</label>
+                                        <div className="col-sm-9 d-flex gap-2">
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                placeholder="Kode Pos"
+                                                style={{ maxWidth: '100px' }}
+                                                value={data.holder.work_postal}
+                                                onChange={(e) => setData('holder', { ...data.holder, work_postal: e.target.value })}
+                                            />
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                placeholder="Kota"
+                                                value={data.holder.work_city}
+                                                onChange={(e) => setData('holder', { ...data.holder, work_city: e.target.value })}
+                                            />
+                                        </div>
+                                    </div>
+                                </Accordion.Body>
+                            </Accordion.Item>
+
+                            {/* Section 3: Tertanggung */}
+                            <Accordion.Item eventKey="2">
+                                <Accordion.Header>
+                                    Data Tertanggung
+                                </Accordion.Header>
+                                <Accordion.Body>
+                                    <TextInput
+                                        id="insured_name"
+                                        label="Nama Lengkap"
+                                        value={data.insured.name}
+                                        onChange={(e) => setData('insured', { ...data.insured, name: e.target.value })}
+                                        disabled={data.is_insure_holder}
+                                        row
+                                    />
+
+                                    <SelectInput
+                                        id="insured_gender"
+                                        label="Jenis Kelamin"
+                                        value={data.insured.gender}
+                                        onChange={(e) => setData('insured', { ...data.insured, gender: parseInt(e.target.value) })}
+                                        disabled={data.is_insure_holder}
+                                        options={[
+                                            { value: 1, label: 'Pria' },
+                                            { value: 2, label: 'Wanita' },
+                                        ]}
+                                        row
+                                    />
+
+                                    <div className="mb-3 row form-group">
+                                        <label className="col-sm-3 col-form-label">Tempat & Tgl Lahir</label>
+                                        <div className="col-sm-9 d-flex gap-2">
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                placeholder="Tempat"
+                                                value={data.insured.birth_place}
+                                                onChange={(e) => setData('insured', { ...data.insured, birth_place: e.target.value })}
+                                                disabled={data.is_insure_holder}
+                                            />
+                                            <input
+                                                type="date"
+                                                className="form-control"
+                                                value={data.insured.birth_date}
+                                                onChange={(e) => setData('insured', { ...data.insured, birth_date: e.target.value })}
+                                                disabled={data.is_insure_holder}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <SelectInput
+                                        id="insured_marital"
+                                        label="Status"
+                                        value={data.insured.marital}
+                                        onChange={(e) => setData('insured', { ...data.insured, marital: parseInt(e.target.value) })}
+                                        disabled={data.is_insure_holder}
+                                        options={[
+                                            { value: 1, label: 'Single' },
+                                            { value: 2, label: 'Kawin' },
+                                            { value: 3, label: 'Duda/Janda' },
+                                            { value: 4, label: 'Cerai' },
+                                        ]}
+                                        row
+                                    />
+
+                                    <SelectInput
+                                        id="holder_insured_relationship"
+                                        label="Hubungan"
+                                        value={data.holder_insured_relationship}
+                                        onChange={(e) => setData('holder_insured_relationship', e.target.value)}
+                                        disabled={data.is_insure_holder}
+                                        options={[
+                                            { value: '1', label: 'Diri Sendiri' },
+                                            { value: '2', label: 'Suami / Istri' },
+                                            { value: '3', label: 'Anak' },
+                                            { value: '4', label: 'Orang Tua' },
+                                            { value: '5', label: 'Lainnya' },
+                                        ]}
+                                        row
+                                    />
+
+                                    <TextInput
+                                        id="insured_profession"
+                                        label="Pekerjaan"
+                                        value={data.insured.profession}
+                                        onChange={(e) => setData('insured', { ...data.insured, profession: e.target.value })}
+                                        disabled={data.is_insure_holder}
+                                        row
+                                    />
+
+                                    <TextInput
+                                        id="insured_home_address"
+                                        label="Alamat Rumah"
+                                        value={data.insured.home_address}
+                                        onChange={(e) => setData('insured', { ...data.insured, home_address: e.target.value })}
+                                        disabled={data.is_insure_holder}
+                                        row
+                                    />
+
+                                    <div className="mb-3 row form-group">
+                                        <label className="col-sm-3 col-form-label">Kode Pos / Kota</label>
+                                        <div className="col-sm-9 d-flex gap-2">
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                placeholder="Kode Pos"
+                                                style={{ maxWidth: '100px' }}
+                                                value={data.insured.home_postal}
+                                                onChange={(e) => setData('insured', { ...data.insured, home_postal: e.target.value })}
+                                                disabled={data.is_insure_holder}
+                                            />
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                placeholder="Kota"
+                                                value={data.insured.home_city}
+                                                onChange={(e) => setData('insured', { ...data.insured, home_city: e.target.value })}
+                                                disabled={data.is_insure_holder}
+                                            />
+                                        </div>
+                                    </div>
+                                </Accordion.Body>
+                            </Accordion.Item>
+
+                            {/* Section 4: Data Asuransi */}
+                            <Accordion.Item eventKey="3">
+                                <Accordion.Header>
+                                    Data Asuransi
+                                </Accordion.Header>
+                                <Accordion.Body>
+                                    <TextInput
+                                        id="policy_no"
+                                        label="No. Polis"
+                                        value={data.policy_no}
+                                        onChange={(e) => setData('policy_no', e.target.value)}
+                                        row
+                                    />
+
+                                    <SelectInput
+                                        id="product_id"
+                                        label="Produk"
+                                        value={data.product_id}
+                                        onChange={(e) => setData('product_id', e.target.value)}
+                                        options={
+                                            products.map((product) => ({
+                                                value: product.id || '',
+                                                label: product.name,
+                                            }))
+                                        }
+                                        row
+                                    />
+
+                                    <SelectInput
+                                        id="currency_id"
+                                        label="Mata Uang"
+                                        value={data.currency_id}
+                                        onChange={(e) => setData('currency_id', parseInt(e.target.value))}
+                                        options={[
+                                            { value: 1, label: 'Rupiah' },
+                                            { value: 2, label: 'Dollar' },
+                                        ]}
+                                        row
+                                    />
+
+                                    <div className="mb-3 row form-group">
+                                        <label className="col-sm-3 col-form-label">Premi Dasar</label>
+                                        <div className="col-sm-9 input-group">
+                                            <input
+                                                type="number"
+                                                className="form-control"
+                                                value={data.premium}
+                                                onChange={(e) => setData('premium', Number(e.target.value))}
+                                            />
+                                            <span className="input-group-text">x</span>
+                                            <input
+                                                type="number"
+                                                className="form-control"
+                                                style={{ maxWidth: '100px' }}
+                                                value={data.curr_rate}
+                                                onChange={(e) => setData('curr_rate', Number(e.target.value))}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <SelectInput
+                                        id="pay_method"
+                                        label="Cara Bayar"
+                                        value={data.pay_method}
+                                        onChange={(e) => setData('pay_method', parseInt(e.target.value))}
+                                        options={[
+                                            { value: 1, label: 'Tahunan' },
+                                            { value: 2, label: 'Enam Bulanan' },
+                                            { value: 4, label: 'Tiga Bulanan' },
+                                            { value: 12, label: 'Bulanan' },
+                                            { value: 0, label: 'Sekaligus' },
+                                        ]}
+                                        row
+                                    />
+
+                                    <TextInput
+                                        id="base_insure"
+                                        label="U.P. Dasar"
+                                        type="number"
+                                        value={data.base_insure}
+                                        onChange={(e) => setData('base_insure', Number(e.target.value))}
+                                        row
+                                    />
+
+                                    {/* Investments Table */}
+                                    <div className="mb-3 mt-4">
+                                        <div className="d-flex justify-content-between align-items-center mb-2">
+                                            <h6 className="mb-0">Pilihan Investasi</h6>
+                                            <button
+                                                type="button"
+                                                className="btn btn-sm btn-primary"
+                                                onClick={addInvestment}
                                             >
-                                                No. SP
-                                            </label>
-                                            <div className="col-sm-9">
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    value={data.id}
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'id',
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                />
-                                                {errors.id && (
-                                                    <div className="text-danger small">
-                                                        {errors.id}
-                                                    </div>
+                                                <i className="fa fa-plus me-1"></i>
+                                                Tambah
+                                            </button>
+                                        </div>
+                                        <table className="table table-bordered table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Jenis Investasi</th>
+                                                    <th style={{ width: '100px' }}>Percent</th>
+                                                    <th style={{ width: '40px' }}></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {(data.investments && data.investments.length > 0) ? (data.investments.map((item, index) => (
+                                                    <tr key={index}>
+                                                        <td>
+                                                            <select
+                                                                className="form-control form-control-sm"
+                                                                value={item.fund_id}
+                                                                onChange={(e) => {
+                                                                    const newInvestments = [...data.investments];
+                                                                    newInvestments[index].fund_id = parseInt(e.target.value);
+                                                                    setData('investments', newInvestments);
+                                                                }}
+                                                            >
+                                                                <option value="0">Pilih Fund</option>
+                                                                {funds.map((fund) => (
+                                                                    <option key={fund.id} value={fund.id}>
+                                                                        {fund.name}
+                                                                    </option>
+                                                                ))}
+                                                            </select>
+                                                        </td>
+                                                        <td>
+                                                            <input
+                                                                type="number"
+                                                                className="form-control form-control-sm"
+                                                                value={item.allocation}
+                                                                onChange={(e) => {
+                                                                    const newInvestments = [...data.investments];
+                                                                    newInvestments[index].allocation = parseFloat(e.target.value);
+                                                                    setData('investments', newInvestments);
+                                                                }}
+                                                            />
+                                                        </td>
+                                                        <td className="text-center">
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-link btn-sm text-danger p-0"
+                                                                onClick={() => removeInvestment(index)}
+                                                            >
+                                                                <i className="fa fa-trash"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                ))) : (
+                                                    <tr>
+                                                        <td colSpan={3} className="text-center text-muted py-2">
+                                                            Belum ada investasi
+                                                        </td>
+                                                    </tr>
                                                 )}
-                                            </div>
-                                        </div>
+                                            </tbody>
+                                        </table>
+                                    </div>
 
-                                        <div className="mb-3 row form-group">
-                                            <label
-                                                className="col-sm-3 col-form-label"
-                                                data-i18n="agent"
+                                    {/* Riders Table */}
+                                    <div className="mb-3 mt-4">
+                                        <div className="d-flex justify-content-between align-items-center mb-2">
+                                            <h6 className="mb-0">Asuransi Tambahan</h6>
+                                            <button
+                                                type="button"
+                                                className="btn btn-sm btn-primary"
+                                                onClick={addRider}
                                             >
-                                                Agen
-                                            </label>
-                                            <div className="col-sm-9">
-                                                <select
-                                                    className="form-control"
-                                                    value={data.agent_id}
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'agent_id',
-                                                            parseInt(
-                                                                e.target.value,
-                                                            ),
-                                                        )
-                                                    }
-                                                >
-                                                    <option value="">
-                                                        Pilih Agen
-                                                    </option>
-                                                </select>
-                                            </div>
+                                                <i className="fa fa-plus me-1"></i>
+                                                Tambah
+                                            </button>
                                         </div>
-
-                                        <div className="mb-3 row form-group">
-                                            <label
-                                                className="col-sm-3 col-form-label"
-                                                data-i18n="case-entry-date"
-                                            >
-                                                Tanggal SP Masuk
-                                            </label>
-                                            <div className="col-sm-9">
-                                                <input
-                                                    type="date"
-                                                    className="form-control"
-                                                    value={
-                                                        typeof data.entry_date ===
-                                                        'string'
-                                                            ? data.entry_date
-                                                            : data.entry_date
-                                                                  .toISOString()
-                                                                  .split('T')[0]
-                                                    }
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'entry_date',
-                                                            new Date(
-                                                                e.target.value,
-                                                            ),
-                                                        )
-                                                    }
-                                                />
-                                            </div>
+                                        <div className="table-responsive">
+                                            <table className="table table-bordered table-sm" style={{ minWidth: '600px' }}>
+                                                <thead>
+                                                    <tr>
+                                                        <th>Rider</th>
+                                                        <th>U.P. Rider</th>
+                                                        <th>Premi</th>
+                                                        <th>Masa Asuransi</th>
+                                                        <th>Masa Bayar</th>
+                                                        <th style={{ width: '40px' }}></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {(data.riders && data.riders.length > 0) ? (data.riders.map((item, index) => (
+                                                        <tr key={index}>
+                                                            <td>
+                                                                <select
+                                                                    className="form-control form-control-sm"
+                                                                    value={item.product_id}
+                                                                    onChange={(e) => {
+                                                                        const newRiders = [...data.riders];
+                                                                        newRiders[index].product_id = e.target.value;
+                                                                        setData('riders', newRiders);
+                                                                    }}
+                                                                >
+                                                                    <option value="">Pilih Rider</option>
+                                                                    {products.filter(p => p.type === "5").map((product) => (
+                                                                        <option key={product.id} value={product.id}>
+                                                                            {product.name}
+                                                                        </option>
+                                                                    ))}
+                                                                </select>
+                                                            </td>
+                                                            <td>
+                                                                <input
+                                                                    type="number"
+                                                                    className="form-control form-control-sm"
+                                                                    value={item.insure_amount}
+                                                                    onChange={(e) => {
+                                                                        const newRiders = [...data.riders];
+                                                                        newRiders[index].insure_amount = Number(e.target.value);
+                                                                        setData('riders', newRiders);
+                                                                    }}
+                                                                />
+                                                            </td>
+                                                            <td>
+                                                                <input
+                                                                    type="number"
+                                                                    className="form-control form-control-sm"
+                                                                    value={item.premium}
+                                                                    onChange={(e) => {
+                                                                        const newRiders = [...data.riders];
+                                                                        newRiders[index].premium = Number(e.target.value);
+                                                                        setData('riders', newRiders);
+                                                                    }}
+                                                                />
+                                                            </td>
+                                                            <td>
+                                                                <input
+                                                                    type="number"
+                                                                    className="form-control form-control-sm"
+                                                                    value={item.insure_period}
+                                                                    onChange={(e) => {
+                                                                        const newRiders = [...data.riders];
+                                                                        newRiders[index].insure_period = Number(e.target.value);
+                                                                        setData('riders', newRiders);
+                                                                    }}
+                                                                />
+                                                            </td>
+                                                            <td>
+                                                                <input
+                                                                    type="number"
+                                                                    className="form-control form-control-sm"
+                                                                    value={item.pay_period}
+                                                                    onChange={(e) => {
+                                                                        const newRiders = [...data.riders];
+                                                                        newRiders[index].pay_period = Number(e.target.value);
+                                                                        setData('riders', newRiders);
+                                                                    }}
+                                                                />
+                                                            </td>
+                                                            <td className="text-center">
+                                                                <button
+                                                                    type="button"
+                                                                    className="btn btn-link btn-sm text-danger p-0"
+                                                                    onClick={() => removeRider(index)}
+                                                                >
+                                                                    <i className="fa fa-trash"></i>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))) : (
+                                                        <tr>
+                                                            <td colSpan={6} className="text-center text-muted py-2">
+                                                                Belum ada rider
+                                                            </td>
+                                                        </tr>
+                                                    )}
+                                                </tbody>
+                                            </table>
                                         </div>
+                                    </div>
 
-                                        <div className="mb-3 row form-group">
-                                            <label
-                                                className="col-sm-3 col-form-label"
-                                                data-i18n="tagih"
-                                            >
-                                                Tagih
-                                            </label>
-                                            <div className="col-sm-9">
-                                                <select
-                                                    className="form-control"
-                                                    value={data.bill_at}
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'bill_at',
-                                                            parseInt(
-                                                                e.target.value,
-                                                            ),
-                                                        )
-                                                    }
-                                                >
-                                                    <option
-                                                        value="1"
-                                                        data-i18n="[label]home"
-                                                    >
-                                                        Rumah
-                                                    </option>
-                                                    <option
-                                                        value="2"
-                                                        data-i18n="[label]work"
-                                                    >
-                                                        Kantor
-                                                    </option>
-                                                </select>
-                                            </div>
-                                        </div>
+                                    <TextareaInput
+                                        id="description"
+                                        label="Keterangan"
+                                        value={data.description}
+                                        onChange={(e) => setData('description', e.target.value)}
+                                        row
+                                    />
+                                </Accordion.Body>
+                            </Accordion.Item>
+                        </Accordion>
 
-                                        <div className="mb-3 row form-group">
-                                            <div className="col-12 input-group">
-                                                <div className="input-group-prepend">
-                                                    <div className="input-group-text">
-                                                        <input
-                                                            type="checkbox"
-                                                            id="insure-holder"
-                                                            checked={
-                                                                data.is_insure_holder
-                                                            }
-                                                            onChange={(e) =>
-                                                                setData(
-                                                                    'is_insure_holder',
-                                                                    e.target
-                                                                        .checked,
-                                                                )
-                                                            }
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <label
-                                                    className="form-control"
-                                                    htmlFor="insure-holder"
-                                                >
-                                                    Data pemegang polis sama
-                                                    dengan data tertanggung.
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </Accordion.Body>
-                                </Accordion.Item>
-
-                                {/* Section 2: Pemegang Polis */}
-                                <Accordion.Item eventKey="1">
-                                    <Accordion.Header>
-                                        Data Pemegang Polis
-                                    </Accordion.Header>
-                                    <Accordion.Body>
-                                        <div className="mb-3 row form-group">
-                                            <label
-                                                className="col-sm-3 col-form-label"
-                                                data-i18n="complete-name"
-                                            >
-                                                Nama Lengkap
-                                            </label>
-                                            <div className="col-sm-9">
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    value={data.holder.name}
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'holder.name',
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="mb-3 row form-group">
-                                            <label
-                                                className="col-sm-3 col-form-label"
-                                                data-i18n="gender"
-                                            >
-                                                Jenis Kelamin
-                                            </label>
-                                            <div className="col-sm-9">
-                                                <select
-                                                    className="form-control"
-                                                    value={data.holder.gender}
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'holder.gender',
-                                                            parseInt(
-                                                                e.target.value,
-                                                            ),
-                                                        )
-                                                    }
-                                                >
-                                                    <option
-                                                        value="1"
-                                                        data-i18n="male"
-                                                    >
-                                                        Pria
-                                                    </option>
-                                                    <option
-                                                        value="2"
-                                                        data-i18n="female"
-                                                    >
-                                                        Wanita
-                                                    </option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <div className="mb-3 row form-group">
-                                            <label
-                                                className="col-sm-3 col-form-label"
-                                                data-i18n="place_date_birth"
-                                            >
-                                                Tempat dan Tanggal Lahir
-                                            </label>
-                                            <div className="col-sm-9 input-group">
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    placeholder="Tempat"
-                                                    value={
-                                                        data.holder.birth_place
-                                                    }
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'holder.birth_place',
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                />
-                                                <input
-                                                    type="date"
-                                                    className="form-control"
-                                                    value={
-                                                        typeof data.holder
-                                                            .birth_date ===
-                                                        'string'
-                                                            ? data.holder
-                                                                  .birth_date
-                                                            : data.holder.birth_date
-                                                                  .toISOString()
-                                                                  .split('T')[0]
-                                                    }
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'holder.birth_date',
-                                                            new Date(
-                                                                e.target.value,
-                                                            ),
-                                                        )
-                                                    }
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="mb-3 row form-group">
-                                            <label
-                                                className="col-sm-3 col-form-label"
-                                                data-i18n="customer-marital"
-                                            >
-                                                Status
-                                            </label>
-                                            <div className="col-sm-9">
-                                                <select
-                                                    className="form-control"
-                                                    value={data.holder.marital}
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'holder.marital',
-                                                            parseInt(
-                                                                e.target.value,
-                                                            ),
-                                                        )
-                                                    }
-                                                >
-                                                    <option
-                                                        value="1"
-                                                        data-i18n="single"
-                                                    >
-                                                        Single
-                                                    </option>
-                                                    <option
-                                                        value="2"
-                                                        data-i18n="married"
-                                                    >
-                                                        Kawin
-                                                    </option>
-                                                    <option
-                                                        value="3"
-                                                        data-i18n="widow"
-                                                    >
-                                                        Duda/Janda
-                                                    </option>
-                                                    <option
-                                                        value="4"
-                                                        data-i18n="divorce"
-                                                    >
-                                                        Cerai
-                                                    </option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <div className="mb-3 row form-group">
-                                            <label
-                                                className="col-sm-3 col-form-label"
-                                                data-i18n="customer-religion"
-                                            >
-                                                Agama
-                                            </label>
-                                            <div className="col-sm-9">
-                                                <select
-                                                    className="form-control"
-                                                    value={data.holder.religion}
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'holder.religion',
-                                                            parseInt(
-                                                                e.target.value,
-                                                            ),
-                                                        )
-                                                    }
-                                                >
-                                                    <option
-                                                        value="0"
-                                                        label=""
-                                                    ></option>
-                                                    <option
-                                                        value="1"
-                                                        data-i18n="buddhism"
-                                                    >
-                                                        Budha
-                                                    </option>
-                                                    <option
-                                                        value="2"
-                                                        data-i18n="christian"
-                                                    >
-                                                        Kristen
-                                                    </option>
-                                                    <option
-                                                        value="3"
-                                                        data-i18n="muslim"
-                                                    >
-                                                        Islam
-                                                    </option>
-                                                    <option
-                                                        value="4"
-                                                        data-i18n="hindu"
-                                                    >
-                                                        Hindu
-                                                    </option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <div className="mb-3 row form-group">
-                                            <label
-                                                className="col-sm-3 col-form-label"
-                                                data-i18n="customer-identity"
-                                            >
-                                                Nomor Identitas
-                                            </label>
-                                            <div className="col-sm-9">
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    value={
-                                                        data.holder
-                                                            .identity_number
-                                                    }
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'holder.identity_number',
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="mb-3 row form-group">
-                                            <label
-                                                className="col-sm-3 col-form-label"
-                                                data-i18n="profession"
-                                            >
-                                                Pekerjaan
-                                            </label>
-                                            <div className="col-sm-9">
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    value={
-                                                        data.holder.profession
-                                                    }
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'holder.profession',
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="mb-3 row form-group">
-                                            <label
-                                                className="col-sm-3 col-form-label"
-                                                data-i18n="mobile-number"
-                                            >
-                                                Nomor Ponsel
-                                            </label>
-                                            <div className="col-sm-9">
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    value={data.holder.mobile}
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'holder.mobile',
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="mb-3 row form-group">
-                                            <label
-                                                className="col-sm-3 col-form-label"
-                                                data-i18n="email-address"
-                                            >
-                                                Alamat e-Mail
-                                            </label>
-                                            <div className="col-sm-9">
-                                                <input
-                                                    type="email"
-                                                    className="form-control"
-                                                    value={data.holder.email}
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'holder.email',
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="mb-3 row form-group">
-                                            <label
-                                                className="col-sm-3 col-form-label"
-                                                data-i18n="home-address"
-                                            >
-                                                Alamat Rumah
-                                            </label>
-                                            <div className="col-sm-9">
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    value={
-                                                        data.holder.home_address
-                                                    }
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'holder.home_address',
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="mb-3 row form-group">
-                                            <label
-                                                className="col-sm-3 col-form-label"
-                                                data-i18n="postal-code"
-                                            >
-                                                Kode Pos / Kota
-                                            </label>
-                                            <div className="col-sm-9 d-flex gap-2">
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    placeholder="Kode Pos"
-                                                    style={{
-                                                        maxWidth: '100px',
-                                                    }}
-                                                    value={
-                                                        data.holder.home_postal
-                                                    }
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'holder.home_postal',
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                />
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    placeholder="Kota"
-                                                    value={
-                                                        data.holder.home_city
-                                                    }
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'holder.home_city',
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="mb-3 row form-group">
-                                            <label
-                                                className="col-sm-3 col-form-label"
-                                                data-i18n="work-address"
-                                            >
-                                                Alamat Kantor
-                                            </label>
-                                            <div className="col-sm-9">
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    value={
-                                                        data.holder.work_address
-                                                    }
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'holder.work_address',
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="mb-3 row form-group">
-                                            <label
-                                                className="col-sm-3 col-form-label"
-                                                data-i18n="postal-code"
-                                            >
-                                                Kode Pos / Kota
-                                            </label>
-                                            <div className="col-sm-9 d-flex gap-2">
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    placeholder="Kode Pos"
-                                                    style={{
-                                                        maxWidth: '100px',
-                                                    }}
-                                                    value={
-                                                        data.holder.work_postal
-                                                    }
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'holder.work_postal',
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                />
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    placeholder="Kota"
-                                                    value={
-                                                        data.holder.work_city
-                                                    }
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'holder.work_city',
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                />
-                                            </div>
-                                        </div>
-                                    </Accordion.Body>
-                                </Accordion.Item>
-
-                                {/* Section 3: Tertanggung */}
-                                <Accordion.Item eventKey="2">
-                                    <Accordion.Header>
-                                        Data Tertanggung
-                                    </Accordion.Header>
-                                    <Accordion.Body>
-                                        <div className="mb-3 row form-group">
-                                            <label
-                                                className="col-sm-3 col-form-label"
-                                                data-i18n="complete-name"
-                                            >
-                                                Nama Lengkap
-                                            </label>
-                                            <div className="col-sm-9">
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    value={data.insured.name}
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'insured.name',
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="mb-3 row form-group">
-                                            <label
-                                                className="col-sm-3 col-form-label"
-                                                data-i18n="gender"
-                                            >
-                                                Jenis Kelamin
-                                            </label>
-                                            <div className="col-sm-9">
-                                                <select
-                                                    className="form-control"
-                                                    value={data.insured.gender}
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'insured.gender',
-                                                            parseInt(
-                                                                e.target.value,
-                                                            ),
-                                                        )
-                                                    }
-                                                >
-                                                    <option
-                                                        value="1"
-                                                        data-i18n="male"
-                                                    >
-                                                        Pria
-                                                    </option>
-                                                    <option
-                                                        value="2"
-                                                        data-i18n="female"
-                                                    >
-                                                        Wanita
-                                                    </option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <div className="mb-3 row form-group">
-                                            <label
-                                                className="col-sm-3 col-form-label"
-                                                data-i18n="place-date-birth"
-                                            >
-                                                Tempat & Tgl Lahir
-                                            </label>
-                                            <div className="col-sm-9 d-flex gap-2">
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    placeholder="Tempat"
-                                                    value={
-                                                        data.insured.birth_place
-                                                    }
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'insured.birth_place',
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                />
-                                                <input
-                                                    type="date"
-                                                    className="form-control"
-                                                    value={
-                                                        typeof data.insured
-                                                            .birth_date ===
-                                                        'string'
-                                                            ? data.insured
-                                                                  .birth_date
-                                                            : data.insured.birth_date
-                                                                  .toISOString()
-                                                                  .split('T')[0]
-                                                    }
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'insured.birth_date',
-                                                            new Date(
-                                                                e.target.value,
-                                                            ),
-                                                        )
-                                                    }
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="mb-3 row form-group">
-                                            <label
-                                                className="col-sm-3 col-form-label"
-                                                data-i18n="marital-status"
-                                            >
-                                                Status
-                                            </label>
-                                            <div className="col-sm-9">
-                                                <select
-                                                    className="form-control"
-                                                    value={data.insured.marital}
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'insured.marital',
-                                                            parseInt(
-                                                                e.target.value,
-                                                            ),
-                                                        )
-                                                    }
-                                                >
-                                                    <option
-                                                        value="1"
-                                                        data-i18n="single"
-                                                    >
-                                                        Single
-                                                    </option>
-                                                    <option
-                                                        value="2"
-                                                        data-i18n="married"
-                                                    >
-                                                        Kawin
-                                                    </option>
-                                                    <option
-                                                        value="3"
-                                                        data-i18n="widow"
-                                                    >
-                                                        Duda/Janda
-                                                    </option>
-                                                    <option
-                                                        value="4"
-                                                        data-i18n="divorce"
-                                                    >
-                                                        Cerai
-                                                    </option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <div className="mb-3 row form-group">
-                                            <label className="col-sm-3 col-form-label">
-                                                Hubungan
-                                            </label>
-                                            <div className="col-sm-9">
-                                                <select
-                                                    className="form-control"
-                                                    value={
-                                                        data.holder_insured_relationship
-                                                    } // e.g., "4"
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'holder_insured_relationship',
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                >
-                                                    <option value="1">
-                                                        Diri Sendiri
-                                                    </option>
-                                                    <option value="2">
-                                                        Suami / Istri
-                                                    </option>
-                                                    <option value="3">
-                                                        Anak
-                                                    </option>
-                                                    <option value="4">
-                                                        Orang Tua
-                                                    </option>
-                                                    <option value="5">
-                                                        Lainnya
-                                                    </option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <div className="mb-3 row form-group">
-                                            <label
-                                                className="col-sm-3 col-form-label"
-                                                data-i18n="profession"
-                                            >
-                                                Pekerjaan
-                                            </label>
-                                            <div className="col-sm-9">
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    value={
-                                                        data.insured.profession
-                                                    }
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'insured.profession',
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="mb-3 row form-group">
-                                            <label
-                                                className="col-sm-3 col-form-label"
-                                                data-i18n="home-address"
-                                            >
-                                                Alamat Rumah
-                                            </label>
-                                            <div className="col-sm-9">
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    value={
-                                                        data.insured
-                                                            .home_address
-                                                    }
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'insured.home_address',
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="mb-3 row form-group">
-                                            <label
-                                                className="col-sm-3 col-form-label"
-                                                data-i18n="postal-code"
-                                            >
-                                                Kode Pos / Kota
-                                            </label>
-                                            <div className="col-sm-9 d-flex gap-2">
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    placeholder="Kode Pos"
-                                                    style={{
-                                                        maxWidth: '100px',
-                                                    }}
-                                                    value={
-                                                        data.insured.home_postal
-                                                    }
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'insured.home_postal',
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                />
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    placeholder="Kota"
-                                                    value={
-                                                        data.insured.home_city
-                                                    }
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'insured.home_city',
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                />
-                                            </div>
-                                        </div>
-                                    </Accordion.Body>
-                                </Accordion.Item>
-
-                                {/* Section 4: Data Asuransi */}
-                                <Accordion.Item eventKey="3">
-                                    <Accordion.Header>
-                                        Data Asuransi
-                                    </Accordion.Header>
-                                    <Accordion.Body>
-                                        <div className="mb-3 row form-group">
-                                            <label
-                                                className="col-sm-3 col-form-label"
-                                                data-i18n="policy-no"
-                                            >
-                                                No. Polis
-                                            </label>
-                                            <div className="col-sm-9">
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    value={data.policy_no}
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'policy_no',
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="mb-3 row form-group">
-                                            <label
-                                                className="col-sm-3 col-form-label"
-                                                data-i18n="product"
-                                            >
-                                                Produk
-                                            </label>
-                                            <div className="col-sm-9">
-                                                <select
-                                                    className="form-control"
-                                                    value={data.product_id}
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'product_id',
-                                                            parseInt(
-                                                                e.target.value,
-                                                            ),
-                                                        )
-                                                    }
-                                                >
-                                                    <option value="">
-                                                        Pilih Produk
-                                                    </option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <div className="mb-3 row form-group">
-                                            <label
-                                                className="col-sm-3 col-form-label"
-                                                data-i18n="case-currency"
-                                            >
-                                                Mata Uang
-                                            </label>
-                                            <div className="col-sm-9">
-                                                <select
-                                                    className="form-control"
-                                                    value={data.currency_id}
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'currency_id',
-                                                            parseInt(
-                                                                e.target.value,
-                                                            ),
-                                                        )
-                                                    }
-                                                >
-                                                    <option
-                                                        value="1"
-                                                        label="Rupiah"
-                                                    >
-                                                        Rupiah
-                                                    </option>
-                                                    <option
-                                                        value="2"
-                                                        label="Dollar"
-                                                    >
-                                                        Dollar
-                                                    </option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <div className="mb-3 row form-group">
-                                            <label
-                                                className="col-sm-3 col-form-label"
-                                                data-i18n="case-premium"
-                                            >
-                                                Premi Dasar
-                                            </label>
-                                            <div className="col-sm-9 input-group">
-                                                <input
-                                                    type="number"
-                                                    className="form-control"
-                                                    value={data.premium}
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'premium',
-                                                            Number(
-                                                                e.target.value,
-                                                            ),
-                                                        )
-                                                    }
-                                                />
-                                                <span className="input-group-text">
-                                                    x
-                                                </span>
-                                                <input
-                                                    type="number"
-                                                    className="form-control"
-                                                    style={{
-                                                        maxWidth: '100px',
-                                                    }}
-                                                    value={data.curr_rate}
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'curr_rate',
-                                                            Number(
-                                                                e.target.value,
-                                                            ),
-                                                        )
-                                                    }
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="mb-3 row form-group">
-                                            <label
-                                                className="col-sm-3 col-form-label"
-                                                data-i18n="case-pay-method"
-                                            >
-                                                Cara Bayar
-                                            </label>
-                                            <div className="col-sm-9">
-                                                <select
-                                                    className="form-control"
-                                                    value={data.pay_method}
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'pay_method',
-                                                            parseInt(
-                                                                e.target.value,
-                                                            ),
-                                                        )
-                                                    }
-                                                >
-                                                    <option
-                                                        value="1"
-                                                        data-i18n="tahunan"
-                                                    >
-                                                        Tahunan
-                                                    </option>
-                                                    <option
-                                                        value="2"
-                                                        data-i18n="semester"
-                                                    >
-                                                        Enam Bulanan
-                                                    </option>
-                                                    <option
-                                                        value="4"
-                                                        data-i18n="triwulan"
-                                                    >
-                                                        Tiga Bulanan
-                                                    </option>
-                                                    <option
-                                                        value="12"
-                                                        data-i18n="bulanan"
-                                                    >
-                                                        Bulanan
-                                                    </option>
-                                                    <option
-                                                        value="0"
-                                                        data-i18n="sekaligus"
-                                                    >
-                                                        Sekaligus
-                                                    </option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <div className="mb-3 row form-group">
-                                            <label
-                                                className="col-sm-3 col-form-label"
-                                                data-i18n="case-base-insure"
-                                            >
-                                                U.P. Dasar
-                                            </label>
-                                            <div className="col-sm-9">
-                                                <input
-                                                    type="number"
-                                                    className="form-control"
-                                                    value={data.base_insure}
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'base_insure',
-                                                            Number(
-                                                                e.target.value,
-                                                            ),
-                                                        )
-                                                    }
-                                                />
-                                            </div>
-                                        </div>
-
-                                        {/* Investments Table */}
-                                        {data.investments && (
-                                            <div className="mb-3 row form-group">
-                                                <label
-                                                    className="col-5 col-form-label fw-bold"
-                                                    data-i18n="investments"
-                                                >
-                                                    Pilihan Investasi
-                                                </label>
-                                                <div className="col-7 text-end">
-                                                    <button
-                                                        type="button"
-                                                        className="btn btn-sm btn-primary"
-                                                        onClick={addInvestment}
-                                                    >
-                                                        <i className="fa fa-plus"></i>
-                                                    </button>
-                                                </div>
-                                                <div className="col-12 mt-2">
-                                                    <table className="table table-bordered table-sm">
-                                                        <thead>
-                                                            <tr>
-                                                                <th data-i18n="fund-name">
-                                                                    Jenis
-                                                                    Investasi
-                                                                </th>
-                                                                <th data-i18n="allocation">
-                                                                    Percent
-                                                                </th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {data.investments.map(
-                                                                (
-                                                                    inv: z.infer<
-                                                                        typeof investmentSchema
-                                                                    >,
-                                                                    idx: number,
-                                                                ) => (
-                                                                    <tr
-                                                                        key={
-                                                                            idx
-                                                                        }
-                                                                    >
-                                                                        <td>
-                                                                            <select
-                                                                                className="form-control form-control-sm"
-                                                                                value={
-                                                                                    inv.fund_id
-                                                                                }
-                                                                                onChange={(
-                                                                                    e,
-                                                                                ) => {
-                                                                                    const newInv =
-                                                                                        [
-                                                                                            ...data.investments,
-                                                                                        ];
-                                                                                    newInv[
-                                                                                        idx
-                                                                                    ] =
-                                                                                        {
-                                                                                            ...newInv[
-                                                                                                idx
-                                                                                            ],
-                                                                                            fund_id:
-                                                                                                parseInt(
-                                                                                                    e
-                                                                                                        .target
-                                                                                                        .value,
-                                                                                                ),
-                                                                                        };
-                                                                                    setData(
-                                                                                        'investments',
-                                                                                        newInv,
-                                                                                    );
-                                                                                }}
-                                                                            ></select>
-                                                                        </td>
-                                                                        <td>
-                                                                            <input
-                                                                                type="text"
-                                                                                className="form-control form-control-sm"
-                                                                                value={
-                                                                                    inv.allocation
-                                                                                }
-                                                                                onChange={(
-                                                                                    e,
-                                                                                ) => {
-                                                                                    const newInv =
-                                                                                        [
-                                                                                            ...data.investments,
-                                                                                        ];
-                                                                                    newInv[
-                                                                                        idx
-                                                                                    ] =
-                                                                                        {
-                                                                                            ...newInv[
-                                                                                                idx
-                                                                                            ],
-                                                                                            allocation:
-                                                                                                parseInt(
-                                                                                                    e
-                                                                                                        .target
-                                                                                                        .value,
-                                                                                                ),
-                                                                                        };
-                                                                                    setData(
-                                                                                        'investments',
-                                                                                        newInv,
-                                                                                    );
-                                                                                }}
-                                                                            />
-                                                                        </td>
-                                                                    </tr>
-                                                                ),
-                                                            )}
-                                                            {data.investments
-                                                                .length ===
-                                                                0 && (
-                                                                <tr>
-                                                                    <td
-                                                                        colSpan={
-                                                                            2
-                                                                        }
-                                                                        className="text-center text-muted"
-                                                                    >
-                                                                        Belum
-                                                                        ada
-                                                                        investasi
-                                                                    </td>
-                                                                </tr>
-                                                            )}
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {/* Riders Table */}
-                                        {data.riders && (
-                                            <div className="mb-3 row form-group">
-                                                <label
-                                                    className="col-5 col-form-label fw-bold"
-                                                    data-i18n="riders"
-                                                >
-                                                    Asuransi Tambahan
-                                                </label>
-                                                <div className="col-7 text-end">
-                                                    <button
-                                                        type="button"
-                                                        className="btn btn-sm btn-primary"
-                                                        onClick={addRider}
-                                                    >
-                                                        <i className="fa fa-plus"></i>
-                                                    </button>
-                                                </div>
-                                                <div className="col-12 mt-2">
-                                                    <table className="table table-bordered table-sm">
-                                                        <thead>
-                                                            <tr>
-                                                                <th>
-                                                                    Asuransi
-                                                                    Tambahan
-                                                                </th>
-                                                                <th>
-                                                                    U.P. Rider
-                                                                </th>
-                                                                <th>
-                                                                    Premi Rider
-                                                                </th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {data.riders.map(
-                                                                (
-                                                                    rider: z.infer<
-                                                                        typeof riderSchema
-                                                                    >,
-                                                                    idx: number,
-                                                                ) => (
-                                                                    <tr
-                                                                        key={
-                                                                            idx
-                                                                        }
-                                                                    >
-                                                                        <td>
-                                                                            <select
-                                                                                className="form-control form-control-sm"
-                                                                                value={
-                                                                                    rider.product_id
-                                                                                }
-                                                                                onChange={(
-                                                                                    e,
-                                                                                ) => {
-                                                                                    const newRiders =
-                                                                                        [
-                                                                                            ...data.riders,
-                                                                                        ];
-                                                                                    newRiders[
-                                                                                        idx
-                                                                                    ] =
-                                                                                        {
-                                                                                            ...newRiders[
-                                                                                                idx
-                                                                                            ],
-                                                                                            product_id:
-                                                                                                parseInt(
-                                                                                                    e
-                                                                                                        .target
-                                                                                                        .value,
-                                                                                                ),
-                                                                                        };
-                                                                                    setData(
-                                                                                        'riders',
-                                                                                        newRiders,
-                                                                                    );
-                                                                                }}
-                                                                            ></select>
-                                                                        </td>
-                                                                        <td>
-                                                                            <input
-                                                                                type="number"
-                                                                                className="form-control form-control-sm"
-                                                                                value={
-                                                                                    rider.insure_amount
-                                                                                }
-                                                                                placeholder="U.P."
-                                                                                onChange={(
-                                                                                    e,
-                                                                                ) => {
-                                                                                    const newRiders =
-                                                                                        [
-                                                                                            ...data.riders,
-                                                                                        ];
-                                                                                    newRiders[
-                                                                                        idx
-                                                                                    ] =
-                                                                                        {
-                                                                                            ...newRiders[
-                                                                                                idx
-                                                                                            ],
-                                                                                            insure_amount:
-                                                                                                parseInt(
-                                                                                                    e
-                                                                                                        .target
-                                                                                                        .value,
-                                                                                                ),
-                                                                                        };
-                                                                                    setData(
-                                                                                        'riders',
-                                                                                        newRiders,
-                                                                                    );
-                                                                                }}
-                                                                            />
-                                                                        </td>
-                                                                        <td>
-                                                                            <input
-                                                                                type="number"
-                                                                                className="form-control form-control-sm"
-                                                                                value={
-                                                                                    rider.premium
-                                                                                }
-                                                                                placeholder="Premi"
-                                                                                onChange={(
-                                                                                    e,
-                                                                                ) => {
-                                                                                    const newRiders =
-                                                                                        [
-                                                                                            ...data.riders,
-                                                                                        ];
-                                                                                    newRiders[
-                                                                                        idx
-                                                                                    ] =
-                                                                                        {
-                                                                                            ...newRiders[
-                                                                                                idx
-                                                                                            ],
-                                                                                            premium:
-                                                                                                parseInt(
-                                                                                                    e
-                                                                                                        .target
-                                                                                                        .value,
-                                                                                                ),
-                                                                                        };
-                                                                                    setData(
-                                                                                        'riders',
-                                                                                        newRiders,
-                                                                                    );
-                                                                                }}
-                                                                            />
-                                                                        </td>
-                                                                    </tr>
-                                                                ),
-                                                            )}
-                                                            {data.riders
-                                                                .length ===
-                                                                0 && (
-                                                                <tr>
-                                                                    <td
-                                                                        colSpan={
-                                                                            3
-                                                                        }
-                                                                        className="text-center text-muted"
-                                                                    >
-                                                                        Belum
-                                                                        ada
-                                                                        rider
-                                                                    </td>
-                                                                </tr>
-                                                            )}
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        <div className="mb-3 row form-group">
-                                            <label
-                                                className="col-sm-3 col-form-label"
-                                                data-i18n="description"
-                                            >
-                                                Keterangan
-                                            </label>
-                                            <div className="col-sm-9">
-                                                <textarea
-                                                    className="form-control"
-                                                    rows={4}
-                                                    value={data.description}
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'description',
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                ></textarea>
-                                            </div>
-                                        </div>
-                                    </Accordion.Body>
-                                </Accordion.Item>
-                            </Accordion>
-                        </form>
+                        <div className="card-footer d-flex gap-2 bg-transparent border-0 px-0">
+                            <SubmitButton processing={processing} onClick={handleSubmit}>
+                                <i className="fa fa-save me-2"></i>
+                                {isEdit ? 'Perbaharui' : 'Simpan'}
+                            </SubmitButton>
+                            <Link
+                                href="/sales"
+                                className="btn btn-secondary"
+                            >
+                                Batal
+                            </Link>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </form>
             <UploadOcrModal
                 show={ocrModalOpen}
                 onHide={() => setOcrModalOpen(false)}
             />
-        </TemplateLayout>
+        </FormPage>
     );
 }

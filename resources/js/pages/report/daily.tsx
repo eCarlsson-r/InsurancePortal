@@ -1,10 +1,10 @@
 import TemplateLayout from '@/layouts/TemplateLayout';
 import { Head } from '@inertiajs/react';
 
-export default function Dashboard() {
+export default function DailyReport() {
     return (
         <TemplateLayout>
-            <Head title="Dashboard" />
+            <Head title="Laporan Komisi Harian" />
 
             <div className="container-fluid">
                 <div className="row page-titles mx-0">

@@ -22,4 +22,36 @@ class AgencyController extends Controller
             'agents' => Agent::all()
         ]);
     }
+
+    public function store(Request $request) {
+        $agencyData = $request->validate([
+            'name' => 'required|string',
+            'city' => 'required|string',
+            'director' => 'required|string',
+            'leader' => 'nullable|string'
+        ]);
+
+        Agency::create($agencyData);
+
+        return redirect()->route('master.agency.index');
+    }
+
+    public function update(Request $request, Agency $agency) {
+        $agencyData = $request->validate([
+            'name' => 'required|string',
+            'city' => 'required|string',
+            'director' => 'required|string',
+            'leader' => 'nullable|string'
+        ]);
+
+        $agency->update($agencyData);
+
+        return redirect()->route('master.agency.index');
+    }
+
+    public function destroy(Agency $agency) {
+        $agency->delete();
+
+        return redirect()->route('master.agency.index');
+    }
 }

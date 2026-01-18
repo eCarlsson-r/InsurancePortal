@@ -12,7 +12,7 @@ class Customer extends Model
     protected $fillable = [
         'name',
         'gender',
-        'identity_number',
+        'identity',
         'mobile',
         'email',
         'birth_date',
@@ -34,4 +34,14 @@ class Customer extends Model
     protected $casts = [
         'birth_date' => 'date',
     ];
+
+    public function getAgeAttribute()
+    {
+        return $this->birth_date ? $this->birth_date->age : null;
+    }
+
+    public function getAddressAttribute()
+    {
+        return "{$this->home_address}, {$this->home_city}, {$this->home_postal}";
+    }
 }

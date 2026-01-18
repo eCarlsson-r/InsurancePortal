@@ -1,6 +1,9 @@
-import TemplateLayout from '@/layouts/TemplateLayout';
-import { programSchema, programTargetSchema } from '@/schemas/models';
-import { Head, useForm } from '@inertiajs/react';
+import SelectInput from '@/components/form/select-input';
+import TextInput from '@/components/form/text-input';
+import SubmitButton from '@/components/form/submit-button';
+import FormPage from '@/layouts/FormPage';
+import { programSchema } from '@/schemas/models';
+import { useForm } from '@inertiajs/react';
 import { Accordion, Table } from 'react-bootstrap';
 import { z } from 'zod';
 
@@ -58,211 +61,195 @@ export default function ProgramForm({
     };
 
     return (
-        <TemplateLayout>
-            <Head
-                title={isEdit ? 'Sunting Data Program' : 'Input Data Program'}
-            />
-            <div className="container-fluid">
-                <div className="row page-titles mx-0">
-                    <div className="col-sm-6 p-md-0">
-                        <h3
-                            className="text-primary d-inline"
-                            data-i18n="program-input"
-                        >
-                            Program
-                        </h3>
-                        &emsp;
-                        <button
-                            className="btn btn-primary pull-right"
-                            onClick={handleSubmit}
-                            disabled={processing}
-                        >
-                            Perbarui
-                        </button>
-                    </div>
-                    <div className="col-sm-6 p-md-0 justify-content-sm-end mt-2 mt-sm-0 d-flex">
-                        <ol className="breadcrumb">
-                            <li className="breadcrumb-item">
-                                <a href="javascript:void(0)" data-i18n="master">
-                                    Master
-                                </a>
-                            </li>
-                            <li
-                                className="breadcrumb-item active"
-                                data-i18n="program-input"
-                            >
-                                Program
-                            </li>
-                        </ol>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col-md-6">
-                        <Accordion defaultActiveKey="0" className="mb-3">
-                            <Accordion.Item eventKey="0">
-                                <Accordion.Header>
-                                    Data Program
-                                </Accordion.Header>
-                                <Accordion.Body>
-                                    <input
-                                        id="program-code"
-                                        className="d-none"
-                                    />
-                                    <div className="row form-group">
-                                        <label className="col-sm-4">
-                                            Nama Program
-                                        </label>
-                                        <input
-                                            type="text"
-                                            className="col-sm-8 form-control"
-                                            value={program?.name}
-                                        />
-                                    </div>
-                                    <div className="row form-group">
-                                        <label className="col-sm-4">
-                                            Program untuk Jabatan
-                                        </label>
-                                        <select
-                                            className="col-sm-8 form-control selectpicker"
-                                            value={program?.position}
-                                        >
-                                            <option value="FC">
-                                                Financial Consultant
-                                            </option>
-                                            <option value="BP*">
-                                                Business Partner Bintang 1
-                                            </option>
-                                            <option value="BP**">
-                                                Business Partner Bintang 2
-                                            </option>
-                                            <option value="BP***">
-                                                Business Partner Bintang 3
-                                            </option>
-                                        </select>
-                                    </div>
-                                    <div className="row form-group">
-                                        <label className="col-sm-4">
-                                            Allowance
-                                        </label>
-                                        <div className="col-sm-8 px-0 input-group">
-                                            <input
-                                                type="number"
-                                                className="form-control"
-                                                value={program?.min_allowance}
-                                            />
-                                            <div className="input-group-addon">
-                                                <span className="input-group-text">
-                                                    {' '}
-                                                    s/d{' '}
-                                                </span>
-                                            </div>
-                                            <input
-                                                type="number"
-                                                className="form-control"
-                                                value={program?.max_allowance}
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="row form-group">
-                                        <label className="col-sm-4">
-                                            Durasi Program
-                                        </label>
+        <FormPage
+            headTitle={isEdit ? 'Sunting Program' : 'Tambah Program'}
+            title="Program"
+            i18nTitle="program"
+            breadcrumbs={[
+                { label: 'Master', href: 'javascript:void(0)', i18n: 'master' },
+                { label: 'Program', active: true, i18n: 'program' },
+            ]}
+            headerActions={
+                <SubmitButton 
+                    processing={processing}
+                    onClick={handleSubmit}
+                >
+                    {isEdit ? 'Perbarui' : 'Simpan'}
+                </SubmitButton>
+            }
+        >
+            <div className="row">
+                <div className="col-md-6">
+                    <Accordion defaultActiveKey="0" className="mb-4">
+                        <Accordion.Item eventKey="0">
+                            <Accordion.Header>
+                                Data Program
+                            </Accordion.Header>
+                            <Accordion.Body>
+                                <TextInput
+                                    id="name"
+                                    label="Nama Program"
+                                    value={data.name}
+                                    onChange={(e) => setData('name', e.target.value)}
+                                    row
+                                />
+
+                                <SelectInput
+                                    id="position"
+                                    label="Jabatan"
+                                    value={data.position}
+                                    onChange={(e) => setData('position', e.target.value)}
+                                    options={[
+                                        { value: 'FC', label: 'Financial Consultant' },
+                                        { value: 'BP*', label: 'Business Partner *' },
+                                        { value: 'BP**', label: 'Business Partner **' },
+                                        { value: 'BP***', label: 'Business Partner ***' },
+                                    ]}
+                                    row
+                                />
+
+                                <div className="row form-group mb-3">
+                                    <label className="col-sm-3 col-form-label">Allowance</label>
+                                    <div className="col-sm-9 d-flex gap-2 align-items-center">
                                         <input
                                             type="number"
-                                            className="col-sm-8 form-control"
-                                            value={program?.duration}
+                                            className="form-control"
+                                            value={data.min_allowance}
+                                            onChange={(e) => setData('min_allowance', parseFloat(e.target.value))}
+                                            placeholder="Minimal"
+                                        />
+                                        <span className="text-muted">s/d</span>
+                                        <input
+                                            type="number"
+                                            className="form-control"
+                                            value={data.max_allowance}
+                                            onChange={(e) => setData('max_allowance', parseFloat(e.target.value))}
+                                            placeholder="Maksimal"
                                         />
                                     </div>
-                                </Accordion.Body>
-                            </Accordion.Item>
-                        </Accordion>
-                    </div>
+                                </div>
 
-                    <div className="col-md-6">
-                        <Accordion defaultActiveKey="1" className="mb-3">
-                            <Accordion.Item eventKey="1">
-                                <Accordion.Header>
-                                    Target Program
-                                </Accordion.Header>
-                                <Accordion.Body>
+                                <TextInput
+                                    id="duration"
+                                    label="Durasi (Bulan)"
+                                    type="number"
+                                    value={data.duration}
+                                    onChange={(e) => setData('duration', parseInt(e.target.value))}
+                                    row
+                                />
+                            </Accordion.Body>
+                        </Accordion.Item>
+                    </Accordion>
+                </div>
+
+                <div className="col-md-6">
+                    <Accordion defaultActiveKey="0">
+                        <Accordion.Item eventKey="0">
+                            <Accordion.Header>
+                                Target Program
+                            </Accordion.Header>
+                            <Accordion.Body>
+                                <div className="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 className="mb-0">Daftar Target</h6>
                                     <button
                                         onClick={addTarget}
-                                        className="btn btn-primary d-inline float-right"
+                                        className="btn btn-sm btn-primary"
                                         type="button"
                                     >
-                                        <i className="fa fa-plus"></i>
+                                        <i className="fa fa-plus me-1"></i>
+                                        Tambah
                                     </button>
-                                    <p className="clearfix"></p>
-                                    <div className="basic-form">
-                                        <div className="row form-group">
-                                            <div className="col-sm-12">
-                                                <Table>
-                                                    <thead>
-                                                        <th>Bulan</th>
-                                                        <th>FYP</th>
-                                                        <th>Case</th>
-                                                        <th>Allowance</th>
-                                                        <th></th>
-                                                    </thead>
-                                                    <tbody>
-                                                        {program &&
-                                                            program.targets &&
-                                                            program.targets.map(
-                                                                (
-                                                                    target: z.infer<
-                                                                        typeof programTargetSchema
-                                                                    >,
-                                                                ) => (
-                                                                    <tr key={target.id}>
-                                                                        <td>{target.month}</td>
-                                                                        <td>
-                                                                            {target.fyp_month.toLocaleString(
-                                                                                'id-ID',
-                                                                                {
-                                                                                    style: 'currency',
-                                                                                    currency: 'IDR',
-                                                                                },
-                                                                            )}
-                                                                        </td>
-                                                                        <td>{target.case_month}</td>
-                                                                        <td>
-                                                                            {target.allowance.toLocaleString(
-                                                                                'id-ID',
-                                                                                {
-                                                                                    style: 'currency',
-                                                                                    currency: 'IDR',
-                                                                                },
-                                                                            )}
-                                                                        </td>
-                                                                        <td>
-                                                                            <button
-                                                                                onClick={() =>
-                                                                                    removeTarget(
-                                                                                        program.targets.indexOf(
-                                                                                            target,
-                                                                                        ),
-                                                                                    )
-                                                                                }
-                                                                                className="btn btn-danger btn-sm"
-                                                                                type="button"
-                                                                            >
-                                                                                <i className="fa fa-trash"></i>
-                                                                            </button>
-                                                                        </td>
-                                                                    </tr>
-                                                                ),
-                                                            )}
-                                                    </tbody>
-                                                </Table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </Accordion.Body>
-                            </Accordion.Item>
-                        </Accordion>
-                    </div>
+                                </div>
+                                <div className="table-responsive">
+                                    <Table className="table-sm table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th style={{ width: '80px' }}>Bulan</th>
+                                                <th>FYP</th>
+                                                <th style={{ width: '80px' }}>Case</th>
+                                                <th>Allowance</th>
+                                                <th style={{ width: '40px' }}></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {data.targets && data.targets.length > 0 ? (
+                                                data.targets.map((target, index) => (
+                                                    <tr key={index}>
+                                                        <td>
+                                                            <input
+                                                                type="number"
+                                                                className="form-control form-control-sm text-center"
+                                                                value={target.month}
+                                                                onChange={(e) => {
+                                                                    const newTargets = [...data.targets];
+                                                                    newTargets[index].month = parseInt(e.target.value);
+                                                                    setData('targets', newTargets);
+                                                                }}
+                                                            />
+                                                        </td>
+                                                        <td>
+                                                            <input
+                                                                type="number"
+                                                                className="form-control form-control-sm"
+                                                                value={target.fyp_month}
+                                                                onChange={(e) => {
+                                                                    const newTargets = [...data.targets];
+                                                                    newTargets[index].fyp_month = parseFloat(e.target.value);
+                                                                    setData('targets', newTargets);
+                                                                }}
+                                                            />
+                                                        </td>
+                                                        <td>
+                                                            <input
+                                                                type="number"
+                                                                className="form-control form-control-sm text-center"
+                                                                value={target.case_month}
+                                                                onChange={(e) => {
+                                                                    const newTargets = [...data.targets];
+                                                                    newTargets[index].case_month = parseInt(e.target.value);
+                                                                    setData('targets', newTargets);
+                                                                }}
+                                                            />
+                                                        </td>
+                                                        <td>
+                                                            <input
+                                                                type="number"
+                                                                className="form-control form-control-sm"
+                                                                value={target.allowance}
+                                                                onChange={(e) => {
+                                                                    const newTargets = [...data.targets];
+                                                                    newTargets[index].allowance = parseFloat(e.target.value);
+                                                                    setData('targets', newTargets);
+                                                                }}
+                                                            />
+                                                        </td>
+                                                        <td className="text-center">
+                                                            <button
+                                                                onClick={() => removeTarget(index)}
+                                                                className="btn btn-link btn-sm text-danger p-0"
+                                                                type="button"
+                                                                title="Delete"
+                                                            >
+                                                                <i className="fa fa-trash"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            ) : (
+                                                <tr>
+                                                    <td colSpan={5} className="text-center text-muted py-2">
+                                                        Belum ada target.
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </Table>
+                                </div>
+                            </Accordion.Body>
+                        </Accordion.Item>
+                    </Accordion>
                 </div>
             </div>
-        </TemplateLayout>
+        </FormPage>
     );
 }

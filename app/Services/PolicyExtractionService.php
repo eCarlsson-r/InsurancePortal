@@ -20,7 +20,7 @@ class PolicyExtractionService {
             // Group 1: Customer Basic & ID
             'policy_holder_full_name'      => 'holder.name',
             'policy_holder_gender'         => 'holder.gender',
-            'policy_holder_ktp_nik_number' => 'holder.identity_number',
+            'policy_holder_ktp_nik_number' => 'holder.identity',
             'policy_holder_mobile_phone'   => 'holder.mobile',
             'policy_holder_email_address'  => 'holder.email',
             'policy_holder_birth_date'     => 'holder.birth_date',
@@ -69,6 +69,30 @@ class PolicyExtractionService {
                 $mappedData[$dbKey] = $this->sanitizeValue($dbKey, $value);
             }
 
+            if ($dbKey === 'currency_id') {
+                $mappedData[$dbKey] = ($value === "IDR") ? 1 : 2;
+            }
+
+            if ($dbKey === 'pay_method') {
+                switch($value) {
+                    case 'TAHUNAN':
+                        $mappedData[$dbKey] = 1;
+                        break;
+                    case 'ENAM BULANAN':
+                        $mappedData[$dbKey] = 2;
+                        break;
+                    case 'TIGA BULANAN':
+                        $mappedData[$dbKey] = 4;
+                        break;
+                    case 'BULANAN':
+                        $mappedData[$dbKey] = 12;
+                        break;
+                    case 'SEKALIGUS':
+                        $mappedData[$dbKey] = 0;
+                        break;
+                }
+            }
+
             if ($aiKey === 'distribution_header') {
                 $mappedData['id'] = explode(" : ", $value[1]["value"])[1];
                 unset($mappedData['distribution_header']);
@@ -89,18 +113,14 @@ class PolicyExtractionService {
                 }
 
                 $mappedData['holder_insured_relationship'] = $this->cleanRelationship($value);
+                unset($mappedData['insured_relationship']);
             }
 
             if ($aiKey === 'product_name') {
-                Log::info($mappedData['product_name']);
-                $mappedData['product_id'] = Product::where('name', $mappedData['product_name'])->first()->id;
+                $productName = $mappedData['product_name'];
+                $product = Product::where('name', 'LIKE', "%{$productName}%");
+                if ($product) $mappedData['product_name'] = $product->first()->id;
                 unset($mappedData['product_name']);
-            }
-
-            if ($aiKey === 'agent_name') {
-                Log::info($mappedData['agent_name']);
-                $mappedData['agent_id'] = Agent::where('name', $mappedData['agent_name'])->first()->id;
-                unset($mappedData['agent_name']);
             }
         }
 
@@ -115,9 +135,9 @@ class PolicyExtractionService {
         $groups = [
             'policy_metadata' => [
                 'source' => $summaryText,
-                'fields' => "insurance_policy_number, total_sum_assured_benefit_amount, total_premium_amount_to_pay, ".
+                'fields' => "insurance_policy_number, product_name (Look for capitalized words before 'Produk' or concatenated with 'Produk'.), total_sum_assured_benefit_amount, total_premium_amount_to_pay, ".
                             "policy_start_effective_date, premium_payment_frequency, currency_code (Must be 'IDR' if document mentions Rp, Rupiah, or IDR. Must be 'USD' if document mentions $, USD, or Dollar), ".
-                            "insurance_coverage_period_years, premium_paying_period_years, product_name"
+                            "insurance_coverage_period_years, premium_paying_period_years"
             ],
             'customer_info' => [
                 'source' => $spajText,
@@ -135,7 +155,7 @@ class PolicyExtractionService {
                             "insured_person_city_of_birth, insured_person_marital_status, insured_person_current_profession, ".
                             "insured_person_home_address, insured_person_home_postal, insured_person_home_city, ".
                             "insured_relationship (Look for 'Hubungan'. If the Insured name is the same as Policy Holder or says 'SDA', return 'Self'. Otherwise return Spouse, Child, or Parent), ".
-                            "signature_info (Look for 'Ditandatangani di' or 'Signed at'. Extract the city and the date that follows it, e.g., 'Kota Medan 26-09-2025'), agent_name"
+                            "signature_info (Look for 'Ditandatangani di' or 'Signed at'. Extract the city and the date that follows it, e.g., 'Kota Medan 26-09-2025')"
             ]
         ];
 
@@ -168,6 +188,9 @@ class PolicyExtractionService {
             ], 600);
             $count++;
         }
+
+        $agent_code = explode(":", array_slice(explode(PHP_EOL, $spajText), -5)[2])[1];
+        $finalData["agent_id"] = Agent::where('official_number', $agent_code)->first()->id;
 
         $currentCache = Cache::get("ocr_result_{$jobId}", []);
         Cache::put("ocr_result_{$jobId}", [

@@ -11,8 +11,6 @@ class Policy extends Model
 {
     protected $table = 'cases';
     public $timestamps = false;
-    protected $keyType = 'string';
-    public $incrementing = false;
 
     protected $fillable = [
         'policy_no',
@@ -51,7 +49,7 @@ class Policy extends Model
 
     public function holder()
     {
-        return $this->belongsTo(Customer::class, 'customer_id');
+        return $this->belongsTo(Customer::class, 'holder_id');
     }
 
     public function insured()

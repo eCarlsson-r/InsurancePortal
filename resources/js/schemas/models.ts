@@ -22,7 +22,7 @@ export const agentProgramSchema = z.object({
 });
 
 export const agentSchema = z.object({
-    id: z.number().int().optional(),
+    id: z.string().optional(),
     official_number: z.string(),
     apply_date: z.string(),
     apply_place: z.string(),
@@ -70,7 +70,7 @@ export const contestSchema = z.object({
 });
 
 export const customerSchema = z.object({
-    id: z.number().int().optional(),
+    id: z.string().optional(),
     name: z.string(),
     gender: z.number().int(),
     identity: z.string(),
@@ -136,17 +136,17 @@ export const productCreditSchema = z.object({
 });
 
 export const productSchema = z.object({
-    id: z.number().int().optional(),
+    id: z.string().optional(),
     name: z.string(),
     type: z.string(),
-    commissions: z.array(productCommissionSchema),
-    credits: z.array(productCreditSchema),
+    commissions: z.array(productCommissionSchema.partial()),
+    credits: z.array(productCreditSchema.partial()),
 });
 
 export const riderSchema = z.object({
-    id: z.number().int().optional(),
-    case_id: z.number().int().optional(),
-    product_id: z.number().int(),
+    id: z.string().optional(),
+    case_id: z.string().optional(),
+    product_id: z.string(),
     insure_amount: z.number(),
     premium: z.number().int(),
     insure_period: z.number().int(),
@@ -158,14 +158,14 @@ export const policySchema = z
     .object({
         id: z.string(),
         policy_no: z.string(),
-        holder_id: z.number().int().optional(),
-        insured_id: z.number().int().optional(),
-        agent_id: z.number().int(),
+        holder_id: z.string().optional(),
+        insured_id: z.string().optional(),
+        agent_id: z.string().optional(),
         holder_insured_relationship: z.string(),
         entry_date: z.coerce.date(),
         bill_at: z.number().int(),
         is_insure_holder: z.boolean(),
-        product_id: z.number().int(),
+        product_id: z.string().optional(),
         insure_period: z.number().int(),
         pay_period: z.number().int(),
         currency_id: z.number().int(),
@@ -231,15 +231,15 @@ export const programTargetSchema = z.object({
 export const receiptSchema = z.object({
     id: z.number().int().optional(),
     policy_code: z.string(),
-    agent_id: z.number().int().nullable(),
-    premium: z.number().int(),
-    currency_rate: z.number(),
-    pay_method: z.number().int(),
+    agent_id: z.string().optional(),
+    premium: z.number(),
+    currency_rate: z.number(),  
+    pay_method: z.string(),
     pay_date: z.string(),
     paid_date: z.string(),
-    paid_amount: z.number().int(),
+    paid_amount: z.number(),
     description: z.string(),
-    policy: policySchema.optional()
+    policy: policySchema.partial().optional()
 });
 
 export type Agency = z.infer<typeof agencySchema>;

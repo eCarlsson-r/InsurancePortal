@@ -1,6 +1,9 @@
-import TemplateLayout from '@/layouts/TemplateLayout';
+import SelectInput from '@/components/form/select-input';
+import SubmitButton from '@/components/form/submit-button';
+import TextInput from '@/components/form/text-input';
+import TableFormPage from '@/layouts/TableFormPage';
 import { productCommissionSchema, productSchema } from '@/schemas/models';
-import { Head, router, useForm } from '@inertiajs/react';
+import { router, useForm } from '@inertiajs/react';
 import { Table } from 'react-bootstrap';
 import { z } from 'zod';
 
@@ -10,18 +13,19 @@ interface ProductProps {
 
 export default function Product({ products = [] }: ProductProps) {
     // Initial form state with safe defaults
-    const { data, setData, post, put } = useForm<z.infer<typeof productSchema>>(
-        {
-            id: undefined,
-            name: '',
-            type: '',
-            commissions: [],
-            credits: [],
-        }
-    );
+    const { data, setData, post, put, processing } = useForm<
+        z.infer<typeof productSchema>
+    >({
+        id: undefined,
+        name: '',
+        type: '1',
+        commissions: [],
+        credits: []
+    });
+
     const isEdit = !!data.id;
 
-    const handleDelete = (productCode: string) => {
+    const handleDelete = (productCode: string | undefined) => {
         if (confirm('Are you sure you want to delete this product?')) {
             router.delete(`/master/product/${productCode}`);
         }
@@ -35,377 +39,215 @@ export default function Product({ products = [] }: ProductProps) {
         }
     };
 
-    return (
-        <TemplateLayout>
-            <Head title="Product" />
+    const handleCommissionChange = (
+        index: number,
+        field: keyof z.infer<typeof productCommissionSchema>,
+        value: unknown,
+    ) => {
+        const newCommissions = [...(data.commissions || [])];
+        newCommissions[index] = { ...newCommissions[index], [field]: value };
+        setData('commissions', newCommissions);
+    };
 
-            <div className="container-fluid">
-                <div className="row page-titles mx-0">
-                    <div className="col-sm-6 p-md-0">
-                        <h3
-                            className="text-primary d-inline"
-                            data-i18n="product"
-                        >
-                            Produk
-                        </h3>
-                    </div>
-                    <div className="col-sm-6 p-md-0 justify-content-sm-end mt-2 mt-sm-0 d-flex">
-                        <ol className="breadcrumb">
-                            <li className="breadcrumb-item">
-                                <a href="javascript:void(0)" data-i18n="master">
-                                    Master
-                                </a>
-                            </li>
-                            <li
-                                className="breadcrumb-item active"
-                                data-i18n="product"
-                            >
-                                Produk
-                            </li>
-                        </ol>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col-md-6">
-                        <div className="card">
-                            <div className="card-body">
-                                <div
-                                    id="product-toolbar"
-                                    className="toolbar card-title"
+    const addCommission = () => {
+        const newCommissions = [
+            ...(data.commissions || []),
+            { year: (data.commissions?.length || 0) + 1, commission_rate: 0 },
+        ];
+        setData('commissions', newCommissions);
+    };
+
+    const removeCommission = (index: number) => {
+        const newCommissions = [...(data.commissions || [])];
+        newCommissions.splice(index, 1);
+        setData('commissions', newCommissions);
+    };
+
+    return (
+        <TableFormPage
+            headTitle="Product"
+            title="Produk"
+            i18nTitle="product"
+            breadcrumbs={[
+                { label: 'Master', href: 'javascript:void(0)', i18n: 'master' },
+                { label: 'Produk', active: true, i18n: 'product' },
+            ]}
+            tableTitle="Daftar Produk"
+            tableI18nTitle="product-list"
+            tableContent={
+                <Table hover striped bordered>
+                    <thead>
+                        <tr>
+                            <th className="col-8" data-i18n="product-name">
+                                Nama Produk
+                            </th>
+                            <th className="col-3" data-i18n="product-type">
+                                Jenis Produk
+                            </th>
+                            <th className="col-1"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {products.length > 0 ? (
+                            products.map((product) => (
+                                <tr
+                                    key={product.id}
+                                    onClick={() => setData(product)}
                                 >
-                                    <h4 data-i18n="product-list">
-                                        Daftar Produk
-                                    </h4>
-                                </div>
-                                <div className="table-responsive">
-                                    <Table hover striped bordered>
-                                        <thead>
-                                            <tr>
-                                                <th
-                                                    className="col-xs-3"
-                                                    data-field="product-name"
-                                                >
-                                                    Nama Produk
-                                                </th>
-                                                <th
-                                                    className="col-xs-2"
-                                                    data-field="product-type"
-                                                    data-formatter="productTypeFormatter"
-                                                >
-                                                    Jenis Produk
-                                                </th>
-                                                <th
-                                                    className="col-xs-1"
-                                                    data-formatter="productActionFormatter"
-                                                    data-events="productActionHandler"
-                                                ></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {products.length > 0 ? (
-                                                products.map((product) => (
-                                                    <tr
-                                                        key={product.id}
+                                    <td>{product.name}</td>
+                                    <td>
+                                        {product.type === '1'
+                                            ? 'Term'
+                                            : product.type === '2'
+                                              ? 'Whole Life'
+                                              : product.type === '3'
+                                                ? 'Endowment'
+                                                : product.type === '4'
+                                                  ? 'Unit Link'
+                                                  : 'Rider'}
+                                    </td>
+                                    <td>
+                                        <button
+                                            className="btn btn-sm btn-danger"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDelete(product.id);
+                                            }}
+                                            data-i18n="delete"
+                                        >
+                                            Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan={3} className="text-center">
+                                    No products found
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </Table>
+            }
+            formTitle={isEdit ? 'Sunting Produk' : 'Tambah Produk'}
+            formI18nTitle="edit-product"
+            formSubtitle="Masukkan informasi produk asuransi."
+            formI18nSubtitle="edit-product-inst"
+            formOnSubmit={handleSubmit}
+            formContent={
+                <>
+                    <TextInput
+                        id="product-name"
+                        label="Nama Produk"
+                        value={data.name || ''}
+                        onChange={(e) => setData('name', e.target.value)}
+                        row
+                    />
+                    <SelectInput
+                        id="product-type"
+                        label="Jenis Produk"
+                        value={data.type}
+                        onChange={(e) => setData('type', e.target.value)}
+                        options={[
+                            { value: '1', label: 'Term' },
+                            { value: '2', label: 'Whole Life' },
+                            { value: '3', label: 'Endowment' },
+                            { value: '4', label: 'Unit Link' },
+                            { value: '5', label: 'Rider' },
+                        ]}
+                        row
+                    />
+
+                    <div className="row form-group mb-3">
+                        <label className="col-sm-3" data-i18n="commission">
+                            Komisi
+                        </label>
+                        <div className="col-sm-9 text-end">
+                            <button
+                                id="commission-launcher"
+                                className="btn btn-primary"
+                                type="button"
+                                onClick={addCommission}
+                            >
+                                <i className="fa fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="row form-group">
+                        <div className="col-sm-12">
+                            <Table size="sm">
+                                <thead>
+                                    <tr>
+                                        <th data-i18n="year">Tahun</th>
+                                        <th data-i18n="commission-rate">
+                                            Komisi (%)
+                                        </th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {data.commissions &&
+                                        data.commissions.map((comm, idx) => (
+                                            <tr key={idx}>
+                                                <td>
+                                                    <input
+                                                        type="number"
+                                                        className="form-control form-control-sm"
+                                                        value={comm.year}
+                                                        onChange={(e) =>
+                                                            handleCommissionChange(
+                                                                idx,
+                                                                'year',
+                                                                parseInt(
+                                                                    e.target
+                                                                        .value,
+                                                                ),
+                                                            )
+                                                        }
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <input
+                                                        type="number"
+                                                        className="form-control form-control-sm"
+                                                        value={comm.commission_rate}
+                                                        onChange={(e) =>
+                                                            handleCommissionChange(
+                                                                idx, 'commission_rate',
+                                                                parseFloat(e.target.value)
+                                                            )
+                                                        }
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-sm btn-danger"
                                                         onClick={() =>
-                                                            setData(product)
+                                                            removeCommission(
+                                                                idx,
+                                                            )
                                                         }
                                                     >
-                                                        <td>{product.name}</td>
-                                                        <td>
-                                                            {(() => {
-                                                                switch (
-                                                                    product.type
-                                                                ) {
-                                                                    case '1':
-                                                                        return 'Term';
-                                                                    case '2':
-                                                                        return 'Whole Life';
-                                                                    case '3':
-                                                                        return 'Endowment';
-                                                                    case '4':
-                                                                        return 'Unit Link';
-                                                                    case '5':
-                                                                        return 'Rider';
-                                                                    default:
-                                                                        return 'Unknown';
-                                                                }
-                                                            })()}
-                                                        </td>
-                                                        <td>
-                                                            <button
-                                                                onClick={() =>
-                                                                    handleDelete(
-                                                                        product.id?.toString() ||
-                                                                            '',
-                                                                    )
-                                                                }
-                                                                className="btn btn-sm btn-danger"
-                                                                title="Delete"
-                                                            >
-                                                                <i className="la la-ban"></i>
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                ))
-                                            ) : (
-                                                <tr>
-                                                    <td
-                                                        colSpan={4}
-                                                        className="text-center text-muted py-4"
-                                                    >
-                                                        No products found.
-                                                    </td>
-                                                </tr>
-                                            )}
-                                        </tbody>
-                                    </Table>
-                                </div>
-                            </div>
+                                                        <i className="fa fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                </tbody>
+                            </Table>
                         </div>
                     </div>
-                    <div className="col-md-6">
-                        <div className="card">
-                            <div className="card-body">
-                                <form id="product-form">
-                                    <div className="row card-title">
-                                        <div className="col-md-9 col-sm-10 col-8">
-                                            <h4 data-i18n="edit-product">
-                                                Sunting Komisi
-                                            </h4>
-                                            <h6 data-i18n="edit-product-inst">
-                                                Masukkan informasi komisi yang
-                                                diterima Agen.
-                                            </h6>
-                                        </div>
-                                        <div className="col-md-3 col-sm-2 col-4">
-                                            <button
-                                                className="btn btn-primary pull-right"
-                                                onClick={handleSubmit}
-                                                data-i18n="submit-btn"
-                                            >
-                                                Perbarui
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div className="basic-form">
-                                        <div className="row form-group">
-                                            <label className="col-sm-3">
-                                                Nama Produk
-                                            </label>
-                                            <div className="col-sm-9">
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    value={data.name || ''}
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'name',
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="row form-group">
-                                            <label
-                                                className="col-sm-3"
-                                                htmlFor="product-type"
-                                                data-i18n="product-type"
-                                            >
-                                                Jenis Produk
-                                            </label>
-                                            <div className="col-sm-9">
-                                                <select
-                                                    className="form-control selectpicker"
-                                                    value={data.type}
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'type',
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                >
-                                                    <option
-                                                        value="1"
-                                                        data-i18n="term"
-                                                    >
-                                                        Term
-                                                    </option>
-                                                    <option
-                                                        value="2"
-                                                        data-i18n="whole-life"
-                                                    >
-                                                        Whole Life
-                                                    </option>
-                                                    <option
-                                                        value="3"
-                                                        data-i18n="endowment"
-                                                    >
-                                                        Endowment
-                                                    </option>
-                                                    <option
-                                                        value="4"
-                                                        data-i18n="unit-link"
-                                                    >
-                                                        Unit Link
-                                                    </option>
-                                                    <option
-                                                        value="5"
-                                                        data-i18n="rider"
-                                                    >
-                                                        Rider
-                                                    </option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div className="row form-group">
-                                            <label
-                                                className="col-sm-3"
-                                                htmlFor="producion-credit"
-                                                data-i18n="production-credit"
-                                            >
-                                                Rate Produksi
-                                            </label>
-                                            <div className="col-sm-9">
-                                                <input
-                                                    type="number"
-                                                    id="production-credit"
-                                                    min="0"
-                                                    max="100"
-                                                    value={
-                                                        data.credits.length > 0
-                                                            ? data.credits[0]
-                                                                  .production_credit
-                                                            : 100
-                                                    }
-                                                    className="form-control"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="row form-group">
-                                            <label
-                                                className="col-sm-3"
-                                                htmlFor="contest-credit"
-                                                data-i18n="contest-credit"
-                                            >
-                                                Rate Kontes
-                                            </label>
-                                            <div className="col-sm-9">
-                                                <input
-                                                    type="number"
-                                                    id="contest-credit"
-                                                    min="0"
-                                                    max="100"
-                                                    value={
-                                                        data.credits.length > 0
-                                                            ? data.credits[0]
-                                                                  .contest_credit
-                                                            : 100
-                                                    }
-                                                    className="form-control"
-                                                />
-                                            </div>
-                                        </div>
 
-                                        <div className="row form-group">
-                                            <label
-                                                className="col-sm-3"
-                                                data-i18n="product-commision"
-                                            >
-                                                Komisi Produk
-                                            </label>
-                                            <div className="col-sm-9">
-                                                <button
-                                                    id="new-commision"
-                                                    className="btn btn-primary d-inline float-right"
-                                                    type="button"
-                                                >
-                                                    <i className="fa fa-plus"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <Table striped bordered>
-                                            <thead>
-                                                <tr>
-                                                    <th>Cara Bayar</th>
-                                                    <th>Cara Bayar</th>
-                                                    <th>Tahun</th>
-                                                    <th>Tahun</th>
-                                                    <th>Komisi (%)</th>
-                                                    <th>Extra Komisi (%)</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {data.commissions &&
-                                                data.commissions.length > 0 ? (
-                                                    data.commissions.map(
-                                                        (
-                                                            commission: z.infer<
-                                                                typeof productCommissionSchema
-                                                            >,
-                                                            index: number,
-                                                        ) => (
-                                                            <tr key={index}>
-                                                                <td>
-                                                                    {(() => {
-                                                                        switch (
-                                                                            commission.payment_method
-                                                                        ) {
-                                                                            case 1:
-                                                                                return 'Tahunan';
-                                                                            case 2:
-                                                                                return 'Semester';
-                                                                            case 4:
-                                                                                return 'Triwulan';
-                                                                            case 12:
-                                                                                return 'Bulanan';
-                                                                            case 0:
-                                                                                return 'Sekaligus';
-                                                                            default:
-                                                                                return 'Unknown';
-                                                                        }
-                                                                    })()}
-                                                                </td>
-                                                                <td>
-                                                                    {(() => {
-                                                                        switch (
-                                                                            commission.currency
-                                                                        ) {
-                                                                            case 1:
-                                                                                return 'Rupiah';
-                                                                            case 2:
-                                                                                return 'Dollar';
-                                                                            default:
-                                                                                return 'Unknown';
-                                                                        }
-                                                                    })()}
-                                                                </td>
-                                                                <td>{commission.year}</td>
-                                                                <td>{commission.payment_period}</td>
-                                                                <td>{commission.commission_rate}</td>
-                                                                <td>{commission.extra_commission}</td>
-                                                            </tr>
-                                                        ),
-                                                    )
-                                                ) : (
-                                                    <tr>
-                                                        <td
-                                                            colSpan={6}
-                                                            className="text-center text-muted py-4"
-                                                        >
-                                                            No commissions found.
-                                                        </td>
-                                                    </tr>
-                                                )}
-                                            </tbody>
-                                        </Table>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
+                    <div className="text-end">
+                        <SubmitButton processing={processing} onClick={handleSubmit}>
+                            {isEdit ? 'Perbarui' : 'Simpan'}
+                        </SubmitButton>
                     </div>
-                </div>
-            </div>
-        </TemplateLayout>
+                </>
+            }
+        />
     );
 }

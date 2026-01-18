@@ -41,22 +41,40 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('program/create', 'create')->name('program.create');
             Route::get('program/{program}/edit', 'edit')->name('program.edit');
         });
+
+        Route::controller(AgencyController::class)->group(function() {
+            Route::get('agency', 'index')->name('agency.index');
+            Route::post('agency', 'store')->name('agency.store');
+            Route::put('agency/{agency}', 'update')->name('agency.update');
+            Route::delete('agency/{agency}', 'destroy')->name('agency.destroy');
+        });
         
         Route::get('product', [ProductController::class, 'index'])->name('product.index');
         Route::get('fund', [FundController::class, 'index'])->name('fund.index');
-        Route::get('agency', [AgencyController::class, 'index'])->name('agency.index');
         Route::get('contest', [ContestController::class, 'index'])->name('contest.index');
     });
 
     Route::prefix('sales')->name('sales.')->group(function () {
         Route::controller(PolicyController::class)->group(function() {
             Route::get('policy', 'index')->name('policy.index');
+            Route::post('policy', 'store')->name('policy.store');
             Route::post('policy/process-ocr', 'processOcr')->name('policy.process-ocr');
             Route::get('policy/create', 'create')->name('policy.create');
             Route::get('policy/{policy}/edit', 'edit')->name('policy.edit');
+            Route::put('policy/{policy}', 'update')->name('policy.update');
+            Route::get('policy/{policy}/cancel', 'cancel')->name('policy.cancel');
         });
         
         Route::get('receipt', [ReceiptController::class, 'index'])->name('receipt.index');
+    });
+
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('birthday', [CustomerController::class, 'report_birthday'])->name('birthday');
+        Route::get('religion', [CustomerController::class, 'report_religion'])->name('religion');
+        Route::get('due-date', [ReceiptController::class, 'report_due_date'])->name('due-date');
+        Route::get('production', [PolicyController::class, 'report_production'])->name('production');
+        Route::get('generation', [AgentController::class, 'report_generation'])->name('generation');
+        Route::get('mdrt', [AgentController::class, 'report_mdrt'])->name('mdrt');
     });
 
     Route::get('/extraction-status/{id}', function ($id) {

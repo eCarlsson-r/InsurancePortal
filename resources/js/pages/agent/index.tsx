@@ -1,4 +1,5 @@
-import TemplateLayout from '@/layouts/TemplateLayout';
+import PageHeader from '@/components/layout/page-header';
+import TablePage from '@/layouts/TablePage';
 import { agentSchema } from '@/schemas/models';
 import { Head, Link, router } from '@inertiajs/react';
 import { Table } from 'react-bootstrap';
@@ -9,164 +10,87 @@ interface AgentProps {
 }
 
 export default function Agent({ agents = [] }: AgentProps) {
-    const handleDelete = (agentCode: string) => {
-        if (confirm('Are you sure you want to delete this agent?')) {
-            router.delete(`/master/agent/${agentCode}`);
+    const handleDelete = (agentId: number | undefined) => {
+        if (agentId && confirm('Are you sure you want to delete this agent?')) {
+            router.delete(`/master/agent/${agentId}`);
         }
     };
 
     const handleRowClick = (agentId: number | undefined) => {
         if (agentId) router.get(`/master/agent/${agentId}/edit`);
-    }
+    };
 
     return (
-        <TemplateLayout>
-            <Head title="Agen" />
-
-            <div className="container-fluid">
-                <div className="row page-titles mx-0">
-                    <div className="col-6 p-md-0">
-                        <h3 className="text-primary d-inline" data-i18n="agent">
-                            Agen
-                        </h3>{' '}
-                    </div>
-                    <div className="col-6 p-md-0 justify-content-sm-end mt-2 mt-sm-0 d-flex">
-                        <ol className="breadcrumb">
-                            <li className="breadcrumb-item">
-                                <a href="javascript:void(0)" data-i18n="master">
-                                    Master
-                                </a>
-                            </li>
-                            <li
-                                className="breadcrumb-item active"
-                                data-i18n="agent"
-                            >
-                                Agen
-                            </li>
-                        </ol>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col-md-12">
-                        <div className="card">
-                            <div className="card-body">
-                                <div
-                                    id="agent-toolbar"
-                                    className="card-title toolbar form-inline"
-                                >
-                                    <h4 data-i18n="agent-list">Daftar Agen</h4>
-                                    &emsp;
-                                    <Link
-                                        href="/master/agent/create"
-                                        className="btn btn-primary"
-                                    >
-                                        <i className="fa fa-user"></i>{' '}
-                                        <span data-i18n="new-agent">
-                                            Agen Baru
-                                        </span>
-                                    </Link>
-                                </div>
-                                <div className="table-responsive">
-                                    <Table hover striped bordered>
-                                        <thead>
-                                            <tr>
-                                                <th
-                                                    className="col-sm-1"
-                                                    data-sortable="true"
-                                                    data-field="agent-number"
-                                                >
-                                                    Kode Agen
-                                                </th>
-                                                <th
-                                                    className="col-sm-2"
-                                                    data-field="agent-name"
-                                                >
-                                                    Nama Agen
-                                                </th>
-                                                <th
-                                                    className="col-sm-1"
-                                                    data-sortable="true"
-                                                    data-field="agent-level"
-                                                    data-formatter="LevelFormatter"
-                                                >
-                                                    Jabatan Agen
-                                                </th>
-                                                <th
-                                                    className="col-sm-2"
-                                                    data-field="agent-email"
-                                                >
-                                                    Email Agen
-                                                </th>
-                                                <th
-                                                    className="col-sm-2"
-                                                    data-sortable="true"
-                                                    data-field="agent-birth-date"
-                                                    data-formatter="agentFullDateFormatter"
-                                                >
-                                                    Tanggal Lahir
-                                                </th>
-                                                <th
-                                                    className="col-sm-1"
-                                                    data-sortable="true"
-                                                    data-field="agent-mobile"
-                                                >
-                                                    Nomor Ponsel
-                                                </th>
-                                                <th
-                                                    className="col-sm-1"
-                                                    data-formatter="agentActionFormatter"
-                                                    data-events="agentActionHandler"
-                                                ></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {agents.length > 0 ? (
-                                                agents.map((agent) => (
-                                                    <tr key={agent.id} onClick={() => handleRowClick(agent.id)}>
-                                                        <td>{agent.official_number}</td>
-                                                        <td>{agent.name}</td>
-                                                        <td>{agent.programs[0].position}</td>
-                                                        <td>{agent.email}</td>
-                                                        <td>
-                                                            {new Date(
-                                                                agent.birth_date,
-                                                            ).toDateString()}
-                                                        </td>
-                                                        <td>{agent.mobile}</td>
-                                                        <td>
-                                                            <button
-                                                                onClick={() =>
-                                                                    handleDelete(
-                                                                        agent.id?.toString() ||
-                                                                            '',
-                                                                    )
-                                                                }
-                                                                className="btn btn-sm btn-danger"
-                                                                title="Delete"
-                                                            >
-                                                                <i className="la la-ban"></i>
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                ))
-                                            ) : (
-                                                <tr>
-                                                    <td
-                                                        colSpan={10}
-                                                        className="text-center text-muted py-4"
-                                                    >
-                                                        No agents found.
-                                                    </td>
-                                                </tr>
-                                            )}
-                                        </tbody>
-                                    </Table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <TablePage
+            headTitle="Agen"
+            title="Agen"
+            i18nTitle="agent"
+            breadcrumbs={[
+                { label: 'Master', href: 'javascript:void(0)', i18n: 'master' },
+                { label: 'Agen', active: true, i18n: 'agent' },
+            ]}
+            tableTitle="Daftar Agen"
+            toolbar={
+                <Link
+                    href="/master/agent/create"
+                    className="btn btn-primary"
+                >
+                    <i className="fa fa-user me-2"></i>
+                    <span data-i18n="new-agent">Agen Baru</span>
+                </Link>
+            }
+        >
+            <div className="table-responsive">
+                <Table hover striped bordered className="vertical-middle">
+                    <thead>
+                        <tr>
+                            <th style={{ width: '120px' }} data-i18n="agent-number">Kode Agen</th>
+                            <th data-i18n="agent-name">Nama Agen</th>
+                            <th style={{ width: '150px' }} data-i18n="agent-level">Jabatan</th>
+                            <th data-i18n="agent-email">Email</th>
+                            <th style={{ width: '150px' }} data-i18n="agent-birth-date">Tanggal Lahir</th>
+                            <th style={{ width: '150px' }} data-i18n="agent-mobile">Nomor Ponsel</th>
+                            <th style={{ width: '50px' }}></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {agents.length > 0 ? (
+                            agents.map((agent) => (
+                                <tr key={agent.id} className="cursor-pointer">
+                                    <td onClick={() => handleRowClick(agent.id)}>{agent.official_number}</td>
+                                    <td onClick={() => handleRowClick(agent.id)}>{agent.name}</td>
+                                    <td onClick={() => handleRowClick(agent.id)}>
+                                        {agent.programs && agent.programs.length > 0 ? agent.programs[0].position : '-'}
+                                    </td>
+                                    <td onClick={() => handleRowClick(agent.id)}>{agent.email}</td>
+                                    <td onClick={() => handleRowClick(agent.id)}>
+                                        {agent.birth_date ? new Date(agent.birth_date).toLocaleDateString() : '-'}
+                                    </td>
+                                    <td onClick={() => handleRowClick(agent.id)}>{agent.mobile}</td>
+                                    <td className="text-center">
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDelete(agent.id);
+                                            }}
+                                            className="btn btn-sm btn-danger p-1"
+                                            title="Delete"
+                                        >
+                                            <i className="fa fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan={7} className="text-center text-muted py-4">
+                                    No agents found.
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </Table>
             </div>
-        </TemplateLayout>
+        </TablePage>
     );
 }
