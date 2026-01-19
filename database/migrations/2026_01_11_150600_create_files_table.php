@@ -9,16 +9,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('files', function (Blueprint $table) {
-            $table->increments('file_id');
-            $table->string('file_name', 500);
-            $table->string('file_type', 100);
-            $table->string('file_ext', 100);
-            $table->unsignedInteger('file_size');
-            $table->date('file_upload_date');
-            $table->string('file_purpose', 100);
-            $table->string('file_document_id', 20);
+            $table->id();
+            $table->string('name', 500);
+            $table->string('type', 100);
+            $table->string('extension', 100);
+            $table->unsignedInteger('size');
+            $table->date('upload_date');
+            $table->string('purpose', 100);
+            $table->string('document_id', 20);
 
-            $table->unique(['file_name', 'file_type', 'file_ext', 'file_size'], 'unique_file');
+            $table->unique(['name', 'type', 'extension', 'size'], 'unique_file');
         });
     }
 

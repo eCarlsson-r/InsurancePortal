@@ -1,18 +1,54 @@
+import Pagination from '@/components/pagination';
 import SelectInput from '@/components/form/select-input';
 import SubmitButton from '@/components/form/submit-button';
 import TextInput from '@/components/form/text-input';
 import TableFormPage from '@/layouts/TableFormPage';
 import { agencySchema, agentSchema } from '@/schemas/models';
 import { router, useForm } from '@inertiajs/react';
+import { useCallback, useEffect, useState } from 'react';
 import { Table } from 'react-bootstrap';
 import { z } from 'zod';
 
 interface AgencyProps {
-    agencies: z.infer<typeof agencySchema>[];
+    agencies: {
+        data: z.infer<typeof agencySchema>[];
+        links: {
+            url: string | null;
+            label: string;
+            active: boolean;
+        }[];
+    };
     agents: z.infer<typeof agentSchema>[];
+    filters: {
+        search: string | null;
+    };
 }
 
-export default function Agency({ agencies = [], agents = [] }: AgencyProps) {
+export default function Agency({ agencies, agents = [], filters }: AgencyProps) {
+    const [searchQuery, setSearchQuery] = useState(filters.search || '');
+
+    const handleSearch = useCallback(() => {
+        router.get(
+            '/master/agency',
+            { search: searchQuery },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                replace: true,
+            },
+        );
+    }, [searchQuery]);
+
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            if (searchQuery !== (filters.search || '')) {
+                handleSearch();
+            }
+        }, 300);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchQuery, filters.search, handleSearch]);
+
     // Initial form state with safe defaults
     const { data, setData, post, put, processing } = useForm<
         z.infer<typeof agencySchema>
@@ -51,6 +87,17 @@ export default function Agency({ agencies = [], agents = [] }: AgencyProps) {
             ]}
             tableTitle="Daftar Agency / Regional"
             tableI18nTitle="agency-list"
+            tableToolbar={
+                <input
+                    type="text"
+                    className="form-control form-control-sm float-end"
+                    placeholder="Cari agency..."
+                    style={{ width: '200px' }}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
+            }
+            pagination={<Pagination links={agencies.links} />}
             tableContent={
                 <Table hover striped bordered>
                     <thead>
@@ -65,8 +112,8 @@ export default function Agency({ agencies = [], agents = [] }: AgencyProps) {
                         </tr>
                     </thead>
                     <tbody>
-                        {agencies.length > 0 ? (
-                            agencies.map((agency) => (
+                        {agencies.data.length > 0 ? (
+                            agencies.data.map((agency) => (
                                 <tr
                                     key={agency.id}
                                     onClick={() => setData(agency)}
@@ -80,9 +127,9 @@ export default function Agency({ agencies = [], agents = [] }: AgencyProps) {
                                                 e.stopPropagation();
                                                 handleDelete(agency.id);
                                             }}
-                                            data-i18n="delete"
+                                            title="Delete"
                                         >
-                                            Delete
+                                            <i className="fa fa-trash"></i>
                                         </button>
                                     </td>
                                 </tr>
@@ -135,10 +182,10 @@ export default function Agency({ agencies = [], agents = [] }: AgencyProps) {
                     <SelectInput
                         id="leader"
                         label="Agency Atasan"
-                        value={data.leader}
+                        value={data.leader || ''}
                         onChange={(e) => setData('leader', e.target.value)}
-                        options={agencies.map((agency) => ({
-                            value: agency.id || '', // Assuming leader is name or ID string
+                        options={agencies.data.map((agency) => ({
+                            value: agency.id || '',
                             label: agency.name,
                         }))}
                         row

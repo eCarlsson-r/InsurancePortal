@@ -21,6 +21,7 @@ interface TableFormPageProps {
     leftColWidth?: number;
     rightColWidth?: number;
     headerActions?: ReactNode;
+    pagination?: ReactNode;
 }
 
 export default function TableFormPage({
@@ -41,6 +42,7 @@ export default function TableFormPage({
     leftColWidth = 6,
     rightColWidth = 6,
     headerActions,
+    pagination,
 }: TableFormPageProps) {
     return (
         <TemplateLayout>
@@ -59,12 +61,13 @@ export default function TableFormPage({
                         <div className="card">
                             <div className="card-body">
                                 <div className="toolbar card-title mb-4">
-                                    <h4 data-i18n={tableI18nTitle}>{tableTitle}</h4>
+                                    <h4 className="d-inline" data-i18n={tableI18nTitle}>{tableTitle}</h4>
                                     {tableToolbar}
                                 </div>
                                 <div className="table-responsive">
                                     {tableContent}
                                 </div>
+                                {pagination}
                             </div>
                         </div>
                     </div>

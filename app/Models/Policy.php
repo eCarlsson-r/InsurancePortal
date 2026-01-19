@@ -13,6 +13,7 @@ class Policy extends Model
     public $timestamps = false;
 
     protected $fillable = [
+        'case_code',
         'policy_no',
         'holder_id',
         'insured_id',
@@ -36,8 +37,6 @@ class Policy extends Model
     protected $guarded = ['id'];
 
     protected $casts = [
-        'entry_date' => 'date',
-        'start_date' => 'date',
         'is_insure_holder' => 'boolean',
         'curr_rate' => 'decimal:4',
     ];

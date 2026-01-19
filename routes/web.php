@@ -28,18 +28,28 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('customer', 'index')->name('customer.index');
             Route::get('customer/create', 'create')->name('customer.create');
             Route::get('customer/{customer}/edit', 'edit')->name('customer.edit');
+            Route::post('customer', 'store')->name('customer.store');
+            Route::put('customer/{customer}', 'update')->name('customer.update');
+            Route::delete('customer/{customer}', 'destroy')->name('customer.destroy');
         });
 
         Route::controller(AgentController::class)->group(function() {
             Route::get('agent', 'index')->name('agent.index');
             Route::get('agent/create', 'create')->name('agent.create');
             Route::get('agent/{agent}/edit', 'edit')->name('agent.edit');
+            Route::post('agent', 'store')->name('agent.store');
+            Route::put('agent/{agent}', 'update')->name('agent.update');
+            Route::delete('agent/{agent}', 'destroy')->name('agent.destroy');
         });
 
         Route::controller(ProgramController::class)->group(function() {
             Route::get('program', 'index')->name('program.index');
             Route::get('program/create', 'create')->name('program.create');
             Route::get('program/{program}/edit', 'edit')->name('program.edit');
+            Route::post('program', 'store')->name('program.store');
+            Route::put('program/{program}', 'update')->name('program.update');
+            Route::delete('program/{program}', 'destroy')->name('program.destroy');
+            Route::delete('target/{target}', 'remove_target')->name('program.target.destroy');
         });
 
         Route::controller(AgencyController::class)->group(function() {
@@ -49,9 +59,26 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::delete('agency/{agency}', 'destroy')->name('agency.destroy');
         });
         
-        Route::get('product', [ProductController::class, 'index'])->name('product.index');
-        Route::get('fund', [FundController::class, 'index'])->name('fund.index');
-        Route::get('contest', [ContestController::class, 'index'])->name('contest.index');
+        Route::controller(ProductController::class)->group(function() {
+            Route::get('product', 'index')->name('product.index');
+            Route::post('product', 'store')->name('product.store');
+            Route::put('product/{product}', 'update')->name('product.update');
+            Route::delete('product/{product}', 'destroy')->name('product.destroy');
+        });
+
+        Route::controller(FundController::class)->group(function() {
+            Route::get('fund', 'index')->name('fund.index');
+            Route::post('fund', 'store')->name('fund.store');
+            Route::put('fund/{fund}', 'update')->name('fund.update');
+            Route::delete('fund/{fund}', 'destroy')->name('fund.destroy');
+        });
+
+        Route::controller(ContestController::class)->group(function() {
+            Route::get('contest', 'index')->name('contest.index');
+            Route::post('contest', 'store')->name('contest.store');
+            Route::put('contest/{contest}', 'update')->name('contest.update');
+            Route::delete('contest/{contest}', 'destroy')->name('contest.destroy');
+        });
     });
 
     Route::prefix('sales')->name('sales.')->group(function () {
@@ -65,7 +92,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('policy/{policy}/cancel', 'cancel')->name('policy.cancel');
         });
         
-        Route::get('receipt', [ReceiptController::class, 'index'])->name('receipt.index');
+        Route::controller(ReceiptController::class)->group(function() {
+            Route::get('receipt', 'index')->name('receipt.index');
+            Route::post('receipt', 'store')->name('receipt.store');
+            Route::put('receipt/{receipt}', 'update')->name('receipt.update');
+            Route::delete('receipt/{receipt}', 'destroy')->name('receipt.destroy');
+        });
     });
 
     Route::prefix('reports')->name('reports.')->group(function () {

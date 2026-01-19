@@ -9,6 +9,7 @@ interface TablePageProps {
     i18nTitle?: string;
     breadcrumbs: Array<{ label: string; href?: string; active?: boolean; i18n?: string }>;
     toolbar?: ReactNode;
+    pagination?: ReactNode;
     children: ReactNode;
 }
 
@@ -18,6 +19,7 @@ export default function TablePage({
     i18nTitle,
     breadcrumbs,
     toolbar,
+    pagination,
     children,
 }: TablePageProps) {
     return (
@@ -43,6 +45,7 @@ export default function TablePage({
                                 <div className="table-responsive">
                                     {children}
                                 </div>
+                                {pagination}
                             </div>
                         </div>
                     </div>

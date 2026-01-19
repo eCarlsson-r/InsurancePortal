@@ -8,16 +8,35 @@ use App\Models\Product;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $page_title = 'Product';
-        $page_description = 'View products';
-        $products = Product::with(['commissions', 'credits'])->get();
+        $search = $request->input('search');
+
+        $products = Product::query()
+            ->with(['commissions', 'credits'])
+            ->when($search, function ($query, $search) {
+                $query->where('name', 'like', "%{$search}%");
+            })
+            ->paginate(10)
+            ->withQueryString();
 
         return Inertia::render('product', [
             'products' => $products,
-            'page_title' => $page_title,
-            'page_description' => $page_description,
+            'filters' => [
+                'search' => $search
+            ]
         ]);
+    }
+
+    public function destroy(Product $product) {
+        $product->delete();
+        return redirect()->back();
+    }
+
+    public function remove_commission($id)
+    {
+        $commission = ProductCommission::findOrFail($id);
+        $commission->delete();
+        return redirect()->back();
     }
 }

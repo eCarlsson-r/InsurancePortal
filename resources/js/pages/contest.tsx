@@ -1,14 +1,50 @@
+import Pagination from '@/components/pagination';
 import TemplateLayout from '@/layouts/TemplateLayout';
 import { contestSchema } from '@/schemas/models';
 import { Head, router, useForm } from '@inertiajs/react';
+import { useCallback, useEffect, useState } from 'react';
 import { Table } from 'react-bootstrap';
 import { z } from 'zod';
 
 interface ContestProps {
-    contests: z.infer<typeof contestSchema>[];
+    contests: {
+        data: z.infer<typeof contestSchema>[];
+        links: {
+            url: string | null;
+            label: string;
+            active: boolean;
+        }[];
+    };
+    filters: {
+        search: string | null;
+    };
 }
 
-export default function Contest({ contests = [] }: ContestProps) {
+export default function Contest({ contests, filters }: ContestProps) {
+    const [searchQuery, setSearchQuery] = useState(filters.search || '');
+
+    const handleSearch = useCallback(() => {
+        router.get(
+            '/master/contest',
+            { search: searchQuery },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                replace: true,
+            },
+        );
+    }, [searchQuery]);
+
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            if (searchQuery !== (filters.search || '')) {
+                handleSearch();
+            }
+        }, 300);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchQuery, filters.search, handleSearch]);
+
     const handleDelete = (contestCode: string) => {
         if (confirm('Are you sure you want to delete this contest?')) {
             router.delete(`/master/contest/${contestCode}`);
@@ -80,11 +116,19 @@ export default function Contest({ contests = [] }: ContestProps) {
                             <div className="card-body">
                                 <div
                                     id="contest-toolbar"
-                                    className="toolbar card-title"
+                                    className="toolbar card-title d-flex justify-content-between align-items-center"
                                 >
                                     <h4 data-i18n="contest-list">
                                         Daftar Kontes
                                     </h4>
+                                    <input
+                                        type="text"
+                                        className="form-control form-control-sm"
+                                        placeholder="Cari kontes..."
+                                        style={{ width: '200px' }}
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                    />
                                 </div>
                                 <div className="table-responsive">
                                     <Table hover striped bordered>
@@ -106,8 +150,8 @@ export default function Contest({ contests = [] }: ContestProps) {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {contests.length > 0 ? (
-                                                contests.map((contestItem) => (
+                                            {contests.data.length > 0 ? (
+                                                contests.data.map((contestItem) => (
                                                     <tr
                                                         key={contestItem.id}
                                                         onClick={() =>
@@ -143,8 +187,9 @@ export default function Contest({ contests = [] }: ContestProps) {
                                                                             '',
                                                                     )
                                                                 }
+                                                                title="Delete"
                                                             >
-                                                                Hapus
+                                                                <i className="fa fa-trash"></i>
                                                             </button>
                                                         </td>
                                                     </tr>
@@ -162,6 +207,7 @@ export default function Contest({ contests = [] }: ContestProps) {
                                             )}
                                         </tbody>
                                     </Table>
+                                    <Pagination links={contests.links} />
                                 </div>
                             </div>
                         </div>
@@ -344,28 +390,6 @@ export default function Contest({ contests = [] }: ContestProps) {
                                                     }
                                                     min="0"
                                                     max="100"
-                                                    className="form-control"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="row form-group">
-                                            <label className="col-sm-3">
-                                                Jumlah Bonus
-                                            </label>
-                                            <div className="col-sm-9">
-                                                <input
-                                                    type="number"
-                                                    value={
-                                                        data.bonus_amount
-                                                    }
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'bonus_amount',
-                                                            parseInt(
-                                                                e.target.value,
-                                                            ),
-                                                        )
-                                                    }
                                                     className="form-control"
                                                 />
                                             </div>

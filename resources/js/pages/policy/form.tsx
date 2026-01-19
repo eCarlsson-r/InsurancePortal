@@ -203,8 +203,8 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                     <TextInput
                                         id="case_no"
                                         label="No. SP"
-                                        value={data.id}
-                                        onChange={(e) => setData('id', e.target.value)}
+                                        value={data.case_code}
+                                        onChange={(e) => setData('case_code', e.target.value)}
                                         error={errors.id}
                                         row
                                     />

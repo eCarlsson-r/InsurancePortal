@@ -1,24 +1,60 @@
+import Pagination from '@/components/pagination';
 import SelectInput from '@/components/form/select-input';
 import SubmitButton from '@/components/form/submit-button';
 import TextInput from '@/components/form/text-input';
 import TableFormPage from '@/layouts/TableFormPage';
 import { fundSchema } from '@/schemas/models';
 import { router, useForm } from '@inertiajs/react';
+import { useCallback, useEffect, useState } from 'react';
 import { Table } from 'react-bootstrap';
 import { z } from 'zod';
 
 interface FundProps {
-    funds: z.infer<typeof fundSchema>[];
+    funds: {
+        data: z.infer<typeof fundSchema>[];
+        links: {
+            url: string | null;
+            label: string;
+            active: boolean;
+        }[];
+    };
+    filters: {
+        search: string | null;
+    };
 }
 
-export default function Fund({ funds = [] }: FundProps) {
+export default function Fund({ funds, filters }: FundProps) {
+    const [searchQuery, setSearchQuery] = useState(filters.search || '');
+
+    const handleSearch = useCallback(() => {
+        router.get(
+            '/master/fund',
+            { search: searchQuery },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                replace: true,
+            },
+        );
+    }, [searchQuery]);
+
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            if (searchQuery !== (filters.search || '')) {
+                handleSearch();
+            }
+        }, 300);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchQuery, filters.search, handleSearch]);
+
     // Initial form state with safe defaults
     const { data, setData, post, put, processing } = useForm<
         z.infer<typeof fundSchema>
     >({
         id: undefined,
         name: '',
-        currency: '1',
+        currency: 1,
     });
 
     const isEdit = !!data.id;
@@ -48,6 +84,17 @@ export default function Fund({ funds = [] }: FundProps) {
             ]}
             tableTitle="Daftar Jenis Dana"
             tableI18nTitle="fund-list"
+            tableToolbar={
+                <input
+                    type="text"
+                    className="form-control form-control-sm float-end"
+                    placeholder="Cari jenis dana..."
+                    style={{ width: '200px' }}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
+            }
+            pagination={<Pagination links={funds.links} />}
             tableContent={
                 <Table hover striped bordered>
                     <thead>
@@ -62,12 +109,12 @@ export default function Fund({ funds = [] }: FundProps) {
                         </tr>
                     </thead>
                     <tbody>
-                        {funds.length > 0 ? (
-                            funds.map((fund) => (
+                        {funds.data.length > 0 ? (
+                            funds.data.map((fund) => (
                                 <tr key={fund.id} onClick={() => setData(fund)}>
                                     <td>{fund.name}</td>
                                     <td>
-                                        {fund.currency === '1'
+                                        {fund.currency === 1
                                             ? 'Rupiah'
                                             : 'Dollar'}
                                     </td>
@@ -78,9 +125,9 @@ export default function Fund({ funds = [] }: FundProps) {
                                                 e.stopPropagation();
                                                 handleDelete(fund.id);
                                             }}
-                                            data-i18n="delete"
+                                            title="Delete"
                                         >
-                                            Delete
+                                            <i className="fa fa-trash"></i>
                                         </button>
                                     </td>
                                 </tr>
@@ -113,7 +160,7 @@ export default function Fund({ funds = [] }: FundProps) {
                         id="fund-currency"
                         label="Mata Uang"
                         value={data.currency}
-                        onChange={(e) => setData('currency', e.target.value)}
+                        onChange={(e) => setData('currency', Number(e.target.value))}
                         options={[
                             { value: '1', label: 'Rupiah' },
                             { value: '2', label: 'Dollar' },

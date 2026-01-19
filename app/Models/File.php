@@ -7,27 +7,33 @@ use Illuminate\Database\Eloquent\Model;
 class File extends Model
 {
     protected $table = 'files';
-    protected $primaryKey = 'file_id';
     public $timestamps = false;
 
     protected $fillable = [
-        'file_name',
-        'file_type',
-        'file_ext',
-        'file_size',
-        'file_upload_date',
-        'file_purpose',
-        'file_document_id',
+        'name',
+        'type',
+        'extension',
+        'size',
+        'upload_date',
+        'purpose',
+        'document_id',
     ];
 
     protected $casts = [
-        'file_upload_date' => 'date',
+        'upload_date' => 'date',
     ];
 
     public function policy()
     {
-        if ($this->file_purpose === 'case') {
-            return $this->belongsTo(Policy::class, 'file_document_id', 'case_code');
+        if ($this->purpose === 'case') {
+            return $this->belongsTo(Policy::class, 'document_id', 'case_code');
+        }
+    }
+
+    public function agent()
+    {
+        if ($this->purpose === 'agent') {
+            return $this->belongsTo(Agent::class, 'document_id');
         }
     }
 }

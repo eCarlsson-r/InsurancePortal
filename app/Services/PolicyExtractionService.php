@@ -94,7 +94,7 @@ class PolicyExtractionService {
             }
 
             if ($aiKey === 'distribution_header') {
-                $mappedData['id'] = explode(" : ", $value[1]["value"])[1];
+                $mappedData['case_code'] = explode(" : ", $value[1]["value"])[1];
                 unset($mappedData['distribution_header']);
             }
 

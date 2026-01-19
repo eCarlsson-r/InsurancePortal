@@ -91,20 +91,20 @@ export const customerSchema = z.object({
 });
 
 export const fileSchema = z.object({
-    file_id: z.number().int().optional(),
-    file_name: z.string(),
-    file_type: z.string(),
-    file_ext: z.string(),
-    file_size: z.number().int(),
-    file_upload_date: z.coerce.date(),
-    file_purpose: z.string(),
-    file_document_id: z.string(),
+    id: z.number().int().optional(),
+    name: z.string(),
+    type: z.string(),
+    ext: z.string(),
+    size: z.number().int(),
+    upload_date: z.coerce.date(),
+    purpose: z.string(),
+    document_id: z.string(),
 });
 
 export const fundSchema = z.object({
     id: z.number().int().optional(),
     name: z.string(),
-    currency: z.string(),
+    currency: z.number().int(),
 });
 
 export const investmentSchema = z.object({
@@ -156,7 +156,8 @@ export const riderSchema = z.object({
 
 export const policySchema = z
     .object({
-        id: z.string(),
+        id: z.number().int().optional(),
+        case_code: z.string(),
         policy_no: z.string(),
         holder_id: z.string().optional(),
         insured_id: z.string().optional(),

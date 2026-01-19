@@ -9,17 +9,23 @@ use Inertia\Inertia;
 
 class AgencyController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $page_title = 'Agency';
-        $page_description = 'View agencies';
-		$logo = "images/logo.png";
-		$logoText = "images/logo-text.png";
-		$action = __FUNCTION__;
+        $search = $request->input('search');
+
+        $agencies = Agency::query()
+            ->when($search, function ($query, $search) {
+                $query->where('name', 'like', "%{$search}%");
+            })
+            ->paginate(10)
+            ->withQueryString();
 
         return Inertia::render('agency', [
-            'agencies' => Agency::all(),
-            'agents' => Agent::all()
+            'agencies' => $agencies,
+            'agents' => Agent::all(),
+            'filters' => [
+                'search' => $search
+            ]
         ]);
     }
 
@@ -51,7 +57,6 @@ class AgencyController extends Controller
 
     public function destroy(Agency $agency) {
         $agency->delete();
-
-        return redirect()->route('master.agency.index');
+        return redirect()->back();
     }
 }

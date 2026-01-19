@@ -24,11 +24,6 @@ class PolicyController extends Controller
 {
     public function index(Request $request)
     {
-        $page_title = 'Policy';
-        $page_description = 'View policies';
-		$logo = "images/logo.png";
-		$logoText = "images/logo-text.png";
-
         $query = $request->get('q');
         $policies = Policy::with(['holder', 'insured', 'product', 'agent'])
             ->when($query, function ($q) use ($query) {
@@ -40,11 +35,15 @@ class PolicyController extends Controller
                     ->orWhereHas('insured', function ($q) use ($query) {
                         $q->where('name', 'like', "%{$query}%");
                     });
-            })->get();
+            })
+            ->paginate(10)
+            ->withQueryString();
 
         return Inertia::render('policy/index', [
-            'policies' => $policies->toArray(),
-            'query' => $request->input('q', '')
+            'policies' => $policies,
+            'filters' => [
+                'q' => $query
+            ]
         ]);
     }
 
@@ -106,39 +105,18 @@ class PolicyController extends Controller
                 'funds' => Fund::all()
             ]);
         } else {
-            return Inertia::render('policy/form');
+            return Inertia::render('policy/form', [
+                'agents' => Agent::all(), 
+                'products' => Product::all(),
+                'funds' => Fund::all()
+            ]);
         }
     }
 
-    
-
     public function update(Request $request, $id) {
         $policy = Policy::findOrFail($id);
-        
-        $request->validate([
-            'is_insure_holder' => 'required|boolean',
-            'holder.name' => 'required|string',
-            'insured.name' => 'required_if:is_insure_holder,false|nullable|string',
-        ]);
-
-        $holder_id = Customer::updateOrCreate(
-            ['identity' => $request->input('holder.identity')],
-            $request->input('holder')
-        )->id;
-
-        if ($request->is_insure_holder) {
-            $insured_id = $holder_id;
-        } else {
-            $insured_id = Customer::updateOrCreate(
-                ['identity' => $request->input('insured.identity')],
-                $request->input('insured')
-            )->id;
-        }
 
         $policy->update([
-            'policy_no' => $request->policy_no,
-            'holder_id' => $holder_id,
-            'insured_id' => $insured_id,
             'agent_id' => $request->agent_id,
             'holder_insured_relationship' => $request->holder_insured_relationship,
             'entry_date' => $request->entry_date,
@@ -174,10 +152,13 @@ class PolicyController extends Controller
 		$logoText = "images/logo-text.png";
 		$action = __FUNCTION__;
 
-        $policy = Policy::findOrFail($id);
+        $policy = Policy::with('holder', 'insured', 'agent', 'product', 'investments', 'riders')->findOrFail($id);
 
         return Inertia::render('policy/form', [
-            'policy' => $policy
+            'policy' => $policy,
+            'agents' => Agent::all(), 
+            'products' => Product::all(),
+            'funds' => Fund::all()
         ]);
     }
 
@@ -217,5 +198,19 @@ class PolicyController extends Controller
 
         // 5. Return immediately to avoid the 504 Timeout
         return redirect()->back()->with('ocr_id', $ocrId);
+    }
+
+    public function remove_investment($id)
+    {
+        $investment = Investment::findOrFail($id);
+        $investment->delete();
+        return redirect()->back();
+    }
+
+    public function remove_rider($id)
+    {
+        $rider = Rider::findOrFail($id);
+        $rider->delete();
+        return redirect()->back();
     }
 }

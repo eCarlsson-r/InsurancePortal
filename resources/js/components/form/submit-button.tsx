@@ -7,7 +7,7 @@ interface SubmitButtonProps {
     className?: string;
     tabIndex?: number;
     disabled?: boolean;
-    onClick: () => void;
+    onClick?: () => void;
 }
 
 export default function SubmitButton({

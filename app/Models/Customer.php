@@ -26,7 +26,7 @@ class Customer extends Model
         'work_address',
         'work_postal',
         'work_city',
-        'description',
+        'notes',
     ];
 
     protected $guarded = ['id'];

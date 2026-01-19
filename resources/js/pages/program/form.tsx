@@ -3,7 +3,7 @@ import TextInput from '@/components/form/text-input';
 import SubmitButton from '@/components/form/submit-button';
 import FormPage from '@/layouts/FormPage';
 import { programSchema } from '@/schemas/models';
-import { useForm } from '@inertiajs/react';
+import { router, useForm } from '@inertiajs/react';
 import { Accordion, Table } from 'react-bootstrap';
 import { z } from 'zod';
 
@@ -15,7 +15,7 @@ export default function ProgramForm({
     const isEdit = !!program;
 
     // Initial form state with safe defaults
-    const { data, setData, post, put, processing } = useForm<
+    const { data, setData, post, put, delete: destroy, processing } = useForm<
         z.infer<typeof programSchema>
     >(
         isEdit && program
@@ -55,9 +55,22 @@ export default function ProgramForm({
     };
 
     const removeTarget = (index: number) => {
-        const newTargets = [...data.targets];
-        newTargets.splice(index, 1);
-        setData('targets', newTargets);
+        if (data.targets[index].id) {
+            if (confirm('Are you sure you want to delete this?')) {
+                destroy(`/master/target/${data.targets[index].id}`, {
+                    onSuccess: () => {
+                        // Redirects back to the current page, triggering a re-fetch of props
+                        router.visit(window.location.href, { preserveState: false });
+                        // Or simply: router.get(window.location.href);
+                    },
+                    onError: (errors) => {
+                        console.log("Error deleting item:", errors);
+                    },
+                });
+            }
+        } else {
+            setData('targets', data.targets.filter((_, i) => i !== index));
+        }
     };
 
     return (

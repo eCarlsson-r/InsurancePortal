@@ -1,17 +1,53 @@
+import Pagination from '@/components/pagination';
 import SelectInput from '@/components/form/select-input';
 import SubmitButton from '@/components/form/submit-button';
 import TextInput from '@/components/form/text-input';
 import TableFormPage from '@/layouts/TableFormPage';
 import { productCommissionSchema, productSchema } from '@/schemas/models';
 import { router, useForm } from '@inertiajs/react';
+import { useCallback, useEffect, useState } from 'react';
 import { Table } from 'react-bootstrap';
 import { z } from 'zod';
 
 interface ProductProps {
-    products: z.infer<typeof productSchema>[];
+    products: {
+        data: z.infer<typeof productSchema>[];
+        links: {
+            url: string | null;
+            label: string;
+            active: boolean;
+        }[];
+    };
+    filters: {
+        search: string | null;
+    };
 }
 
-export default function Product({ products = [] }: ProductProps) {
+export default function Product({ products, filters }: ProductProps) {
+    const [searchQuery, setSearchQuery] = useState(filters.search || '');
+
+    const handleSearch = useCallback(() => {
+        router.get(
+            '/master/product',
+            { search: searchQuery },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                replace: true,
+            },
+        );
+    }, [searchQuery]);
+
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            if (searchQuery !== (filters.search || '')) {
+                handleSearch();
+            }
+        }, 300);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchQuery, filters.search, handleSearch]);
+
     // Initial form state with safe defaults
     const { data, setData, post, put, processing } = useForm<
         z.infer<typeof productSchema>
@@ -74,6 +110,17 @@ export default function Product({ products = [] }: ProductProps) {
             ]}
             tableTitle="Daftar Produk"
             tableI18nTitle="product-list"
+            tableToolbar={
+                <input
+                    type="text"
+                    className="form-control form-control-sm float-end"
+                    placeholder="Cari produk..."
+                    style={{ width: '200px' }}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
+            }
+            pagination={<Pagination links={products.links} />}
             tableContent={
                 <Table hover striped bordered>
                     <thead>
@@ -88,8 +135,8 @@ export default function Product({ products = [] }: ProductProps) {
                         </tr>
                     </thead>
                     <tbody>
-                        {products.length > 0 ? (
-                            products.map((product) => (
+                        {products.data.length > 0 ? (
+                            products.data.map((product) => (
                                 <tr
                                     key={product.id}
                                     onClick={() => setData(product)}
@@ -113,9 +160,9 @@ export default function Product({ products = [] }: ProductProps) {
                                                 e.stopPropagation();
                                                 handleDelete(product.id);
                                             }}
-                                            data-i18n="delete"
+                                            title="Delete"
                                         >
-                                            Delete
+                                            <i className="fa fa-trash"></i>
                                         </button>
                                     </td>
                                 </tr>

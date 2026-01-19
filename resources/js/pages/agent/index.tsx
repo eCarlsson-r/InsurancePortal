@@ -1,44 +1,102 @@
-import PageHeader from '@/components/layout/page-header';
+import Pagination from '@/components/pagination';
 import TablePage from '@/layouts/TablePage';
 import { agentSchema } from '@/schemas/models';
-import { Head, Link, router } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
+import { useCallback, useEffect, useState } from 'react';
 import { Table } from 'react-bootstrap';
 import { z } from 'zod';
 
 interface AgentProps {
-    agents: z.infer<typeof agentSchema>[];
+    agents: {
+        data: z.infer<typeof agentSchema>[];
+        links: {
+            url: string | null;
+            label: string;
+            active: boolean;
+        }[];
+    };
+    filters: {
+        search: string | null;
+    };
 }
 
-export default function Agent({ agents = [] }: AgentProps) {
-    const handleDelete = (agentId: number | undefined) => {
+export default function Agent({ agents, filters }: AgentProps) {
+    const [searchQuery, setSearchQuery] = useState(filters.search || '');
+
+    const handleSearch = useCallback(() => {
+        router.get(
+            '/master/agent',
+            { search: searchQuery },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                replace: true,
+            },
+        );
+    }, [searchQuery]);
+
+    const handleKeyPress = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            handleSearch();
+        }
+    };
+
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            if (searchQuery !== (filters.search || '')) {
+                handleSearch();
+            }
+        }, 300);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchQuery, filters.search, handleSearch]);
+
+    const handleDelete = (agentId: string | undefined) => {
         if (agentId && confirm('Are you sure you want to delete this agent?')) {
             router.delete(`/master/agent/${agentId}`);
         }
     };
 
-    const handleRowClick = (agentId: number | undefined) => {
+    const handleRowClick = (agentId: string | undefined) => {
         if (agentId) router.get(`/master/agent/${agentId}/edit`);
     };
 
     return (
         <TablePage
             headTitle="Agen"
-            title="Agen"
+            title="Daftar Agen"
             i18nTitle="agent"
             breadcrumbs={[
                 { label: 'Master', href: 'javascript:void(0)', i18n: 'master' },
                 { label: 'Agen', active: true, i18n: 'agent' },
             ]}
-            tableTitle="Daftar Agen"
             toolbar={
-                <Link
-                    href="/master/agent/create"
-                    className="btn btn-primary"
-                >
-                    <i className="fa fa-user me-2"></i>
-                    <span data-i18n="new-agent">Agen Baru</span>
-                </Link>
+                <div className="d-flex align-items-center">
+                    <Link
+                        href="/master/agent/create"
+                        className="btn btn-primary me-3"
+                    >
+                        <i className="fa fa-user me-2"></i>
+                        <span data-i18n="new-agent">Agen Baru</span>
+                    </Link>
+                    <div className="ms-auto d-flex gap-2">
+                        <div className="input-group" style={{ maxWidth: '300px' }}>
+                            <input
+                                type="text"
+                                className="form-control"
+                                placeholder="Cari agen..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                onKeyPress={handleKeyPress}
+                            />
+                            <button className="btn btn-primary" type="button" onClick={handleSearch}>
+                                <i className="fa fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             }
+            pagination={<Pagination links={agents.links} />}
         >
             <div className="table-responsive">
                 <Table hover striped bordered className="vertical-middle">
@@ -54,26 +112,26 @@ export default function Agent({ agents = [] }: AgentProps) {
                         </tr>
                     </thead>
                     <tbody>
-                        {agents.length > 0 ? (
-                            agents.map((agent) => (
-                                <tr key={agent.id} className="cursor-pointer">
-                                    <td onClick={() => handleRowClick(agent.id)}>{agent.official_number}</td>
-                                    <td onClick={() => handleRowClick(agent.id)}>{agent.name}</td>
-                                    <td onClick={() => handleRowClick(agent.id)}>
+                        {agents.data.length > 0 ? (
+                            agents.data.map((agent) => (
+                                <tr key={agent.id} className="cursor-pointer" onClick={() => handleRowClick(agent.id)}>
+                                    <td>{agent.official_number}</td>
+                                    <td>{agent.name}</td>
+                                    <td>
                                         {agent.programs && agent.programs.length > 0 ? agent.programs[0].position : '-'}
                                     </td>
-                                    <td onClick={() => handleRowClick(agent.id)}>{agent.email}</td>
-                                    <td onClick={() => handleRowClick(agent.id)}>
+                                    <td>{agent.email}</td>
+                                    <td>
                                         {agent.birth_date ? new Date(agent.birth_date).toLocaleDateString() : '-'}
                                     </td>
-                                    <td onClick={() => handleRowClick(agent.id)}>{agent.mobile}</td>
+                                    <td>{agent.mobile}</td>
                                     <td className="text-center">
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 handleDelete(agent.id);
                                             }}
-                                            className="btn btn-sm btn-danger p-1"
+                                            className="btn btn-sm btn-danger"
                                             title="Delete"
                                         >
                                             <i className="fa fa-trash"></i>

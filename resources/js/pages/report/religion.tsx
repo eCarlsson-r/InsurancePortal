@@ -46,7 +46,6 @@ export default function Religion({religion, customers}: {religion: string, custo
                                             <th>Nama</th>
                                             <th>Tanggal Lahir</th>
                                             <th>Umur</th>
-                                            <th>Agama</th>
                                             <th>Alamat Rumah</th>
                                         </tr></thead>
                                         <tbody>
@@ -55,7 +54,6 @@ export default function Religion({religion, customers}: {religion: string, custo
                                                     <td>{customer.name}</td>
                                                     <td>{new Date(customer.birth_date).toDateString()}</td>
                                                     <td>{customer.age}</td>
-                                                    <td>{customer.religion}</td>
                                                     <td>{customer.address}</td>
                                                 </tr>
                                             ))) : (

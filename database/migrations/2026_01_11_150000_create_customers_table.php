@@ -26,7 +26,7 @@ return new class extends Migration
             $table->string('work_address', 1000);
             $table->string('work_postal', 10);
             $table->string('work_city', 100);
-            $table->string('description', 2000);
+            $table->string('notes', 2000)->nullable();
         });
     }
 

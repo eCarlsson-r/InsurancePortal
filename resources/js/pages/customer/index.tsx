@@ -1,42 +1,71 @@
+import Pagination from '@/components/pagination';
 import TablePage from '@/layouts/TablePage';
 import { customerSchema } from '@/schemas/models';
 import { Link, router } from '@inertiajs/react';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Table } from 'react-bootstrap';
 import { z } from 'zod';
 
 interface CustomerProps {
-    customers: z.infer<typeof customerSchema>[];
+    customers: {
+        data: z.infer<typeof customerSchema>[];
+        links: {
+            url: string | null;
+            label: string;
+            active: boolean;
+        }[];
+    };
+    filters: {
+        search: string | null;
+    };
 }
 
-export default function Customer({ customers = [] }: CustomerProps) {
-    const [searchQuery, setSearchQuery] = useState('');
+export default function Customer({ customers, filters }: CustomerProps) {
+    const [searchQuery, setSearchQuery] = useState(filters.search || '');
 
-    const handleDelete = (customerId: number | undefined) => {
+    const handleDelete = (customerId: string | undefined) => {
         if (customerId && confirm('Are you sure you want to delete this customer?')) {
             router.delete(`/master/customer/${customerId}`);
         }
     };
 
-    const handleRowClick = (customerId: number | undefined) => {
+    const handleRowClick = (customerId: string | undefined) => {
         if (customerId) router.get(`/master/customer/${customerId}/edit`);
     };
 
-    const filteredCustomers = customers.filter(customer => 
-        customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        customer.identity.includes(searchQuery)
-    );
+    const handleSearch = useCallback(() => {
+        router.get(
+            '/master/customer',
+            { search: searchQuery },
+            { preserveState: true, replace: true }
+        );
+    }, [searchQuery]);
+
+    const handleKeyPress = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            handleSearch();
+        }
+    };
+
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            if (searchQuery !== (filters.search || '')) {
+                handleSearch();
+            }
+        }, 300);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchQuery, filters.search, handleSearch]);
 
     return (
         <TablePage
             headTitle="Nasabah"
-            title="Nasabah"
+            title="Daftar Nasabah"
             i18nTitle="customer"
             breadcrumbs={[
                 { label: 'Master', href: 'javascript:void(0)', i18n: 'master' },
                 { label: 'Nasabah', active: true, i18n: 'customer' },
             ]}
-            tableTitle="Daftar Pemegang Polis"
             toolbar={
                 <div className="d-flex flex-wrap gap-2 align-items-center w-100">
                     <Link
@@ -54,8 +83,9 @@ export default function Customer({ customers = [] }: CustomerProps) {
                                 placeholder="Cari nasabah..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
+                                onKeyPress={handleKeyPress}
                             />
-                            <button className="btn btn-primary" type="button">
+                            <button className="btn btn-primary" type="button" onClick={handleSearch}>
                                 <i className="fa fa-search"></i>
                             </button>
                         </div>
@@ -78,17 +108,27 @@ export default function Customer({ customers = [] }: CustomerProps) {
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredCustomers.length > 0 ? (
-                            filteredCustomers.map((customer) => (
-                                <tr key={customer.id} className="cursor-pointer">
-                                    <td onClick={() => handleRowClick(customer.id)}>{customer.name}</td>
-                                    <td onClick={() => handleRowClick(customer.id)}>{customer.identity}</td>
-                                    <td onClick={() => handleRowClick(customer.id)}>
+                        {customers.data.length > 0 ? (
+                            customers.data.map((customer) => (
+                                <tr key={customer.id} onClick={() => handleRowClick(customer.id)} className="cursor-pointer">
+                                    <td>{customer.name}</td>
+                                    <td>{customer.identity}</td>
+                                    <td>
                                         {customer.birth_date ? new Date(customer.birth_date).toLocaleDateString() : '-'}
                                     </td>
-                                    <td onClick={() => handleRowClick(customer.id)}>{customer.birth_place}</td>
-                                    <td onClick={() => handleRowClick(customer.id)}>{customer.marital}</td>
-                                    <td onClick={() => handleRowClick(customer.id)}>{customer.religion}</td>
+                                    <td>{customer.birth_place}</td>
+                                    <td>
+                                        {customer.marital === 1 ? 'Single' : 
+                                         customer.marital === 2 ? 'Kawin' :
+                                         customer.marital === 3 ? 'Duda/Janda' :
+                                         customer.marital === 4 ? 'Cerai' : customer.marital}
+                                    </td>
+                                    <td>
+                                        {customer.religion === 1 ? 'Buddha' : 
+                                         customer.religion === 2 ? 'Kristen' :
+                                         customer.religion === 3 ? 'Islam' :
+                                         customer.religion === 4 ? 'Hindu' : customer.religion}
+                                    </td>
                                     <td onClick={() => handleRowClick(customer.id)}>{customer.mobile}</td>
                                     <td className="text-center">
                                         <button
@@ -96,7 +136,7 @@ export default function Customer({ customers = [] }: CustomerProps) {
                                                 e.stopPropagation();
                                                 handleDelete(customer.id);
                                             }}
-                                            className="btn btn-sm btn-link text-danger p-0"
+                                            className="btn btn-sm btn-danger"
                                             title="Delete"
                                         >
                                             <i className="fa fa-trash"></i>
@@ -114,6 +154,7 @@ export default function Customer({ customers = [] }: CustomerProps) {
                     </tbody>
                 </Table>
             </div>
+            <Pagination links={customers.links} />
         </TablePage>
     );
 }

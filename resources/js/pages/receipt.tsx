@@ -1,3 +1,4 @@
+import Pagination from '@/components/pagination';
 import SelectInput from '@/components/form/select-input';
 import SubmitButton from '@/components/form/submit-button';
 import TextInput from '@/components/form/text-input';
@@ -10,22 +11,58 @@ import {
     receiptSchema,
 } from '@/schemas/models';
 import { router, useForm } from '@inertiajs/react';
+import { useCallback, useEffect, useState } from 'react';
 import { Table } from 'react-bootstrap';
 import { z } from 'zod';
 
 interface ReceiptProps {
-    receipts: z.infer<typeof receiptSchema>[];
+    receipts: {
+        data: z.infer<typeof receiptSchema>[];
+        links: {
+            url: string | null;
+            label: string;
+            active: boolean;
+        }[];
+    };
     customers: z.infer<typeof customerSchema>[];
     products: z.infer<typeof productSchema>[];
     agents: z.infer<typeof agentSchema>[];
+    filters: {
+        search: string | null;
+    };
 }
 
 export default function Receipt({
-    receipts = [],
+    receipts,
     customers = [],
     products = [],
-    agents = []
+    agents = [],
+    filters
 }: ReceiptProps) {
+    const [searchQuery, setSearchQuery] = useState(filters.search || '');
+
+    const handleSearch = useCallback(() => {
+        router.get(
+            '/master/receipt',
+            { search: searchQuery },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                replace: true,
+            },
+        );
+    }, [searchQuery]);
+
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            if (searchQuery !== (filters.search || '')) {
+                handleSearch();
+            }
+        }, 300);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchQuery, filters.search, handleSearch]);
+
     const { data, setData, post, put, processing } = useForm<
         z.infer<typeof receiptSchema>
     >({
@@ -79,6 +116,17 @@ export default function Receipt({
             ]}
             tableTitle="Daftar Kwitansi"
             tableI18nTitle="receipt-list"
+            tableToolbar={
+                <input
+                    type="text"
+                    className="form-control form-control-sm float-end"
+                    placeholder="Cari kwitansi (No. SP)..."
+                    style={{ width: '200px' }}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
+            }
+            pagination={<Pagination links={receipts.links} />}
             tableContent={
                 <Table hover striped bordered>
                     <thead>
@@ -91,8 +139,8 @@ export default function Receipt({
                         </tr>
                     </thead>
                     <tbody>
-                        {receipts.length > 0 ? (
-                            receipts.map((receipt) => (
+                        {receipts.data.length > 0 ? (
+                            receipts.data.map((receipt) => (
                                 <tr
                                     key={receipt.id}
                                     onClick={() => setData(receipt)}
@@ -110,9 +158,9 @@ export default function Receipt({
                                                 e.stopPropagation();
                                                 handleDelete(receipt.id);
                                             }}
-                                            data-i18n="delete"
+                                            title="Delete"
                                         >
-                                            Delete
+                                            <i className="fa fa-trash"></i>
                                         </button>
                                     </td>
                                 </tr>

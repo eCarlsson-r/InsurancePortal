@@ -1,7 +1,8 @@
+import Pagination from '@/components/pagination';
 import UploadOcrModal from '@/components/upload-ocr-modal';
 import TablePage from '@/layouts/TablePage';
 import { Link, router } from '@inertiajs/react';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useState } from 'react';
 import { Form, InputGroup, Table } from 'react-bootstrap';
 
 interface PolicyData {
@@ -17,25 +18,49 @@ interface PolicyData {
 }
 
 interface PolicyProps {
-    policies: PolicyData[];
-    query?: string;
+    policies: {
+        data: PolicyData[];
+        links: {
+            url: string | null;
+            label: string;
+            active: boolean;
+        }[];
+    };
+    filters: {
+        q: string | null;
+    };
 }
 
-export default function Policy({ policies = [], query = '' }: PolicyProps) {
-    const [searchQuery, setSearchQuery] = useState(query);
+export default function Policy({ policies, filters }: PolicyProps) {
+    const [searchQuery, setSearchQuery] = useState(filters.q || '');
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const handleSearch = (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+    const handleSearch = useCallback(() => {
         router.get(
             '/sales/policy',
             { q: searchQuery },
             {
                 preserveState: true,
                 preserveScroll: true,
+                replace: true,
             },
         );
+    }, [searchQuery]);
+
+    const handleFormSearch = (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        handleSearch();
     };
+
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            if (searchQuery !== (filters.q || '')) {
+                handleSearch();
+            }
+        }, 300);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchQuery, filters.q, handleSearch]);
 
     const handleCreateNew = () => {
         setIsModalOpen(true);
@@ -73,7 +98,7 @@ export default function Policy({ policies = [], query = '' }: PolicyProps) {
                 { label: 'SP / Polis', active: true, i18n: 'case' },
             ]}
             toolbar={
-                <Form onSubmit={handleSearch}>
+                <Form onSubmit={handleFormSearch}>
                     <InputGroup className="row card-title toolbar form-inline">
                         <h4 className="col-md-2 col-6" data-i18n="case-list">
                             Daftar SP / Polis
@@ -109,6 +134,7 @@ export default function Policy({ policies = [], query = '' }: PolicyProps) {
                     </InputGroup>
                 </Form>
             }
+            pagination={<Pagination links={policies.links} />}
         >
             <Table hover striped bordered>
                 <thead>
@@ -126,8 +152,8 @@ export default function Policy({ policies = [], query = '' }: PolicyProps) {
                     </tr>
                 </thead>
                 <tbody>
-                    {policies.length > 0 ? (
-                        policies.map((policy) => (
+                    {policies.data.length > 0 ? (
+                        policies.data.map((policy) => (
                             <tr
                                 key={policy.id}
                                 onClick={() => handleRowClick(policy.id)}
@@ -167,7 +193,7 @@ export default function Policy({ policies = [], query = '' }: PolicyProps) {
                                 <td>{policy.product.name}</td>
                                 <td>{policy.agent.name}</td>
                                 <td>{formatCurrency(policy.premium)}</td>
-                                <td>{formatCurrency(policy.topup_premium)}</td>
+                                <td>{formatCurrency(policy.topup_premium || 0)}</td>
                                 <td>{formatCurrency(policy.base_insure)}</td>
                             </tr>
                         ))

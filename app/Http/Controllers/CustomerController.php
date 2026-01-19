@@ -5,20 +5,27 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Customer;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Redirect;
 
 class CustomerController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $page_title = 'Customer';
-        $page_description = 'View customers';
-		$logo = "images/logo.png";
-		$logoText = "images/logo-text.png";
-		$action = __FUNCTION__;
-        $customers = Customer::all();
+        $search = $request->input('search');
+
+        $customers = Customer::query()
+            ->when($search, function ($query, $search) {
+                $query->where('name', 'like', "%{$search}%")
+                    ->orWhere('identity', 'like', "%{$search}%");
+            })
+            ->paginate(10)
+            ->withQueryString();
 
         return Inertia::render('customer/index', [
-            'customers' => Customer::all(),
+            'customers' => $customers,
+            'filters' => [
+                'search' => $search,
+            ],
         ]);
     }
 
@@ -42,6 +49,64 @@ class CustomerController extends Controller
         return Inertia::render('customer/form', [
             'customer' => $customer,
         ]);
+    }
+
+    public function store(Request $request) {
+        $customerData = $request->validate([
+            'name' => 'required',
+            'gender' => 'required',
+            'identity' => 'nullable',
+            'mobile' => 'nullable',
+            'email' => 'nullable',
+            'birth_date' => 'required',
+            'birth_place' => 'required',
+            'religion' => 'required',
+            'marital' => 'required',
+            'profession' => 'required',
+            'home_address' => 'nullable',
+            'home_postal' => 'nullable',
+            'home_city' => 'nullable',
+            'work_address' => 'nullable',
+            'work_postal' => 'nullable',
+            'work_city' => 'nullable',
+            'notes' => 'nullable'
+        ]);
+
+        Customer::create($customerData);
+
+        return redirect()->route('master.customer.index');
+    }
+
+    public function update(Request $request, Customer $customer) {
+        $agencyData = $request->validate([
+            'name' => 'required',
+            'gender' => 'required',
+            'identity' => 'nullable',
+            'mobile' => 'nullable',
+            'email' => 'nullable',
+            'birth_date' => 'required',
+            'birth_place' => 'required',
+            'religion' => 'required',
+            'marital' => 'required',
+            'profession' => 'required',
+            'home_address' => 'nullable',
+            'home_postal' => 'nullable',
+            'home_city' => 'nullable',
+            'work_address' => 'nullable',
+            'work_postal' => 'nullable',
+            'work_city' => 'nullable',
+            'notes' => 'nullable'
+        ]);
+
+        $customer->update($customerData);
+
+        return redirect()->route('master.customer.index');
+    }
+
+    public function destroy(Customer $customer)
+    {
+        $customer->delete();
+        return redirect()->back();
     }
 
     public function report_cases (Request $request)
