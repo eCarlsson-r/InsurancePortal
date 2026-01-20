@@ -1,12 +1,13 @@
 import Pagination from '@/components/pagination';
 import UploadOcrModal from '@/components/upload-ocr-modal';
 import TablePage from '@/layouts/TablePage';
-import { Link, router } from '@inertiajs/react';
-import { FormEvent, useCallback, useEffect, useState } from 'react';
-import { Form, InputGroup, Table } from 'react-bootstrap';
+import {router } from '@inertiajs/react';
+import { useCallback, useEffect, useState } from 'react';
+import { InputGroup, Table } from 'react-bootstrap';
 
 interface PolicyData {
     id: string;
+    case_code: string;
     policy_no: string;
     holder: { name: string };
     insured: { name: string };
@@ -47,9 +48,10 @@ export default function Policy({ policies, filters }: PolicyProps) {
         );
     }, [searchQuery]);
 
-    const handleFormSearch = (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        handleSearch();
+    const handleKeyPress = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            handleSearch();
+        }
     };
 
     useEffect(() => {
@@ -91,48 +93,39 @@ export default function Policy({ policies, filters }: PolicyProps) {
     return (
         <TablePage
             headTitle="SP / Polis"
-            title="SP / Polis"
+            title="Daftar SP / Polis"
             i18nTitle="case"
             breadcrumbs={[
                 { label: 'Penjualan', i18n: 'sales' },
                 { label: 'SP / Polis', active: true, i18n: 'case' },
             ]}
             toolbar={
-                <Form onSubmit={handleFormSearch}>
-                    <InputGroup className="row card-title toolbar form-inline">
-                        <h4 className="col-md-2 col-6" data-i18n="case-list">
-                            Daftar SP / Polis
-                        </h4>
-                        <button
-                            type="button"
-                            onClick={handleCreateNew}
-                            id="createCase"
-                            className="col-md-2 col-6 btn btn-primary"
-                        >
-                            <i className="fa fa-file"></i>{' '}
-                            <span data-i18n="new-case">SP / Polis Baru</span>
-                        </button>
-                        <p className="col-md-1 hidden-sm-down">&#8194;</p>
-                        <InputGroup.Text className="col-3">
-                            Nasabah / No. Polis / No. SP :{' '}
-                        </InputGroup.Text>
-                        <Form.Control
-                            type="text"
-                            name="q"
-                            id="case-query"
-                            className="col-8 col-md-5"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
-                        <button
-                            id="case-search"
-                            type="submit"
-                            className="btn btn-primary col-1"
-                        >
-                            <i className="fa fa-search"></i>
-                        </button>
-                    </InputGroup>
-                </Form>
+                <div className="d-flex flex-wrap gap-2 align-items-center w-100">
+                    <button
+                        type="button"
+                        onClick={handleCreateNew}
+                        id="createCase"
+                        className="btn btn-primary"
+                    >
+                        <i className="fa fa-file me-2"></i>
+                        <span data-i18n="new-case">SP / Polis Baru</span>
+                    </button>
+                    <div className="ms-auto d-flex gap-2">
+                        <InputGroup>
+                            <input
+                                type="text"
+                                className="form-control"
+                                placeholder="Cari Nasabah / No. Polis / No. SP"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                onKeyPress={handleKeyPress}
+                            />
+                            <button className="btn btn-primary" type="button" onClick={handleSearch}>
+                                <i className="fa fa-search"></i>
+                            </button>
+                        </InputGroup>
+                    </div>
+                </div>
             }
             pagination={<Pagination links={policies.links} />}
         >
@@ -180,13 +173,7 @@ export default function Policy({ policies, filters }: PolicyProps) {
                                         <i className="la la-ban"></i>
                                     </button>
                                 </td>
-                                <td>
-                                    <Link
-                                        href={`/sales/policy/${policy['id']}/edit`}
-                                    >
-                                        {policy['id']}
-                                    </Link>
-                                </td>
+                                <td>{policy.case_code}</td>
                                 <td>{policy.policy_no}</td>
                                 <td>{policy.holder.name}</td>
                                 <td>{policy.insured.name}</td>

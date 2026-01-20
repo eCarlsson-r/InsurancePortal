@@ -3,11 +3,12 @@ import SelectInput from '@/components/form/select-input';
 import TextareaInput from '@/components/form/textarea-input';
 import TextInput from '@/components/form/text-input';
 import UploadOcrModal from '@/components/upload-ocr-modal';
+import DateInput from '@/components/form/date-input';
 import FormPage from '@/layouts/FormPage';
 import { policySchema, agentSchema, productSchema, fundSchema } from '@/schemas/models';
 import { Link, useForm } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
-import { Accordion } from 'react-bootstrap';
+import { Accordion, InputGroup } from 'react-bootstrap';
 import { z } from 'zod';
 import SubmitButton from '@/components/form/submit-button';
 
@@ -222,10 +223,9 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         row
                                     />
 
-                                    <TextInput
+                                    <DateInput
                                         id="entry_date"
                                         label="Tanggal SP Masuk"
-                                        type="date"
                                         value={
                                             typeof data.entry_date === 'string'
                                                 ? data.entry_date
@@ -286,7 +286,7 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
 
                                     <div className="mb-3 row form-group">
                                         <label className="col-sm-3 col-form-label">Tempat dan Tanggal Lahir</label>
-                                        <div className="col-sm-9 input-group">
+                                        <InputGroup className="col-sm-9">
                                             <input
                                                 type="text"
                                                 className="form-control"
@@ -294,13 +294,12 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                                 value={data.holder.birth_place}
                                                 onChange={(e) => setData('holder', { ...data.holder, birth_place: e.target.value })}
                                             />
-                                            <input
-                                                type="date"
-                                                className="form-control"
+                                            <DateInput
+                                                id="holder_birth_date"
                                                 value={data.holder.birth_date}
                                                 onChange={(e) => setData('holder', { ...data.holder, birth_date: e.target.value })}
                                             />
-                                        </div>
+                                        </InputGroup>
                                     </div>
 
                                     <SelectInput
@@ -464,9 +463,8 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                                 onChange={(e) => setData('insured', { ...data.insured, birth_place: e.target.value })}
                                                 disabled={data.is_insure_holder}
                                             />
-                                            <input
-                                                type="date"
-                                                className="form-control"
+                                            <DateInput
+                                                id="insured_birth_date"
                                                 value={data.insured.birth_date}
                                                 onChange={(e) => setData('insured', { ...data.insured, birth_date: e.target.value })}
                                                 disabled={data.is_insure_holder}
@@ -590,14 +588,14 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
 
                                     <div className="mb-3 row form-group">
                                         <label className="col-sm-3 col-form-label">Premi Dasar</label>
-                                        <div className="col-sm-9 input-group">
+                                        <InputGroup className="col-sm-9">
                                             <input
                                                 type="number"
                                                 className="form-control"
                                                 value={data.premium}
                                                 onChange={(e) => setData('premium', Number(e.target.value))}
                                             />
-                                            <span className="input-group-text">x</span>
+                                            <InputGroup.Text>x</InputGroup.Text>
                                             <input
                                                 type="number"
                                                 className="form-control"
@@ -605,7 +603,7 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                                 value={data.curr_rate}
                                                 onChange={(e) => setData('curr_rate', Number(e.target.value))}
                                             />
-                                        </div>
+                                        </InputGroup>
                                     </div>
 
                                     <SelectInput

@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { Breadcrumb } from 'react-bootstrap';
 
 interface BreadcrumbItem {
     label: string;
@@ -24,21 +25,13 @@ export default function PageHeader({ title, i18nTitle, breadcrumbs, actions }: P
                 {actions && <div className="ms-3">{actions}</div>}
             </div>
             <div className="col-sm-6 p-md-0 justify-content-sm-end mt-2 mt-sm-0 d-flex">
-                <ol className="breadcrumb">
+                <Breadcrumb>
                     {breadcrumbs.map((item, index) => (
-                        <li
-                            key={index}
-                            className={`breadcrumb-item ${item.active ? 'active' : ''}`}
-                            data-i18n={item.i18n}
-                        >
-                            {item.href ? (
-                                <a href={item.href}>{item.label}</a>
-                            ) : (
-                                item.label
-                            )}
-                        </li>
+                        <Breadcrumb.Item key={index} href={item.href}>
+                            {item.label}
+                        </Breadcrumb.Item>
                     ))}
-                </ol>
+                </Breadcrumb>
             </div>
         </div>
     );

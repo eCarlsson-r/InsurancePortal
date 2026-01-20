@@ -1,6 +1,7 @@
 import SelectInput from '@/components/form/select-input';
 import TextareaInput from '@/components/form/textarea-input';
 import TextInput from '@/components/form/text-input';
+import DateInput from '@/components/form/date-input';
 import FormPage from '@/layouts/FormPage';
 import {
     agencySchema,
@@ -8,8 +9,8 @@ import {
     agentSchema,
     programSchema,
 } from '@/schemas/models';
-import { Head, useForm } from '@inertiajs/react';
-import { Accordion, Table } from 'react-bootstrap';
+import { useForm } from '@inertiajs/react';
+import { Accordion, InputGroup, Table } from 'react-bootstrap';
 import { z } from 'zod';
 import SubmitButton from '@/components/form/submit-button';
 
@@ -211,8 +212,8 @@ export default function AgentForm({
                                                 )
                                             }
                                         />
-                                        <input
-                                            type="date"
+                                        <DateInput
+                                            id="birth_date"
                                             className="form-control"
                                             style={{ width: 'auto' }}
                                             value={data.birth_date}
@@ -371,7 +372,7 @@ export default function AgentForm({
                                         Jumlah Tanggungan
                                     </label>
                                     <div className="col-sm-9">
-                                        <div className="input-group">
+                                        <InputGroup>
                                             <input
                                                 type="number"
                                                 className="form-control"
@@ -389,13 +390,8 @@ export default function AgentForm({
                                                     )
                                                 }
                                             />
-                                            <span
-                                                className="input-group-text"
-                                                data-i18n="people"
-                                            >
-                                                orang
-                                            </span>
-                                        </div>
+                                            <InputGroup.Text> orang</InputGroup.Text>
+                                        </InputGroup>
                                     </div>
                                 </div>
 
@@ -416,10 +412,9 @@ export default function AgentForm({
                                 Status Agen
                             </Accordion.Header>
                             <Accordion.Body>
-                                <TextInput
+                                <DateInput
                                     id="apply_date"
                                     label="Tanggal Pengisian"
-                                    type="date"
                                     value={data.apply_date}
                                     onChange={(e) => setData('apply_date', e.target.value)}
                                     data-i18n="apply-date"
@@ -472,10 +467,9 @@ export default function AgentForm({
                                     row
                                 />
 
-                                <TextInput
+                                <DateInput
                                     id="due_date"
                                     label="Jatuh Tempo"
-                                    type="date"
                                     value={data.due_date}
                                     onChange={(e) => setData('due_date', e.target.value)}
                                     data-i18n="payable-date"
@@ -534,9 +528,9 @@ export default function AgentForm({
                                                             ) => (
                                                                 <tr key={idx}>
                                                                     <td>
-                                                                        <input
-                                                                            type="date"
-                                                                            className="form-control form-control-sm"
+                                                                        <DateInput
+                                                                            id={`program_start_${idx}`}
+                                                                            className="form-control-sm"
                                                                             value={program.program_start}
                                                                             onChange={(e) => {
                                                                                 const newPrograms = [...data.programs];

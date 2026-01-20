@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Receipt;
+use App\Models\Customer;
+use App\Models\Product;
+use App\Models\Agent;
 use Inertia\Inertia;
 
 class ReceiptController extends Controller
@@ -12,18 +15,20 @@ class ReceiptController extends Controller
     {
         $search = $request->input('search');
 
-        $receipts = Receipt::query()
+        $receipts = Receipt::query()->with('policy')
             ->when($search, function ($query, $search) {
-                $query->where('policy_code', 'like', "%{$search}%");
+                $query->whereHas('policy', function ($query) use ($search) {
+                    $query->where('policy_no', 'like', "%{$search}%");
+                });
             })
             ->paginate(10)
             ->withQueryString();
 
         return Inertia::render('receipt', [
             'receipts' => $receipts,
-            'customers' => \App\Models\Customer::all(),
-            'products' => \App\Models\Product::all(),
-            'agents' => \App\Models\Agent::all(),
+            'customers' => Customer::all(),
+            'products' => Product::all(),
+            'agents' => Agent::all(),
             'filters' => [
                 'search' => $search
             ]

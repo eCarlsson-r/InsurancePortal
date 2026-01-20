@@ -31,7 +31,7 @@ class Receipt extends Model
 
     public function policy()
     {
-        return $this->belongsTo(Policy::class);
+        return $this->belongsTo(Policy::class, 'case_id', 'id');
     }
 
     public function agent()

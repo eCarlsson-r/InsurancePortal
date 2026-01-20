@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Customer;
+use App\Models\Policy;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Redirect;
 
@@ -69,7 +70,7 @@ class CustomerController extends Controller
             'work_address' => 'nullable',
             'work_postal' => 'nullable',
             'work_city' => 'nullable',
-            'notes' => 'nullable'
+            'description' => 'nullable'
         ]);
 
         Customer::create($customerData);
@@ -95,7 +96,7 @@ class CustomerController extends Controller
             'work_address' => 'nullable',
             'work_postal' => 'nullable',
             'work_city' => 'nullable',
-            'notes' => 'nullable'
+            'description' => 'nullable'
         ]);
 
         $customer->update($customerData);
@@ -117,7 +118,7 @@ class CustomerController extends Controller
             return response()->json([]);
         }
 
-        return \App\Models\Policy::query()
+        return Policy::query()
             ->selectRaw("
                 cases.policy_no,
                 cases.agent_id as case_subagent,
@@ -183,7 +184,7 @@ class CustomerController extends Controller
         $month = $request->input('month');
 
         $customers = Customer::query()
-            ->select('name', 'birth_date', 'religion')
+            ->select('name', 'birth_date', 'religion', 'home_address', 'home_city', 'home_postal')
             ->whereMonth('birth_date', $month)
             ->get()
             ->append(['age', 'address']);

@@ -3,7 +3,7 @@ import TablePage from '@/layouts/TablePage';
 import { programSchema } from '@/schemas/models';
 import { Link, router } from '@inertiajs/react';
 import { useCallback, useEffect, useState } from 'react';
-import { Table } from 'react-bootstrap';
+import { InputGroup, Table } from 'react-bootstrap';
 import { z } from 'zod';
 
 interface ProgramProps {
@@ -88,7 +88,7 @@ export default function Program({ programs, filters }: ProgramProps) {
                         <span data-i18n="new-program">Program Baru</span>
                     </Link>
                     <div className="ms-auto d-flex gap-2">
-                        <div className="input-group" style={{ maxWidth: '300px' }}>
+                        <InputGroup>
                             <input
                                 type="text"
                                 className="form-control"
@@ -100,7 +100,7 @@ export default function Program({ programs, filters }: ProgramProps) {
                             <button className="btn btn-primary" type="button" onClick={handleSearch}>
                                 <i className="fa fa-search"></i>
                             </button>
-                        </div>
+                        </InputGroup>
                     </div>
                 </div>
             }

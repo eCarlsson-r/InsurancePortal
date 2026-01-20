@@ -2,6 +2,7 @@ import SelectInput from '@/components/form/select-input';
 import TextareaInput from '@/components/form/textarea-input';
 import TextInput from '@/components/form/text-input';
 import SubmitButton from '@/components/form/submit-button';
+import DateInput from '@/components/form/date-input';
 import FormPage from '@/layouts/FormPage';
 import { customerSchema } from '@/schemas/models';
 import { useForm } from '@inertiajs/react';
@@ -98,11 +99,10 @@ export default function CustomerForm({ customer }: { customer?: z.infer<typeof c
                                             onChange={(e) => setData('birth_place', e.target.value)} 
                                             className="form-control flex-grow-1"
                                         />
-                                        <input 
-                                            type="date" 
+                                        <DateInput
+                                            id="birth_date"
                                             value={data.birth_date} 
                                             onChange={(e) => setData('birth_date', e.target.value)} 
-                                            className="form-control"
                                             style={{ width: 'auto' }}
                                         />
                                     </div>

@@ -231,7 +231,7 @@ export const programTargetSchema = z.object({
 
 export const receiptSchema = z.object({
     id: z.number().int().optional(),
-    policy_code: z.string(),
+    case_id: z.string(),
     agent_id: z.string().optional(),
     premium: z.number(),
     currency_rate: z.number(),  

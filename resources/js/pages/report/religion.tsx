@@ -1,76 +1,87 @@
 import SelectInput from '@/components/form/select-input';
-import TemplateLayout from '@/layouts/TemplateLayout';
-import { Head, router } from '@inertiajs/react';
+import TablePage from '@/layouts/TablePage';
+import { router } from '@inertiajs/react';
 import { Table } from 'react-bootstrap';
 
-export default function Religion({religion, customers}: {religion: string, customers: {id: string, name: string, birth_date: string, age: number, religion: string, address: string}[]}) {
-    const handleChange = function(e: React.ChangeEvent<HTMLSelectElement>) {
-        religion = e.target.value;
+interface Customer {
+    id: string;
+    name: string;
+    birth_date: string;
+    age: number;
+    religion: string;
+    address: string;
+}
+
+export default function Religion({ religion, customers }: { religion: string; customers: Customer[] }) {
+    const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         router.get('/reports/religion', {
-            religion: religion
+            religion: e.target.value,
         });
-    }
+    };
 
     return (
-        <TemplateLayout>
-            <Head title="Religion" />
-
-            <div className="container-fluid">
-                <div className="row page-titles mx-0">
-                    <div className="col-sm-6 p-md-0">
-                        <h3 className="text-primary d-inline" data-i18n="religion-report">Agama Pemegang Polis</h3> </div>
-                    <div className="col-sm-6 p-md-0 justify-content-sm-end mt-2 mt-sm-0 d-flex">
-                        <ol className="breadcrumb">
-                            <li className="breadcrumb-item"><a href="javascript:void(0)" data-i18n="report">Laporan</a></li>
-                            <li className="breadcrumb-item active" data-i18n="religion-report">Agama Pemegang Polis</li>
-                        </ol>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col-12">
-                        <div className="card">
-                            <div className="card-body">
-                                <div id="religion-toolbar" className="form-inline">
-                                    <div className="col-sm-4 form-group">
-                                        <h4 className="card-title" data-i18n="customer-religion-report">Daftar Pemegang Polis berdasarkan Agama</h4>
-                                    </div>
-                                    <div className="col-sm-4 form-group">
-                                        <label className="col-sm-4" htmlFor="religion" data-i18n="customer-religion">Agama</label>
-                                        <SelectInput id="religion" value={religion} onChange={handleChange} options={[{value:"1", label:'Budha'}, {value:"2", label:'Kristen'}, {value:"3", label:'Islam'}, {value:"4", label:'Hindu'}]}/>
-                                    </div>
-                                </div>
-
-                                <div className="table-responsive">
-                                    <Table hover striped bordered>
-                                        <thead><tr>
-                                            <th>Nama</th>
-                                            <th>Tanggal Lahir</th>
-                                            <th>Umur</th>
-                                            <th>Alamat Rumah</th>
-                                        </tr></thead>
-                                        <tbody>
-                                            {customers.length > 0 ? (customers.map((customer) => (
-                                                <tr key={customer.id}>
-                                                    <td>{customer.name}</td>
-                                                    <td>{new Date(customer.birth_date).toDateString()}</td>
-                                                    <td>{customer.age}</td>
-                                                    <td>{customer.address}</td>
-                                                </tr>
-                                            ))) : (
-                                                <tr>
-                                                    <td colSpan={5} className="text-center text-muted py-4">
-                                                        No customer found.
-                                                    </td>
-                                                </tr>
-                                            )}
-                                        </tbody>
-                                    </Table>
-                                </div>
-                            </div>
+        <TablePage
+            headTitle="Religion"
+            title="Agama Pemegang Polis"
+            i18nTitle="religion-report"
+            breadcrumbs={[
+                { label: 'Laporan', href: 'javascript:void(0)', i18n: 'report' },
+                { label: 'Agama Pemegang Polis', active: true, i18n: 'religion-report' },
+            ]}
+            toolbar={
+                <div className="d-flex align-items-center justify-content-between w-100">
+                    <h4 className="card-title mb-0" data-i18n="customer-religion-report">
+                        Daftar Pemegang Polis berdasarkan Agama
+                    </h4>
+                    <div className="d-flex align-items-center gap-2">
+                        <label htmlFor="religion" className="mb-0" data-i18n="customer-religion">
+                            Agama
+                        </label>
+                        <div style={{ width: '150px' }}>
+                            <SelectInput
+                                id="religion"
+                                value={religion}
+                                onChange={handleChange}
+                                options={[
+                                    { value: '1', label: 'Budha' },
+                                    { value: '2', label: 'Kristen' },
+                                    { value: '3', label: 'Islam' },
+                                    { value: '4', label: 'Hindu' },
+                                ]}
+                            />
                         </div>
                     </div>
                 </div>
-            </div>
-        </TemplateLayout>
+            }
+        >
+            <Table hover striped bordered>
+                <thead>
+                    <tr>
+                        <th data-i18n="name">Nama</th>
+                        <th data-i18n="birth-date">Tanggal Lahir</th>
+                        <th data-i18n="age">Umur</th>
+                        <th data-i18n="home-address">Alamat Rumah</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {customers.length > 0 ? (
+                        customers.map((customer) => (
+                            <tr key={customer.id}>
+                                <td>{customer.name}</td>
+                                <td>{new Date(customer.birth_date).toDateString()}</td>
+                                <td>{customer.age}</td>
+                                <td>{customer.address}</td>
+                            </tr>
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan={5} className="text-center text-muted py-4">
+                                No customer found.
+                            </td>
+                        </tr>
+                    )}
+                </tbody>
+            </Table>
+        </TablePage>
     );
 }

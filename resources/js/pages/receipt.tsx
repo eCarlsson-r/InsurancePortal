@@ -3,6 +3,7 @@ import SelectInput from '@/components/form/select-input';
 import SubmitButton from '@/components/form/submit-button';
 import TextInput from '@/components/form/text-input';
 import TextareaInput from '@/components/form/textarea-input';
+import DateInput from '@/components/form/date-input';
 import TableFormPage from '@/layouts/TableFormPage';
 import {
     agentSchema,
@@ -66,7 +67,7 @@ export default function Receipt({
     const { data, setData, post, put, processing } = useForm<
         z.infer<typeof receiptSchema>
     >({
-        policy_code: '',
+        case_id: '',
         pay_date: '',
         paid_date: '',
         premium: 0,
@@ -145,9 +146,9 @@ export default function Receipt({
                                     key={receipt.id}
                                     onClick={() => setData(receipt)}
                                 >
-                                    <td>{receipt.pay_date}</td>
-                                    <td>{receipt.paid_date}</td>
-                                    <td>{receipt.policy_code}</td>
+                                    <td>{new Date(receipt.pay_date).toDateString()}</td>
+                                    <td>{new Date(receipt.paid_date).toDateString()}</td>
+                                    <td>{receipt.policy?.policy_no}</td>
                                     <td className="text-end">
                                         {formatCurrency(receipt.premium)}
                                     </td>
@@ -185,8 +186,11 @@ export default function Receipt({
                     <TextInput
                         id="policy_code"
                         label="No. SP / Polis"
-                        value={data.policy_code}
-                        onChange={(e) => setData('policy_code', e.target.value)}
+                        value={data.policy?.policy_no}
+                        onChange={(e) => setData('policy', {
+                            ...data.policy,
+                            policy_no: e.target.value,
+                        })}
                         row
                     />
                     <SelectInput
@@ -234,19 +238,17 @@ export default function Receipt({
                         }))}
                         row
                     />
-                    <TextInput
+                    <DateInput
                         id="pay_date"
-                        label="Tanggal JT"
-                        type="date"
-                        value={data.pay_date}
+                        label="Tanggal Jatuh Tempo"
+                        value={data.pay_date ? data.pay_date.split('T')[0] : ''}
                         onChange={(e) => setData('pay_date', e.target.value)}
                         row
                     />
-                    <TextInput
+                    <DateInput
                         id="paid_date"
                         label="Tanggal Bayar"
-                        type="date"
-                        value={data.paid_date}
+                        value={data.paid_date ? data.paid_date.split('T')[0] : ''}
                         onChange={(e) => setData('paid_date', e.target.value)}
                         row
                     />

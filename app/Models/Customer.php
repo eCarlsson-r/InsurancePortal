@@ -26,7 +26,7 @@ class Customer extends Model
         'work_address',
         'work_postal',
         'work_city',
-        'notes',
+        'description',
     ];
 
     protected $guarded = ['id'];
@@ -42,6 +42,10 @@ class Customer extends Model
 
     public function getAddressAttribute()
     {
-        return "{$this->home_address}, {$this->home_city}, {$this->home_postal}";
+        return implode(', ', array_filter([
+            $this->home_address,
+            $this->home_city,
+            $this->home_postal
+        ]));
     }
 }
