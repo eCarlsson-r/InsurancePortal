@@ -89,7 +89,7 @@ export const menuItems: MenuItem[] = [
             {
                 title: 'Empire Club Report',
                 type: 'link',
-                href: '/reports/empire-club'
+                href: '/reports/empire'
             },
             {
                 title: 'Financing Report',

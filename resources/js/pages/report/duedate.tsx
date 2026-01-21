@@ -1,8 +1,16 @@
 import MonthInput from '@/components/form/month-input';
 import SelectInput from '@/components/form/select-input';
 import TablePage from '@/layouts/TablePage';
+import { agentSchema } from '@/schemas/models';
+import { router } from '@inertiajs/react';
+import { useState } from 'react';
+import { Table } from 'react-bootstrap';
+import { z } from 'zod';
 
-export default function DueDate() {
+
+export default function DueDate({data, agents, due_month, due_agent}:{data: any[], agents: z.infer<typeof agentSchema>[], due_month: string, due_agent: string}) {
+    const [month, setMonth] = useState(due_month);
+    const [agent, setAgent] = useState(due_agent);
     return (
         <TablePage
             headTitle="Due Date Report"
@@ -23,54 +31,69 @@ export default function DueDate() {
                             <MonthInput
                                 id="due-month"
                                 label="Month"
-                                className="form-control-sm input-rounded"
                                 style={{ width: '150px' }}
+                                value={month}
+                                onChange={(e) => {
+                                    setMonth(e.target.value);
+                                }}
                             />
                         </div>
                         <div className="d-flex align-items-center gap-2">
                             <SelectInput
                                 id="due-agent"
                                 label="Agent"
-                                className="form-control-sm agentSelector input-rounded"
                                 style={{ width: '200px' }}
+                                value={agent}
+                                options={agents.map((agent) => ({ value: agent.id || '', label: agent.name }))}
+                                onChange={(e) => {
+                                    setAgent(e.target.value);
+                                }}
                             />
                         </div>
+                        <button 
+                            className="btn btn-primary btn-sm"
+                            onClick={() => {
+                                if (month && agent) router.visit(`/reports/duedate?month=${month}&agent=${agent}`);
+                            }}
+                        >
+                            Filter
+                        </button>
                     </div>
                 </div>
             }
         >
-            <table 
-                id="table-duedate" 
-                className="display nowrap table table-hover table-striped table-bordered"
-                data-toggle="table" 
-                data-page-size="5" 
-                data-page-list="[5,10, 25, 50, 100]" 
-                data-url=""
-                data-query-params="getDuedateList" 
-                data-response-handler="showDuedateList" 
-                data-show-export="true" 
-                data-export-data-type="all" 
-                data-export-footer="true" 
-                data-export-types="['xlsx']"
-                data-toolbar="#due-report-toolbar" 
-                cellSpacing="0" 
-                width="100%"
-            >
+            <Table hover striped bordered>
                 <thead>
                     <tr>
-                        <th className="col-1" data-field="receipt-policy">No. Polis</th>
-                        <th className="col-2" data-field="customer-name">Pemegang Polis</th>
-                        <th className="col-2" data-field="insured-name">Tertanggung</th>
-                        <th className="col-1" data-field="insured-birthdate" data-formatter="duedateDateFormatter">Tgl. Lahir Tertanggung</th>
-                        <th className="col-1" data-field="case-product" data-formatter="productFormat">Produk</th>
-                        <th className="col-1" data-field="receipt-pay-date" data-formatter="duedateDateFormatter">Jatuh Tempo</th>
-                        <th className="col-1" data-field="receipt-premium" data-formatter="duedateIDRFormatter">Premi</th>
-                        <th className="col-1" data-field="receipt-pay-method" data-formatter="caraBayarFormatter">Cara Bayar</th>
-                        <th className="col-2" data-field="customer-address">Alamat Penagihan</th>
+                        <th>No. Polis</th>
+                        <th>Pemegang Polis</th>
+                        <th>Tertanggung</th>
+                        <th>Tgl. Lahir Tertanggung</th>
+                        <th>Produk</th>
+                        <th>Jatuh Tempo</th>
+                        <th>Premi</th>
+                        <th>Cara Bayar</th>
+                        <th>Alamat Penagihan</th>
                     </tr>
                 </thead>
-                <tbody></tbody>
-            </table>
+                <tbody>
+                    {
+                        (data.length > 0) ? (data.map((item, index) => (
+                            <tr key={index}>
+                                <td>{item.receipt_policy}</td>
+                                <td>{item.customer_name}</td>
+                                <td>{item.insured_name}</td>
+                                <td>{item.insured_birthdate}</td>
+                                <td>{item.case_product}</td>
+                                <td>{item.receipt_pay_date}</td>
+                                <td>{item.receipt_premium}</td>
+                                <td>{item.receipt_pay_method}</td>
+                                <td>{item.customer_address}</td>
+                            </tr>
+                        ))) : (<tr><td colSpan={9} className="text-center">Tidak ada data</td></tr>) 
+                    }
+                </tbody>
+            </Table>
         </TablePage>
     );
 }

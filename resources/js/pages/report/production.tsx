@@ -1,8 +1,28 @@
-import MonthInput from '@/components/form/month-input';
 import SelectInput from '@/components/form/select-input';
 import TablePage from '@/layouts/TablePage';
+import { agentSchema } from '@/schemas/models';
+import { router } from '@inertiajs/react';
+import { useState } from 'react';
+import { Table } from 'react-bootstrap';
+import { z } from 'zod';
 
-export default function Production() {
+interface ProductionRecord {
+    id: string; 
+    agent_name: string; 
+    holder_name: string;
+    insured_name: string;
+    sp: string; 
+    fyp:number; 
+    topup: number; 
+    ape: number; 
+    contest_ape: number; 
+    total_commission: number;
+};
+
+export default function Production({data, agents, prod_agent, prod_year}: {data: ProductionRecord[], agents: z.infer<typeof agentSchema>[], prod_agent: string, prod_year: string}) {
+    const [year, setYear] = useState(prod_year || '');
+    const [agent, setAgent] = useState(prod_agent || '');
+    
     return (
         <TablePage
             headTitle="Production Report"
@@ -19,51 +39,113 @@ export default function Production() {
                     </h4>
                     <div className="d-flex align-items-center gap-3">
                         <div className="d-flex align-items-center gap-2">
-                            <MonthInput
-                                id="prod-month"
-                                label="Month"
-                                className="form-control-sm"
-                                style={{ width: '150px' }}
+                            <SelectInput
+                                id="prod-agent"
+                                label="Agen"
+                                style={{ width: '200px' }}
+                                options={[
+                                    { value: '', label: 'Pilih Agen' },
+                                    ...agents.map((agent) => ({
+                                        value: agent.id || 0,
+                                        label: agent.name,
+                                    })),
+                                ]}
+                                value={agent}
+                                onChange={(e) => {setAgent(e.target.value)}}
                             />
                         </div>
                         <div className="d-flex align-items-center gap-2">
                             <SelectInput
-                                id="prod-agency"
-                                label="Agency"
-                                className="form-control-sm agencySelector"
-                                style={{ width: '150px' }}
+                                id="prod-year"
+                                label="Year"
+                                style={{ width: '200px' }}
+                                value={year}
+                                onChange={(e) => {setYear(e.target.value)}}
+                                options={[
+                                    { value: '', label: 'Pilih Tahun' },
+                                    ...Array.from({ length: 10 }, (_, i) => ({
+                                        value: (new Date().getFullYear() - i).toString(),
+                                        label: (new Date().getFullYear() - i).toString(),
+                                    })),
+                                ]}
                             />
                         </div>
+                        <button 
+                            className="btn btn-primary btn-sm"
+                            onClick={() => {
+                                if (year && agent) router.visit(`/reports/production?year=${year}&agent=${agent}`);
+                            }}
+                        >
+                            Filter
+                        </button>
                     </div>
                 </div>
             }
         >
-            <table
-                id="table-production"
-                className="display nowrap table table-hover table-striped table-bordered"
-                data-toggle="table"
-                data-url=""
-                data-query-params="getProductionList"
-                data-response-handler="showProductionList"
-                data-show-export="true"
-                data-export-types="['xlsx']"
-                data-toolbar="#production-toolbar"
-                cellSpacing={0}
-                width="100%"
-            >
+            <Table hover striped bordered>
                 <thead>
                     <tr>
-                        <th data-field="agent-name">Nama Agen</th>
-                        <th data-field="case-count">SP</th>
-                        <th data-field="case-premium" data-formatter="productionIDRFormatter">FYP</th>
-                        <th data-field="topup-premium" data-formatter="productionIDRFormatter">Topup</th>
-                        <th data-field="case-ape" data-formatter="productionIDRFormatter">APE</th>
-                        <th data-field="contest-ape" data-formatter="productionIDRFormatter">Contest</th>
-                        <th data-field="total-commission" data-formatter="productionIDRFormatter">Komisi</th>
+                        <th>Nomor Polis</th>
+                        <th>Nama Agen</th>
+                        <th>Nama Pemegang Polis</th>
+                        <th>Nama Tertanggung</th>
+                        <th>FYP</th>
+                        <th>Topup</th>
+                        <th>APE</th>
+                        <th>Contest</th>
+                        <th>Komisi</th>
                     </tr>
                 </thead>
-                <tbody></tbody>
-            </table>
+                <tbody>
+                    {data.length > 0 ? (
+                        data.map((item) => (
+                            <tr key={item.id}>
+                                <td>{item.sp}</td>
+                                <td>{item.agent_name}</td>
+                                <td>{item.holder_name}</td>
+                                <td>{item.insured_name}</td>
+                                <td>{Number(item.fyp).toLocaleString(
+                                    'id-ID',
+                                    {
+                                        style: 'currency',
+                                        currency: 'IDR',
+                                    },
+                                )}</td>
+                                <td>{Number(item.topup).toLocaleString(
+                                    'id-ID',
+                                    {
+                                        style: 'currency',
+                                        currency: 'IDR',
+                                    },
+                                )}</td>
+                                <td>{Number(item.ape).toLocaleString(
+                                    'id-ID',
+                                    {
+                                        style: 'currency',
+                                        currency: 'IDR',
+                                    },
+                                )}</td>
+                                <td>{Number(item.contest_ape).toLocaleString(
+                                    'id-ID',
+                                    {
+                                        style: 'currency',
+                                        currency: 'IDR',
+                                    },
+                                )}</td>
+                                <td>{Number(item.total_commission).toLocaleString(
+                                    'id-ID',
+                                    {
+                                        style: 'currency',
+                                        currency: 'IDR',
+                                    },
+                                )}</td>
+                            </tr>
+                        ))
+                    ) : (
+                        <tr><td colSpan={9} className="text-center">Data Tidak Ditemukan</td></tr>
+                    )}
+                </tbody>
+            </Table>
         </TablePage>
     );
 }

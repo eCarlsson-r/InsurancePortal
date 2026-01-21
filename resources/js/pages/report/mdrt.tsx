@@ -1,6 +1,23 @@
+import SelectInput from '@/components/form/select-input';
 import TablePage from '@/layouts/TablePage';
+import { agencySchema } from '@/schemas/models';
+import { Table } from 'react-bootstrap';
+import { useState } from 'react';
+import { z } from 'zod';
+import { router } from '@inertiajs/react';
 
-export default function MDRTReport() {
+type ReportData = {
+    agent_name: string;
+    current_fyp: number;
+    current_level: number;
+    next_level: number;
+    fyp_gap: number;
+};
+
+export default function MDRTReport({data, agencies, prod_agency, prod_year}: {data: ReportData[], agencies: z.infer<typeof agencySchema>[], prod_agency: string, prod_year: string}) {
+    const [year, setYear] = useState(prod_year || '');
+    const [agency, setAgency] = useState(prod_agency || '');
+    
     return (
         <TablePage
             headTitle="MDRT Report"
@@ -17,44 +34,89 @@ export default function MDRTReport() {
                     </h4>
                     <div className="d-flex align-items-center gap-3">
                         <div className="d-flex align-items-center gap-2">
-                            <label htmlFor="mdrt-year" className="mb-0" data-i18n="year">Year</label>
-                            <select id="mdrt-year" className="form-control form-control-sm year-selector" style={{ width: '100px' }}></select>
+                            <SelectInput
+                                id="mdrt-year"
+                                label="Year"
+                                style={{ width: '100px' }}
+                                value={year}
+                                onChange={(e) => {setYear(e.target.value)}}
+                                options={[
+                                    { value: '', label: 'Pilih Tahun' },
+                                    ...Array.from({ length: 10 }, (_, i) => ({
+                                        value: (new Date().getFullYear() - i).toString(),
+                                        label: (new Date().getFullYear() - i).toString(),
+                                    })),
+                                ]}
+                            />
                         </div>
                         <div className="d-flex align-items-center gap-2">
-                            <label htmlFor="mdrt-agency" className="mb-0" data-i18n="agency">Agency</label>
-                            <select id="mdrt-agency" className="form-control form-control-sm agencySelector" style={{ width: '150px' }}></select>
+                            <SelectInput
+                                id="mdrt-agency"
+                                label="Agency"
+                                style={{ width: '300px' }}
+                                options={[
+                                    { value: '', label: 'Pilih Agency' },
+                                    ...agencies.map((ag) => ({
+                                        value: ag.id || 0,
+                                        label: ag.name,
+                                    })),
+                                ]}
+                                value={agency}
+                                onChange={(e) => {setAgency(e.target.value)}}
+                            />
                         </div>
+                        <button 
+                            className="btn btn-primary btn-sm"
+                            onClick={() => {
+                                if (year && agency) router.visit(`/reports/mdrt?year=${year}&agency=${agency}`);
+                            }}
+                        >
+                            Filter
+                        </button>
                     </div>
                 </div>
             }
         >
-            <table
-                id="table-mdrt"
-                className="display nowrap table table-hover table-striped table-bordered"
-                data-row-style="mdrtRowFormatter"
-                data-toggle="table"
-                data-url=""
-                data-query-params="getMdrtList"
-                data-response-handler="showMdrtList"
-                data-fixed-columns="true"
-                data-fixed-number="1"
-                data-show-export="true"
-                data-export-types="['xlsx']"
-                data-toolbar="#mdrt-toolbar"
-                cellSpacing="0"
-                width="100%"
-            >
+            <Table hover striped bordered>
                 <thead>
                     <tr>
-                        <th data-field="agent-name">Nama Agen</th>
-                        <th data-field="current-fyp" data-formatter="mdrtIDRFormatter">FYP terkumpul</th>
-                        <th data-field="current-level">Level tercapai</th>
-                        <th data-field="next-level">Level selanjutnya</th>
-                        <th data-field="fyp-gap" data-formatter="mdrtIDRFormatter">FYP kurang</th>
+                        <th>Nama Agen</th>
+                        <th>FYP terkumpul</th>
+                        <th>Level tercapai</th>
+                        <th>Level selanjutnya</th>
+                        <th>FYP kurang</th>
                     </tr>
                 </thead>
-                <tbody></tbody>
-            </table>
+                <tbody>
+                    {
+                        (data.length > 0) ? data?.map((item, index) => (
+                            <tr key={index}>
+                                <td>{item.agent_name}</td>
+                                <td>{Number(item.current_fyp).toLocaleString(
+                                    'id-ID',
+                                    {
+                                        style: 'currency',
+                                        currency: 'IDR',
+                                    }
+                                )}</td>
+                                <td>{item.current_level}</td>
+                                <td>{item.next_level}</td>
+                                <td>{Number(item.fyp_gap).toLocaleString(
+                                    'id-ID',
+                                    {
+                                        style: 'currency',
+                                        currency: 'IDR',
+                                    }
+                                )}</td>
+                            </tr>
+                        )) : (
+                            <tr>
+                                <td colSpan={5} className="text-center">Tidak ada data</td>
+                            </tr>
+                        )
+                    }
+                </tbody>
+            </Table>
         </TablePage>
     );
 }

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Services\OllamaService;
 use App\Services\PolicyExtractionService;
 use App\Models\Policy;
+use App\Models\Agency;
 use App\Models\Agent;
 use App\Models\Product;
 use App\Models\Fund;
@@ -19,9 +20,17 @@ use Inertia\Inertia;
 use Exception;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Redirect;
+use App\Services\ProductionService;
 
 class PolicyController extends Controller
 {
+    protected $productionService;
+
+    public function __construct(ProductionService $productionService)
+    {
+        $this->productionService = $productionService;
+    }
+
     public function index(Request $request)
     {
         $query = $request->get('q');
@@ -212,5 +221,78 @@ class PolicyController extends Controller
         $rider = Rider::findOrFail($id);
         $rider->delete();
         return redirect()->back();
+    }
+
+    public function report_bonus_gap(Request $request)
+    {
+        $agency = $request->get("agency");
+        $monthYear = explode("-", $request->get("month", date("Y-m")));
+        $year = $monthYear[0];
+        $month = $monthYear[1];
+
+        $data = $this->productionService->reportBonusGap($agency, $month, $year);
+
+        return Inertia::render("reports/bonusgap", [
+            "data" => $data,
+        ]);
+    }
+
+    public function report_production(Request $request)
+    {
+        $agentId = $request->get("agent");
+        $year = $request->get("year");
+
+        $data = $this->productionService->reportProduction($agentId, $year);
+
+        return Inertia::render("report/production", [
+            "data" => $data,
+            "agents" => Agent::all(),
+            "prod_agent" => $agentId,
+            "prod_year" => $year
+        ]);
+    }
+
+    public function report_empire(Request $request)
+    {
+        $agency = $request->get("agency");
+        $year = $request->get("year");
+
+        $data = $this->productionService->reportEmpire($agency, $year);
+
+        return Inertia::render("report/empire", [
+            "data" => $data,
+            "agencies" => Agency::all(),
+            "prod_agency" => $agency,
+            "prod_year" => $year
+        ]);
+    }
+
+    public function report_mdrt(Request $request)
+    {
+        $agency = $request->get("agency");
+        $year = $request->get("year");
+
+        $data = $this->productionService->reportMdrt($agency, $year);
+
+        return Inertia::render("report/mdrt", [
+            "data" => $data,
+            "agencies" => Agency::all(),
+            "prod_agency" => $agency,
+            "prod_year" => $year
+        ]);
+    }
+
+    public function report_generation(Request $request)
+    {
+        $agency = $request->get("report_agency");
+        $monthYear = explode("-", $request->get("report_month", date("Y-m")));
+        $year = $monthYear[0];
+        $month = $monthYear[1];
+
+        $data = $this->productionService->reportGeneration($agency, $month, $year);
+
+        return Inertia::render("reports/generation", [
+            "data" => $data,
+        ]);
     }
 }

@@ -103,10 +103,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('reports')->name('reports.')->group(function () {
         Route::get('birthday', [CustomerController::class, 'report_birthday'])->name('birthday');
         Route::get('religion', [CustomerController::class, 'report_religion'])->name('religion');
-        Route::get('due-date', [ReceiptController::class, 'report_due_date'])->name('due-date');
+        Route::get('duedate', [ReceiptController::class, 'report_due_date'])->name('due-date');
         Route::get('production', [PolicyController::class, 'report_production'])->name('production');
-        Route::get('generation', [AgentController::class, 'report_generation'])->name('generation');
-        Route::get('mdrt', [AgentController::class, 'report_mdrt'])->name('mdrt');
+        Route::get('generation', [PolicyController::class, 'report_generation'])->name('generation');
+        Route::get('mdrt', [PolicyController::class, 'report_mdrt'])->name('mdrt');
+        Route::get('empire', [PolicyController::class, 'report_empire'])->name('empire');
+        Route::get('bonusgap', [PolicyController::class, 'report_bonus_gap'])->name('bonus-gap');
     });
 
     Route::get('/extraction-status/{id}', function ($id) {
