@@ -58,7 +58,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::put('agency/{agency}', 'update')->name('agency.update');
             Route::delete('agency/{agency}', 'destroy')->name('agency.destroy');
         });
-        
+
         Route::controller(ProductController::class)->group(function() {
             Route::get('product', 'index')->name('product.index');
             Route::post('product', 'store')->name('product.store');
@@ -91,7 +91,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::put('policy/{policy}', 'update')->name('policy.update');
             Route::get('policy/{policy}/cancel', 'cancel')->name('policy.cancel');
         });
-        
+
         Route::controller(ReceiptController::class)->group(function() {
             Route::get('receipt', 'index')->name('receipt.index');
             Route::post('receipt', 'store')->name('receipt.store');
@@ -101,14 +101,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::prefix('reports')->name('reports.')->group(function () {
-        Route::get('birthday', [CustomerController::class, 'report_birthday'])->name('birthday');
-        Route::get('religion', [CustomerController::class, 'report_religion'])->name('religion');
-        Route::get('duedate', [ReceiptController::class, 'report_due_date'])->name('due-date');
-        Route::get('production', [PolicyController::class, 'report_production'])->name('production');
-        Route::get('generation', [PolicyController::class, 'report_generation'])->name('generation');
-        Route::get('mdrt', [PolicyController::class, 'report_mdrt'])->name('mdrt');
-        Route::get('empire', [PolicyController::class, 'report_empire'])->name('empire');
-        Route::get('bonusgap', [PolicyController::class, 'report_bonus_gap'])->name('bonus-gap');
+        Route::controller(CustomerController::class)->group(function() {
+            Route::get('birthday', 'report_birthday')->name('birthday');
+            Route::get('religion', 'report_religion')->name('religion');
+        });
+        Route::get('duedate', [ReceiptController::class, 'report_due_date'])->name('duedate');
+
+        Route::controller(PolicyController::class)->group(function() {
+            Route::get('production', 'report_production')->name('production');
+            Route::get('generation', 'report_generation')->name('generation');
+            Route::get('mdrt', 'report_mdrt')->name('mdrt');
+            Route::get('empire', 'report_empire')->name('empire');
+            Route::get('bonusgap', 'report_bonus_gap')->name('bonusgap');
+        });
+
+        Route::get('financing', [ProgramController::class, 'report_program'])->name('program');
+        Route::get('semester', [AgentController::class, 'report_semester'])->name('semester');
     });
 
     Route::get('/extraction-status/{id}', function ($id) {

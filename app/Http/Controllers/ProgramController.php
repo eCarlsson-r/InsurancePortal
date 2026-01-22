@@ -3,12 +3,22 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Agency;
 use App\Models\Program;
 use App\Models\ProgramTarget;
+use App\Services\ProductionService;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\DB;
 
 class ProgramController extends Controller
 {
+    protected $productionService;
+
+    public function __construct(ProductionService $productionService)
+    {
+        $this->productionService = $productionService;
+    }
+
     public function index(Request $request)
     {
         $search = $request->input('search');
@@ -100,5 +110,23 @@ class ProgramController extends Controller
         $target = ProgramTarget::findOrFail($id);
         $target->delete();
         return redirect()->back();
+    }
+
+    public function report_program(Request $request)
+    {
+        // Extract report_month and report_agency from the request
+        $reportMonthYear = explode("-", $request->input("report_month", date("Y-m")));
+        $month = $reportMonthYear[1] ?? null;
+        $year = $reportMonthYear[0] ?? null;
+        $agency = $request->input('report_agency');
+
+        $data = $this->productionService->reportFinancing($agency, $year, $month);
+
+        return Inertia::render('report/program', [
+            'data' => $data,
+            'agencies' => Agency::all(),
+            'report_month' => $request->input('report_month', ''),
+            'report_agency' => $agency
+        ]);
     }
 }

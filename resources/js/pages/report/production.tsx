@@ -7,22 +7,22 @@ import { Table } from 'react-bootstrap';
 import { z } from 'zod';
 
 interface ProductionRecord {
-    id: string; 
-    agent_name: string; 
+    id: string;
+    agent_name: string;
     holder_name: string;
     insured_name: string;
-    sp: string; 
-    fyp:number; 
-    topup: number; 
-    ape: number; 
-    contest_ape: number; 
+    sp: string;
+    fyp:number;
+    topup: number;
+    ape: number;
+    contest_ape: number;
     total_commission: number;
 };
 
 export default function Production({data, agents, prod_agent, prod_year}: {data: ProductionRecord[], agents: z.infer<typeof agentSchema>[], prod_agent: string, prod_year: string}) {
     const [year, setYear] = useState(prod_year || '');
     const [agent, setAgent] = useState(prod_agent || '');
-    
+
     return (
         <TablePage
             headTitle="Production Report"
@@ -70,8 +70,8 @@ export default function Production({data, agents, prod_agent, prod_year}: {data:
                                 ]}
                             />
                         </div>
-                        <button 
-                            className="btn btn-primary btn-sm"
+                        <button
+                            className="btn btn-primary"
                             onClick={() => {
                                 if (year && agent) router.visit(`/reports/production?year=${year}&agent=${agent}`);
                             }}

@@ -200,7 +200,7 @@ class ReceiptController extends Controller
             
             // Filter by agent if specified
             ->when($agent, function($query) use ($agent) {
-                return $query->where('agents.official_number', $agent);
+                return $query->where('agents.official_number', Agent::findOrFail($agent)->official_number);
             })
             
             // Filter by year and month of due date

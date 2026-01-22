@@ -5,12 +5,20 @@ namespace App\Http\Controllers;
 use App\Models\Agent;
 use App\Models\Program;
 use App\Models\Agency;
+use App\Services\ProductionService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Redirect;
 
 class AgentController extends Controller
 {
+    protected $productionService;
+
+    public function __construct(ProductionService $productionService)
+    {
+        $this->productionService = $productionService;
+    }
+
     public function index(Request $request)
     {
         $search = $request->input('search');
@@ -132,5 +140,15 @@ class AgentController extends Controller
     public function destroy(Agent $agent) {
         $agent->delete();
         return redirect()->back();
+    }
+
+    public function report_semester(Request $request) {
+        $year = $request->year;
+        $data = $this->productionService->reportSemester($year);
+
+        return Inertia::render("report/semester", [
+            "data" => $data,
+            "year" => $year
+        ]);
     }
 }

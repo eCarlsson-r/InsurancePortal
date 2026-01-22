@@ -56,7 +56,7 @@ class PolicyController extends Controller
         ]);
     }
 
-    public function store(Request $request) 
+    public function store(Request $request)
     {
         $holder_id = Customer::updateOrCreate($request->holder)->id;
 
@@ -109,13 +109,13 @@ class PolicyController extends Controller
             return Inertia::render('policy/form', [
                 'extracted' => $extracted['data'],
                 'fileUrl' => route('ocr.view-file', ['ocrId' => $request->ocr_id]),
-                'agents' => Agent::all(), 
+                'agents' => Agent::all(),
                 'products' => Product::all(),
                 'funds' => Fund::all()
             ]);
         } else {
             return Inertia::render('policy/form', [
-                'agents' => Agent::all(), 
+                'agents' => Agent::all(),
                 'products' => Product::all(),
                 'funds' => Fund::all()
             ]);
@@ -146,7 +146,7 @@ class PolicyController extends Controller
         // Simple update: delete and recreate associated records
         $policy->investments()->delete();
         if ($request->investments) $policy->investments()->createMany($request->investments);
-        
+
         $policy->riders()->delete();
         if ($request->riders) $policy->riders()->createMany($request->riders);
 
@@ -165,7 +165,7 @@ class PolicyController extends Controller
 
         return Inertia::render('policy/form', [
             'policy' => $policy,
-            'agents' => Agent::all(), 
+            'agents' => Agent::all(),
             'products' => Product::all(),
             'funds' => Fund::all()
         ]);
@@ -232,8 +232,11 @@ class PolicyController extends Controller
 
         $data = $this->productionService->reportBonusGap($agency, $month, $year);
 
-        return Inertia::render("reports/bonusgap", [
+        return Inertia::render("report/bonus", [
             "data" => $data,
+            "agencies" => Agency::all(),
+            "month" => $request->get("month"),
+            "agency" => $agency
         ]);
     }
 

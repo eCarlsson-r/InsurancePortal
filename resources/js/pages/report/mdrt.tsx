@@ -17,7 +17,7 @@ type ReportData = {
 export default function MDRTReport({data, agencies, prod_agency, prod_year}: {data: ReportData[], agencies: z.infer<typeof agencySchema>[], prod_agency: string, prod_year: string}) {
     const [year, setYear] = useState(prod_year || '');
     const [agency, setAgency] = useState(prod_agency || '');
-    
+
     return (
         <TablePage
             headTitle="MDRT Report"
@@ -65,8 +65,8 @@ export default function MDRTReport({data, agencies, prod_agency, prod_year}: {da
                                 onChange={(e) => {setAgency(e.target.value)}}
                             />
                         </div>
-                        <button 
-                            className="btn btn-primary btn-sm"
+                        <button
+                            className="btn btn-primary"
                             onClick={() => {
                                 if (year && agency) router.visit(`/reports/mdrt?year=${year}&agency=${agency}`);
                             }}

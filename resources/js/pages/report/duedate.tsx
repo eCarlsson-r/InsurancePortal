@@ -7,10 +7,21 @@ import { useState } from 'react';
 import { Table } from 'react-bootstrap';
 import { z } from 'zod';
 
+type ReceiptData = {
+    receipt_policy: string;
+    customer_name: string;
+    insured_name: string;
+    insured_birthdate: string;
+    case_product: string;
+    receipt_pay_date: string;
+    receipt_premium: string;
+    receipt_pay_method: string;
+    customer_address: string;
+};
 
-export default function DueDate({data, agents, due_month, due_agent}:{data: any[], agents: z.infer<typeof agentSchema>[], due_month: string, due_agent: string}) {
-    const [month, setMonth] = useState(due_month);
-    const [agent, setAgent] = useState(due_agent);
+export default function DueDate(props:{data: ReceiptData[], agents: z.infer<typeof agentSchema>[], month: string, agent: string}) {
+    const [month, setMonth] = useState(props.month);
+    const [agent, setAgent] = useState(props.agent);
     return (
         <TablePage
             headTitle="Due Date Report"
@@ -44,14 +55,14 @@ export default function DueDate({data, agents, due_month, due_agent}:{data: any[
                                 label="Agent"
                                 style={{ width: '200px' }}
                                 value={agent}
-                                options={agents.map((agent) => ({ value: agent.id || '', label: agent.name }))}
+                                options={props.agents.map((agent) => ({ value: agent.id || '', label: agent.name }))}
                                 onChange={(e) => {
                                     setAgent(e.target.value);
                                 }}
                             />
                         </div>
-                        <button 
-                            className="btn btn-primary btn-sm"
+                        <button
+                            className="btn btn-primary"
                             onClick={() => {
                                 if (month && agent) router.visit(`/reports/duedate?month=${month}&agent=${agent}`);
                             }}
@@ -78,7 +89,7 @@ export default function DueDate({data, agents, due_month, due_agent}:{data: any[
                 </thead>
                 <tbody>
                     {
-                        (data.length > 0) ? (data.map((item, index) => (
+                        (props.data.length > 0) ? (props.data.map((item, index) => (
                             <tr key={index}>
                                 <td>{item.receipt_policy}</td>
                                 <td>{item.customer_name}</td>
@@ -90,7 +101,7 @@ export default function DueDate({data, agents, due_month, due_agent}:{data: any[
                                 <td>{item.receipt_pay_method}</td>
                                 <td>{item.customer_address}</td>
                             </tr>
-                        ))) : (<tr><td colSpan={9} className="text-center">Tidak ada data</td></tr>) 
+                        ))) : (<tr><td colSpan={9} className="text-center">Tidak ada data</td></tr>)
                     }
                 </tbody>
             </Table>

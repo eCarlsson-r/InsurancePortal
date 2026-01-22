@@ -1,8 +1,33 @@
 import MonthInput from '@/components/form/month-input';
 import SelectInput from '@/components/form/select-input';
 import TablePage from '@/layouts/TablePage';
+import { agencySchema } from '@/schemas/models';
+import { router } from '@inertiajs/react';
+import { useState } from 'react';
+import { Table } from 'react-bootstrap';
+import { z } from 'zod';
 
-export default function Program() {
+type ProgramData = {
+    name: string;
+    start_month: string;
+    program: string;
+    month: string;
+    mtd_target: number;
+    mtd_achieved: number;
+    mtd_gap: number;
+    ytd_target: number;
+    ytd_achieved: number;
+    ytd_gap: number;
+};
+export default function Program({data, agencies, report_month, report_agency}: {
+    data: ProgramData[];
+    agencies: z.infer<typeof agencySchema>[];
+    report_month: string | null;
+    report_agency: string | null;
+}) {
+    const [month, setMonth] = useState(report_month || '');
+    const [agency, setAgency] = useState(report_agency || '');
+
     return (
         <TablePage
             headTitle="Program Report"
@@ -22,41 +47,37 @@ export default function Program() {
                             <MonthInput
                                 id="program-month"
                                 label="Month"
-                                className="form-control-sm"
-                                style={{ width: '150px' }}
+                                style={{ width: '200px' }}
+                                value={month}
+                                onChange={(e) => setMonth(e.target.value)}
                             />
                         </div>
                         <div className="d-flex align-items-center gap-2">
                             <SelectInput
                                 id="program-agency"
                                 label="Agency"
-                                className="form-control-sm agencySelector"
-                                style={{ width: '150px' }}
+                                style={{ width: '300px' }}
+                                value={agency}
+                                onChange={(e) => setAgency(e.target.value)}
+                                options={agencies.map((agency) => ({
+                                    value: agency.id?.toString() || '',
+                                    label: agency.name,
+                                }))}
                             />
                         </div>
+                        <button
+                            className="btn btn-primary"
+                            onClick={() => {
+                                if (month && agency) router.visit(`/reports/financing?report_month=${month}&report_agency=${agency}`);
+                            }}
+                        >
+                            Filter
+                        </button>
                     </div>
                 </div>
             }
         >
-            <table
-                id="table-fnprogram"
-                className="display nowrap table table-hover table-striped table-bordered"
-                data-row-style="programRowFormatter"
-                data-toggle="table"
-                data-url=""
-                data-query-params="getprogramList"
-                data-response-handler="showprogramList"
-                data-group-by="true"
-                data-group-by-field="agent-leader"
-                data-group-by-show-toggle-icon="true"
-                data-group-by-toggle="true"
-                data-group-by-formatter="leader"
-                data-show-export="true"
-                data-export-types="['xlsx']"
-                data-toolbar="#rprogram-toolbar"
-                cellSpacing="0"
-                width="100%"
-            >
+            <Table hover striped bordered>
                 <thead>
                     <tr>
                         <th data-field="agent-name">Nama Agen</th>
@@ -71,8 +92,27 @@ export default function Program() {
                         <th data-field="ytd-gap" data-formatter="programIDRFormatter">Kurang YTD</th>
                     </tr>
                 </thead>
-                <tbody></tbody>
-            </table>
+                <tbody>
+                    {(data.length > 0)?(data.map((item, index) => (
+                        <tr key={index}>
+                            <td>{item.name}</td>
+                            <td>{item.start_month}</td>
+                            <td>{item.program}</td>
+                            <td>{item.month}</td>
+                            <td>{Number(item.mtd_target).toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</td>
+                            <td>{Number(item.mtd_achieved).toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</td>
+                            <td>{Number(item.mtd_gap).toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</td>
+                            <td>{Number(item.ytd_target).toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</td>
+                            <td>{Number(item.ytd_achieved).toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</td>
+                            <td>{Number(item.ytd_gap).toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</td>
+                        </tr>
+                    ))):(
+                        <tr>
+                            <td colSpan={10} className="text-center">No data available</td>
+                        </tr>
+                    )}
+                </tbody>
+            </Table>
         </TablePage>
     );
 }

@@ -79,7 +79,7 @@ export const menuItems: MenuItem[] = [
             {
                 title: 'Bonus Gap Report',
                 type: 'link',
-                href: '/reports/bonus-gap'
+                href: '/reports/bonusgap'
             },
             {
                 title: 'MDRT Report',
@@ -99,7 +99,7 @@ export const menuItems: MenuItem[] = [
             {
                 title: 'Due Date Report',
                 type: 'link',
-                href: '/reports/due-date'
+                href: '/reports/duedate'
             },
             {
                 title: "Customer's Birthday",
@@ -119,7 +119,7 @@ export const menuItems: MenuItem[] = [
             {
                 title: "Semesterly Income List",
                 type:'link',
-                href:'/reports/income-semesterly'
+                href:'/reports/semester'
             },
             {
                 title:"Yearly Income List",
