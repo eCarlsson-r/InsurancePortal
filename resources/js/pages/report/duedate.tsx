@@ -44,9 +44,7 @@ export default function DueDate(props:{data: ReceiptData[], agents: z.infer<type
                                 label="Month"
                                 style={{ width: '150px' }}
                                 value={month}
-                                onChange={(e) => {
-                                    setMonth(e.target.value);
-                                }}
+                                onChange={(e) => { setMonth(e.target.value); }}
                             />
                         </div>
                         <div className="d-flex align-items-center gap-2">
@@ -56,9 +54,7 @@ export default function DueDate(props:{data: ReceiptData[], agents: z.infer<type
                                 style={{ width: '200px' }}
                                 value={agent}
                                 options={props.agents.map((agent) => ({ value: agent.id || '', label: agent.name }))}
-                                onChange={(e) => {
-                                    setAgent(e.target.value);
-                                }}
+                                onChange={(value) => { setAgent(value.toString()); }}
                             />
                         </div>
                         <button
@@ -67,7 +63,7 @@ export default function DueDate(props:{data: ReceiptData[], agents: z.infer<type
                                 if (month && agent) router.visit(`/reports/duedate?month=${month}&agent=${agent}`);
                             }}
                         >
-                            Filter
+                            Cari
                         </button>
                     </div>
                 </div>
@@ -94,11 +90,15 @@ export default function DueDate(props:{data: ReceiptData[], agents: z.infer<type
                                 <td>{item.receipt_policy}</td>
                                 <td>{item.customer_name}</td>
                                 <td>{item.insured_name}</td>
-                                <td>{item.insured_birthdate}</td>
+                                <td>{new Date(item.insured_birthdate).toDateString()}</td>
                                 <td>{item.case_product}</td>
-                                <td>{item.receipt_pay_date}</td>
+                                <td>{new Date(item.receipt_pay_date).toDateString()}</td>
                                 <td>{item.receipt_premium}</td>
-                                <td>{item.receipt_pay_method}</td>
+                                <td>{item.receipt_pay_method === '1' ? 'Tahunan' :
+                                         item.receipt_pay_method === '2' ? 'Enam Bulanan' :
+                                         item.receipt_pay_method === '4' ? 'Tiga Bulanan' :
+                                         item.receipt_pay_method === '12' ? 'Bulanan' :
+                                         item.receipt_pay_method === '0' ? 'Sekaligus' : item.receipt_pay_method}</td>
                                 <td>{item.customer_address}</td>
                             </tr>
                         ))) : (<tr><td colSpan={9} className="text-center">Tidak ada data</td></tr>)

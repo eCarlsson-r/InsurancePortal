@@ -13,9 +13,9 @@ interface Customer {
 }
 
 export default function Birthday({ month, customers }: { month: string; customers: Customer[] }) {
-    const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const handleChange = (value: string | number) => {
         router.get('/reports/birthday', {
-            month: e.target.value,
+            month: value,
         });
     };
 
@@ -79,7 +79,7 @@ export default function Birthday({ month, customers }: { month: string; customer
                                 <td>{customer.name}</td>
                                 <td>{new Date(customer.birth_date).toDateString()}</td>
                                 <td>{customer.age}</td>
-                                <td>{customer.religion === '1' ? 'Buddha' : 
+                                <td>{customer.religion === '1' ? 'Buddha' :
                                          customer.religion === '2' ? 'Kristen' :
                                          customer.religion === '3' ? 'Islam' :
                                          customer.religion === '4' ? 'Hindu' : customer.religion}</td>

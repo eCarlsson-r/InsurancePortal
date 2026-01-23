@@ -6,6 +6,7 @@ import { router } from '@inertiajs/react';
 import { useState } from 'react';
 import { Table } from 'react-bootstrap';
 import { z } from 'zod';
+import { exportTableToExcel } from '@/utils/exportToExcel';
 
 type ProgramData = {
     name: string;
@@ -27,6 +28,27 @@ export default function Program({data, agencies, report_month, report_agency}: {
 }) {
     const [month, setMonth] = useState(report_month || '');
     const [agency, setAgency] = useState(report_agency || '');
+
+    const exportToExcel = () => {
+        const exportData = data.map(item => ({
+            'Nama Agen': item.name,
+            'Starting Month': item.start_month,
+            'Program': item.program,
+            'Month Period': item.month,
+            'Target MTD': item.mtd_target,
+            'Pencapaian MTD': item.mtd_achieved,
+            'Kurang MTD': item.mtd_gap,
+            'Target YTD': item.ytd_target,
+            'Pencapaian YTD': item.ytd_achieved,
+            'Kurang YTD': item.ytd_gap,
+        }));
+
+        exportTableToExcel(exportData, {
+            fileName: 'Program-Report',
+            sheetName: 'Program Report',
+            currencyColumns: ['E', 'F', 'G', 'H', 'I', 'J'],
+        });
+    };
 
     return (
         <TablePage
@@ -58,7 +80,7 @@ export default function Program({data, agencies, report_month, report_agency}: {
                                 label="Agency"
                                 style={{ width: '300px' }}
                                 value={agency}
-                                onChange={(e) => setAgency(e.target.value)}
+                                onChange={(value) => setAgency(value.toString())}
                                 options={agencies.map((agency) => ({
                                     value: agency.id?.toString() || '',
                                     label: agency.name,
@@ -71,7 +93,14 @@ export default function Program({data, agencies, report_month, report_agency}: {
                                 if (month && agency) router.visit(`/reports/financing?report_month=${month}&report_agency=${agency}`);
                             }}
                         >
-                            Filter
+                            Cari
+                        </button>
+                        <button
+                            className="btn btn-success"
+                            onClick={exportToExcel}
+                            disabled={data.length === 0}
+                        >
+                            Ekspor ke Excel
                         </button>
                     </div>
                 </div>

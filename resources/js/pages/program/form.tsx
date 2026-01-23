@@ -83,7 +83,7 @@ export default function ProgramForm({
                 { label: 'Program', active: true, i18n: 'program' },
             ]}
             headerActions={
-                <SubmitButton 
+                <SubmitButton
                     processing={processing}
                     onClick={handleSubmit}
                 >
@@ -193,7 +193,7 @@ export default function ProgramForm({
                                                                 type="number"
                                                                 className="form-control form-control-sm text-center"
                                                                 value={target.month}
-                                                                onChange={(e) => {
+                                                                onChange={(value) => {
                                                                     const newTargets = [...data.targets];
                                                                     newTargets[index].month = parseInt(e.target.value);
                                                                     setData('targets', newTargets);
@@ -205,7 +205,7 @@ export default function ProgramForm({
                                                                 type="number"
                                                                 className="form-control form-control-sm"
                                                                 value={target.fyp_month}
-                                                                onChange={(e) => {
+                                                                onChange={(value) => {
                                                                     const newTargets = [...data.targets];
                                                                     newTargets[index].fyp_month = parseFloat(e.target.value);
                                                                     setData('targets', newTargets);
@@ -217,7 +217,7 @@ export default function ProgramForm({
                                                                 type="number"
                                                                 className="form-control form-control-sm text-center"
                                                                 value={target.case_month}
-                                                                onChange={(e) => {
+                                                                onChange={(value) => {
                                                                     const newTargets = [...data.targets];
                                                                     newTargets[index].case_month = parseInt(e.target.value);
                                                                     setData('targets', newTargets);
@@ -229,7 +229,7 @@ export default function ProgramForm({
                                                                 type="number"
                                                                 className="form-control form-control-sm"
                                                                 value={target.allowance}
-                                                                onChange={(e) => {
+                                                                onChange={(value) => {
                                                                     const newTargets = [...data.targets];
                                                                     newTargets[index].allowance = parseFloat(e.target.value);
                                                                     setData('targets', newTargets);

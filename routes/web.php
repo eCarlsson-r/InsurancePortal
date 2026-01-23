@@ -116,7 +116,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         });
 
         Route::get('financing', [ProgramController::class, 'report_program'])->name('program');
+        Route::get('monthly', [AgentController::class, 'report_monthly'])->name('monthly');
         Route::get('semester', [AgentController::class, 'report_semester'])->name('semester');
+        Route::get('annual', [AgentController::class, 'report_annual'])->name('annual');
     });
 
     Route::get('/extraction-status/{id}', function ($id) {

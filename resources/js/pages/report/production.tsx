@@ -5,6 +5,7 @@ import { router } from '@inertiajs/react';
 import { useState } from 'react';
 import { Table } from 'react-bootstrap';
 import { z } from 'zod';
+import { exportTableToExcel } from '@/utils/exportToExcel';
 
 interface ProductionRecord {
     id: string;
@@ -22,6 +23,26 @@ interface ProductionRecord {
 export default function Production({data, agents, prod_agent, prod_year}: {data: ProductionRecord[], agents: z.infer<typeof agentSchema>[], prod_agent: string, prod_year: string}) {
     const [year, setYear] = useState(prod_year || '');
     const [agent, setAgent] = useState(prod_agent || '');
+
+    const exportToExcel = () => {
+        const exportData = data.map(item => ({
+            'Nomor Polis': item.sp,
+            'Nama Agen': item.agent_name,
+            'Nama Pemegang Polis': item.holder_name,
+            'Nama Tertanggung': item.insured_name,
+            'FYP': item.fyp,
+            'Topup': item.topup,
+            'APE': item.ape,
+            'Contest': item.contest_ape,
+            'Komisi': item.total_commission,
+        }));
+
+        exportTableToExcel(exportData, {
+            fileName: 'Production-Report',
+            sheetName: 'Production Report',
+            currencyColumns: ['E', 'F', 'G', 'H', 'I'],
+        });
+    };
 
     return (
         <TablePage
@@ -43,26 +64,26 @@ export default function Production({data, agents, prod_agent, prod_year}: {data:
                                 id="prod-agent"
                                 label="Agen"
                                 style={{ width: '200px' }}
+                                placeholder="Pilih agen"
                                 options={[
-                                    { value: '', label: 'Pilih Agen' },
                                     ...agents.map((agent) => ({
                                         value: agent.id || 0,
                                         label: agent.name,
                                     })),
                                 ]}
                                 value={agent}
-                                onChange={(e) => {setAgent(e.target.value)}}
+                                onChange={(value) => {setAgent(value.toString())}}
                             />
                         </div>
                         <div className="d-flex align-items-center gap-2">
                             <SelectInput
                                 id="prod-year"
-                                label="Year"
+                                label="Tahun"
                                 style={{ width: '200px' }}
                                 value={year}
-                                onChange={(e) => {setYear(e.target.value)}}
+                                onChange={(value) => {setYear(value.toString())}}
+                                placeholder="Pilih tahun"
                                 options={[
-                                    { value: '', label: 'Pilih Tahun' },
                                     ...Array.from({ length: 10 }, (_, i) => ({
                                         value: (new Date().getFullYear() - i).toString(),
                                         label: (new Date().getFullYear() - i).toString(),
@@ -76,7 +97,14 @@ export default function Production({data, agents, prod_agent, prod_year}: {data:
                                 if (year && agent) router.visit(`/reports/production?year=${year}&agent=${agent}`);
                             }}
                         >
-                            Filter
+                            Cari
+                        </button>
+                        <button
+                            className="btn btn-success"
+                            onClick={exportToExcel}
+                            disabled={data.length === 0}
+                        >
+                            Ekspor ke Excel
                         </button>
                     </div>
                 </div>

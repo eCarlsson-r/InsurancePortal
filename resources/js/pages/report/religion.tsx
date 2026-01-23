@@ -13,9 +13,9 @@ interface Customer {
 }
 
 export default function Religion({ religion, customers }: { religion: string; customers: Customer[] }) {
-    const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const handleChange = (value: string | number) => {
         router.get('/reports/religion', {
-            religion: e.target.value,
+            religion: value,
         });
     };
 

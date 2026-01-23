@@ -5,6 +5,7 @@ import { Table } from 'react-bootstrap';
 import { useState } from 'react';
 import { z } from 'zod';
 import { router } from '@inertiajs/react';
+import { exportTableToExcel } from '@/utils/exportToExcel';
 
 type ReportData = {
     agent_name: string;
@@ -17,6 +18,22 @@ type ReportData = {
 export default function MDRTReport({data, agencies, prod_agency, prod_year}: {data: ReportData[], agencies: z.infer<typeof agencySchema>[], prod_agency: string, prod_year: string}) {
     const [year, setYear] = useState(prod_year || '');
     const [agency, setAgency] = useState(prod_agency || '');
+
+    const exportToExcel = () => {
+        const exportData = data.map(item => ({
+            'Nama Agen': item.agent_name,
+            'FYP terkumpul': item.current_fyp,
+            'Level tercapai': item.current_level,
+            'Level selanjutnya': item.next_level,
+            'FYP kurang': item.fyp_gap,
+        }));
+
+        exportTableToExcel(exportData, {
+            fileName: 'MDRT-Report',
+            sheetName: 'MDRT Report',
+            currencyColumns: ['B', 'E'],
+        });
+    };
 
     return (
         <TablePage
@@ -39,7 +56,7 @@ export default function MDRTReport({data, agencies, prod_agency, prod_year}: {da
                                 label="Year"
                                 style={{ width: '100px' }}
                                 value={year}
-                                onChange={(e) => {setYear(e.target.value)}}
+                                onChange={(value) => {setYear(value.toString())}}
                                 options={[
                                     { value: '', label: 'Pilih Tahun' },
                                     ...Array.from({ length: 10 }, (_, i) => ({
@@ -62,7 +79,7 @@ export default function MDRTReport({data, agencies, prod_agency, prod_year}: {da
                                     })),
                                 ]}
                                 value={agency}
-                                onChange={(e) => {setAgency(e.target.value)}}
+                                onChange={(value) => {setAgency(value.toString())}}
                             />
                         </div>
                         <button
@@ -71,7 +88,14 @@ export default function MDRTReport({data, agencies, prod_agency, prod_year}: {da
                                 if (year && agency) router.visit(`/reports/mdrt?year=${year}&agency=${agency}`);
                             }}
                         >
-                            Filter
+                            Cari
+                        </button>
+                        <button
+                            className="btn btn-success"
+                            onClick={exportToExcel}
+                            disabled={data.length === 0}
+                        >
+                            Ekspor ke Excel
                         </button>
                     </div>
                 </div>

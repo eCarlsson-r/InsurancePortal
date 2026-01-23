@@ -8,7 +8,7 @@ import FormPage from '@/layouts/FormPage';
 import { policySchema, agentSchema, productSchema, fundSchema } from '@/schemas/models';
 import { Link, useForm } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
-import { Accordion, InputGroup } from 'react-bootstrap';
+import { Accordion, InputGroup, Table } from 'react-bootstrap';
 import { z } from 'zod';
 import SubmitButton from '@/components/form/submit-button';
 
@@ -104,7 +104,7 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                 home_postal: data.holder.home_postal,
                 home_city: data.holder.home_city,
             };
-            
+
             // Check if object is different before setting to avoid loop
             if (JSON.stringify(syncData) !== JSON.stringify(data.insured)) {
                  setData((prev) => ({
@@ -214,7 +214,7 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="agent_id"
                                         label="Agen"
                                         value={data.agent_id}
-                                        onChange={(e) => setData('agent_id', e.target.value)}
+                                        onChange={(value) => setData('agent_id', value.toString())}
                                         error={errors.agent_id}
                                         options={agents.map((agent) => ({
                                             value: agent.id || '',
@@ -240,7 +240,7 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="bill_at"
                                         label="Tagih"
                                         value={data.bill_at}
-                                        onChange={(e) => setData('bill_at', parseInt(e.target.value))}
+                                        onChange={(value) => setData('bill_at', Number(value))}
                                         error={errors.bill_at}
                                         options={[
                                             { value: 1, label: 'Rumah' },
@@ -268,7 +268,7 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="holder_name"
                                         label="Nama Lengkap"
                                         value={data.holder.name}
-                                        onChange={(e) => setData('holder', { ...data.holder, name: e.target.value })}
+                                        onChange={(value) => setData('holder', { ...data.holder, name: value.toString() })}
                                         row
                                     />
 
@@ -276,7 +276,7 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="holder_gender"
                                         label="Jenis Kelamin"
                                         value={data.holder.gender}
-                                        onChange={(e) => setData('holder', { ...data.holder, gender: parseInt(e.target.value) })}
+                                        onChange={(value) => setData('holder', { ...data.holder, gender: Number(value) })}
                                         options={[
                                             { value: 1, label: 'Pria' },
                                             { value: 2, label: 'Wanita' },
@@ -287,9 +287,8 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                     <div className="mb-3 row form-group">
                                         <label className="col-sm-3 col-form-label">Tempat dan Tanggal Lahir</label>
                                         <InputGroup className="col-sm-9">
-                                            <input
-                                                type="text"
-                                                className="form-control"
+                                            <TextInput
+                                                id="holder_birth_place"
                                                 placeholder="Tempat"
                                                 value={data.holder.birth_place}
                                                 onChange={(e) => setData('holder', { ...data.holder, birth_place: e.target.value })}
@@ -306,7 +305,7 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="holder_marital"
                                         label="Status"
                                         value={data.holder.marital}
-                                        onChange={(e) => setData('holder', { ...data.holder, marital: parseInt(e.target.value) })}
+                                        onChange={(value) => setData('holder', { ...data.holder, marital: Number(value) })}
                                         options={[
                                             { value: 1, label: 'Single' },
                                             { value: 2, label: 'Kawin' },
@@ -320,7 +319,7 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="holder_religion"
                                         label="Agama"
                                         value={data.holder.religion}
-                                        onChange={(e) => setData('holder', { ...data.holder, religion: parseInt(e.target.value) })}
+                                        onChange={(value) => setData('holder', { ...data.holder, religion: Number(value) })}
                                         options={[
                                             { value: 0, label: '' },
                                             { value: 1, label: 'Budha' },
@@ -375,17 +374,15 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                     <div className="mb-3 row form-group">
                                         <label className="col-sm-3 col-form-label">Kode Pos / Kota</label>
                                         <div className="col-sm-9 d-flex gap-2">
-                                            <input
-                                                type="text"
-                                                className="form-control"
+                                            <TextInput
+                                                id="holder_home_postal"
                                                 placeholder="Kode Pos"
                                                 style={{ maxWidth: '100px' }}
                                                 value={data.holder.home_postal}
                                                 onChange={(e) => setData('holder', { ...data.holder, home_postal: e.target.value })}
                                             />
-                                            <input
-                                                type="text"
-                                                className="form-control"
+                                            <TextInput
+                                                id="holder_home_city"
                                                 placeholder="Kota"
                                                 value={data.holder.home_city}
                                                 onChange={(e) => setData('holder', { ...data.holder, home_city: e.target.value })}
@@ -404,17 +401,15 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                     <div className="mb-3 row form-group">
                                         <label className="col-sm-3 col-form-label">Kode Pos / Kota</label>
                                         <div className="col-sm-9 d-flex gap-2">
-                                            <input
-                                                type="text"
-                                                className="form-control"
+                                            <TextInput
+                                                id="holder_work_postal"
                                                 placeholder="Kode Pos"
                                                 style={{ maxWidth: '100px' }}
                                                 value={data.holder.work_postal}
                                                 onChange={(e) => setData('holder', { ...data.holder, work_postal: e.target.value })}
                                             />
-                                            <input
-                                                type="text"
-                                                className="form-control"
+                                            <TextInput
+                                                id="holder_work_city"
                                                 placeholder="Kota"
                                                 value={data.holder.work_city}
                                                 onChange={(e) => setData('holder', { ...data.holder, work_city: e.target.value })}
@@ -443,7 +438,7 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="insured_gender"
                                         label="Jenis Kelamin"
                                         value={data.insured.gender}
-                                        onChange={(e) => setData('insured', { ...data.insured, gender: parseInt(e.target.value) })}
+                                        onChange={(value) => setData('insured', { ...data.insured, gender: Number(value) })}
                                         disabled={data.is_insure_holder}
                                         options={[
                                             { value: 1, label: 'Pria' },
@@ -455,9 +450,8 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                     <div className="mb-3 row form-group">
                                         <label className="col-sm-3 col-form-label">Tempat & Tgl Lahir</label>
                                         <div className="col-sm-9 d-flex gap-2">
-                                            <input
-                                                type="text"
-                                                className="form-control"
+                                            <TextInput
+                                                id="insured_birth_place"
                                                 placeholder="Tempat"
                                                 value={data.insured.birth_place}
                                                 onChange={(e) => setData('insured', { ...data.insured, birth_place: e.target.value })}
@@ -476,7 +470,7 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="insured_marital"
                                         label="Status"
                                         value={data.insured.marital}
-                                        onChange={(e) => setData('insured', { ...data.insured, marital: parseInt(e.target.value) })}
+                                        onChange={(value) => setData('insured', { ...data.insured, marital: Number(value) })}
                                         disabled={data.is_insure_holder}
                                         options={[
                                             { value: 1, label: 'Single' },
@@ -491,7 +485,7 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="holder_insured_relationship"
                                         label="Hubungan"
                                         value={data.holder_insured_relationship}
-                                        onChange={(e) => setData('holder_insured_relationship', e.target.value)}
+                                        onChange={(value) => setData('holder_insured_relationship', value.toString())}
                                         disabled={data.is_insure_holder}
                                         options={[
                                             { value: '1', label: 'Diri Sendiri' },
@@ -524,18 +518,16 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                     <div className="mb-3 row form-group">
                                         <label className="col-sm-3 col-form-label">Kode Pos / Kota</label>
                                         <div className="col-sm-9 d-flex gap-2">
-                                            <input
-                                                type="text"
-                                                className="form-control"
+                                            <TextInput
+                                                id="insured_home_postal"
                                                 placeholder="Kode Pos"
                                                 style={{ maxWidth: '100px' }}
                                                 value={data.insured.home_postal}
                                                 onChange={(e) => setData('insured', { ...data.insured, home_postal: e.target.value })}
                                                 disabled={data.is_insure_holder}
                                             />
-                                            <input
-                                                type="text"
-                                                className="form-control"
+                                            <TextInput
+                                                id="insured_home_city"
                                                 placeholder="Kota"
                                                 value={data.insured.home_city}
                                                 onChange={(e) => setData('insured', { ...data.insured, home_city: e.target.value })}
@@ -564,7 +556,7 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="product_id"
                                         label="Produk"
                                         value={data.product_id}
-                                        onChange={(e) => setData('product_id', e.target.value)}
+                                        onChange={(value) => setData('product_id', value.toString())}
                                         options={
                                             products.map((product) => ({
                                                 value: product.id || '',
@@ -578,7 +570,7 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="currency_id"
                                         label="Mata Uang"
                                         value={data.currency_id}
-                                        onChange={(e) => setData('currency_id', parseInt(e.target.value))}
+                                        onChange={(value) => setData('currency_id', Number(value))}
                                         options={[
                                             { value: 1, label: 'Rupiah' },
                                             { value: 2, label: 'Dollar' },
@@ -610,7 +602,7 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="pay_method"
                                         label="Cara Bayar"
                                         value={data.pay_method}
-                                        onChange={(e) => setData('pay_method', parseInt(e.target.value))}
+                                        onChange={(value) => setData('pay_method', Number(value))}
                                         options={[
                                             { value: 1, label: 'Tahunan' },
                                             { value: 2, label: 'Enam Bulanan' },
@@ -643,7 +635,7 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                                 Tambah
                                             </button>
                                         </div>
-                                        <table className="table table-bordered table-sm">
+                                        <Table bordered>
                                             <thead>
                                                 <tr>
                                                     <th>Jenis Investasi</th>
@@ -655,27 +647,27 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                                 {(data.investments && data.investments.length > 0) ? (data.investments.map((item, index) => (
                                                     <tr key={index}>
                                                         <td>
-                                                            <select
-                                                                className="form-control form-control-sm"
+                                                            <SelectInput
+                                                                id={`investment_fund_${index}`}
                                                                 value={item.fund_id}
-                                                                onChange={(e) => {
+                                                                onChange={(value) => {
                                                                     const newInvestments = [...data.investments];
-                                                                    newInvestments[index].fund_id = parseInt(e.target.value);
+                                                                    newInvestments[index].fund_id = Number(value);
                                                                     setData('investments', newInvestments);
                                                                 }}
-                                                            >
-                                                                <option value="0">Pilih Fund</option>
-                                                                {funds.map((fund) => (
-                                                                    <option key={fund.id} value={fund.id}>
-                                                                        {fund.name}
-                                                                    </option>
-                                                                ))}
-                                                            </select>
+                                                                options={[
+                                                                    { value: 0, label: 'Pilih Fund' },
+                                                                    ...funds.map((fund) => ({
+                                                                        value: fund.id || 0,
+                                                                        label: fund.name,
+                                                                    })),
+                                                                ]}
+                                                            />
                                                         </td>
                                                         <td>
-                                                            <input
+                                                            <TextInput
+                                                                id={`investment_allocation_${index}`}
                                                                 type="number"
-                                                                className="form-control form-control-sm"
                                                                 value={item.allocation}
                                                                 onChange={(e) => {
                                                                     const newInvestments = [...data.investments];
@@ -702,7 +694,7 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                                     </tr>
                                                 )}
                                             </tbody>
-                                        </table>
+                                        </Table>
                                     </div>
 
                                     {/* Riders Table */}
@@ -719,7 +711,7 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                             </button>
                                         </div>
                                         <div className="table-responsive">
-                                            <table className="table table-bordered table-sm" style={{ minWidth: '600px' }}>
+                                            <Table bordered style={{ minWidth: '600px' }}>
                                                 <thead>
                                                     <tr>
                                                         <th>Rider</th>
@@ -734,27 +726,27 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                                     {(data.riders && data.riders.length > 0) ? (data.riders.map((item, index) => (
                                                         <tr key={index}>
                                                             <td>
-                                                                <select
-                                                                    className="form-control form-control-sm"
+                                                                <SelectInput
+                                                                    id={`rider_product_${index}`}
                                                                     value={item.product_id}
-                                                                    onChange={(e) => {
+                                                                    onChange={(value) => {
                                                                         const newRiders = [...data.riders];
-                                                                        newRiders[index].product_id = e.target.value;
+                                                                        newRiders[index].product_id = value.toString();
                                                                         setData('riders', newRiders);
                                                                     }}
-                                                                >
-                                                                    <option value="">Pilih Rider</option>
-                                                                    {products.filter(p => p.type === "5").map((product) => (
-                                                                        <option key={product.id} value={product.id}>
-                                                                            {product.name}
-                                                                        </option>
-                                                                    ))}
-                                                                </select>
+                                                                    options={[
+                                                                        { value: '', label: 'Pilih Rider' },
+                                                                        ...products.filter(p => p.type === "5").map((product) => ({
+                                                                            value: product.id || '',
+                                                                            label: product.name,
+                                                                        })),
+                                                                    ]}
+                                                                />
                                                             </td>
                                                             <td>
-                                                                <input
+                                                                <TextInput
+                                                                    id={`rider_insure_amount_${index}`}
                                                                     type="number"
-                                                                    className="form-control form-control-sm"
                                                                     value={item.insure_amount}
                                                                     onChange={(e) => {
                                                                         const newRiders = [...data.riders];
@@ -764,9 +756,9 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                                                 />
                                                             </td>
                                                             <td>
-                                                                <input
+                                                                <TextInput
+                                                                    id={`rider_premium_${index}`}
                                                                     type="number"
-                                                                    className="form-control form-control-sm"
                                                                     value={item.premium}
                                                                     onChange={(e) => {
                                                                         const newRiders = [...data.riders];
@@ -776,9 +768,9 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                                                 />
                                                             </td>
                                                             <td>
-                                                                <input
+                                                                <TextInput
+                                                                    id={`rider_insure_period_${index}`}
                                                                     type="number"
-                                                                    className="form-control form-control-sm"
                                                                     value={item.insure_period}
                                                                     onChange={(e) => {
                                                                         const newRiders = [...data.riders];
@@ -788,9 +780,9 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                                                 />
                                                             </td>
                                                             <td>
-                                                                <input
+                                                                <TextInput
+                                                                    id={`rider_pay_period_${index}`}
                                                                     type="number"
-                                                                    className="form-control form-control-sm"
                                                                     value={item.pay_period}
                                                                     onChange={(e) => {
                                                                         const newRiders = [...data.riders];
@@ -817,7 +809,7 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                                         </tr>
                                                     )}
                                                 </tbody>
-                                            </table>
+                                            </Table>
                                         </div>
                                     </div>
 

@@ -481,9 +481,9 @@ class ProductionService
                 'target.agent_id',
                 'target.agent_name',
                 'target.current_fyp',
-                DB::raw('MIN(stbonus.reward) as `current_level`'),
-                DB::raw('MIN(ntbonus.reward) as `next_level`'),
-                DB::raw("MIN(COALESCE(IF(ntbonus.minimum_premium > target.current_fyp, ntbonus.minimum_premium - target.current_fyp, 0), 0)) as `fyp_gap`")
+                DB::raw('stbonus.reward as `current_level`'),
+                DB::raw('ntbonus.reward as `next_level`'),
+                DB::raw("COALESCE(IF(ntbonus.minimum_premium > target.current_fyp, ntbonus.minimum_premium - target.current_fyp, 0), 0) as `fyp_gap`")
             ])
             ->groupBy(['target.agent_id', 'target.agent_name', 'target.current_fyp'])
             ->orderBy('target.current_fyp', 'DESC')
@@ -533,6 +533,7 @@ class ProductionService
         $producerQuery = DB::table('agents as ag')
             ->join('agent_programs as ap', 'ag.id', '=', 'ap.agent_id')
             ->joinSub($prodSub, 'prod', 'ag.id', '=', 'prod.agent_id')
+            ->join()
             ->where('ap.position', 'FC')
             ->where('ag.agency_id', $agencyId)
             ->select([
@@ -754,7 +755,7 @@ class ProductionService
         }
         $columns .= "SUM(`commision`) AS `total`";
 
-        $query1 = DB::table('cases as p')
+        $newPolicyQuery = DB::table('cases as p')
             ->join('customers as cs', 'p.holder_id', '=', 'cs.id')
             ->join('products as pr', 'p.product_id', '=', 'pr.id')
             ->join('product_credits as pcr', function ($join) {
@@ -791,10 +792,9 @@ class ProductionService
                 DB::raw("COALESCE(ROUND(p.premium), 0) AS case_premium"),
                 DB::raw("COALESCE(ROUND(rd.premium), 0) AS topup_premium"),
                 DB::raw("COALESCE(ROUND((c.commission_rate / 100) * (p.premium * p.curr_rate)), 0) + COALESCE(ROUND((tc.commission_rate / 100) * rd.premium), 0) AS commission")
-            ])
-            ->groupBy('p.id');
+            ]);
 
-        $query2 = DB::table('cases as p')
+        $singleTopUpQuery = DB::table('cases as p')
             ->join('customers as cs', 'p.holder_id', '=', 'cs.id')
             ->join('riders as rd', 'p.id', '=', 'rd.case_id')
             ->join('products as pr', 'rd.product_id', '=', 'pr.id')
@@ -825,7 +825,7 @@ class ProductionService
                 DB::raw("COALESCE(ROUND((c.commission_rate / 100) * (rd.premium * p.curr_rate)), 0) AS commission")
             ]);
 
-        $query3 = DB::table('receipts as r')
+        $firstYearRecurringQuery = DB::table('receipts as r')
             ->join('cases as p', 'r.case_id', '=', 'p.id')
             ->join('customers as cs', 'p.holder_id', '=', 'cs.id')
             ->join('products as pr', 'p.product_id', '=', 'pr.id')
@@ -847,7 +847,7 @@ class ProductionService
             ->join('agents as ag', 'p.agent_id', '=', 'ag.id')
             ->whereRaw("TIMESTAMPDIFF(MONTH, p.start_date, r.paid_date) <= 12")
             ->select([
-                'r.policy_no',
+                'p.policy_no',
                 'ag.id as agent_code',
                 'ag.official_number as agent_number',
                 'ag.name as agent_name',
@@ -864,20 +864,17 @@ class ProductionService
                 DB::raw("COALESCE(ROUND(IF(p.premium = r.premium, p.premium, r.premium)), 0) AS case_premium"),
                 DB::raw("COALESCE(IF(p.premium = r.premium, ROUND(rd.premium), 0), 0) AS topup_premium"),
                 DB::raw("IF(p.premium < r.premium, COALESCE(ROUND((c.commission_rate / 100) * (p.premium * p.curr_rate)), 0) + COALESCE(ROUND((tc.commission_rate / 100) * rd.premium), 0), COALESCE(ROUND((c.commission_rate / 100) * r.premium), 0)) AS commission")
-            ])
-            ->groupBy('r.id');
+            ]);
 
         // Build the union of all three queries
-        $prodUnion = $query1->union($query2)->union($query3);
+        $prodUnion = $newPolicyQuery->union($singleTopUpQuery)->union($firstYearRecurringQuery);
 
         // Build semester subquery with monthly aggregations
         $semesterSub = DB::query()->fromSub($prodUnion, 'prod')
-            ->join('agent_programs as ap', 'prod.agent_code', '=', 'ap.agent_id')
             ->whereYear('prod.case_start_date', $year)
             ->where('prod.agent_code', '<>', '')
             ->select([
                 'prod.agent_code',
-                'agents.name',
                 DB::raw("SUM(IF(MONTH(prod.case_start_date) = 1, prod.commission, 0)) AS january"),
                 DB::raw("SUM(IF(MONTH(prod.case_start_date) = 2, prod.commission, 0)) AS february"),
                 DB::raw("SUM(IF(MONTH(prod.case_start_date) = 3, prod.commission, 0)) AS march"),
@@ -922,7 +919,7 @@ class ProductionService
                 'semester.may',
                 'semester.june',
                 'semester.s1',
-                DB::raw("COALESCE(ROUND((s1bonus.bonus_percent / 100) * semester.s1), 0) AS s1_bonus"),
+                DB::raw("COALESCE(ROUND((MAX(s1bonus.bonus_percent) / 100) * semester.s1), 0) AS s1_bonus"),
                 'semester.july',
                 'semester.august',
                 'semester.september',
@@ -930,171 +927,341 @@ class ProductionService
                 'semester.november',
                 'semester.december',
                 'semester.s2',
-                DB::raw("COALESCE(ROUND((s2bonus.bonus_percent / 100) * semester.s2), 0) AS s2_bonus"),
-                DB::raw("COALESCE(ROUND((s1bonus.bonus_percent / 100) * semester.s1), 0) + COALESCE(ROUND((s2bonus.bonus_percent / 100) * semester.s2), 0) AS total")
-            ]);
+                DB::raw("COALESCE(ROUND((MAX(s2bonus.bonus_percent) / 100) * semester.s2), 0) AS s2_bonus"),
+                DB::raw("COALESCE(ROUND((MAX(s1bonus.bonus_percent) / 100) * semester.s1), 0) + COALESCE(ROUND((MAX(s2bonus.bonus_percent) / 100) * semester.s2), 0) AS total")
+            ])->groupBy('agents.id');
 
         return $finalQuery->get();
     }
 
-    public function reportMonthly() {
-        $monthYear = explode("-", $request["report_month"]);
-        $month = (isset($request["report_month"])) ? $monthYear[1] : date("m");
-        $year = (isset($request["report_month"])) ? $monthYear[0] : date("Y");
-
-        $connection = connectToDB();
-        advanceSelectDB($connection,"SET SQL_BIG_SELECTS=1;");
-
-        $prod = production_query($year);
-
-        $allowance = "SELECT ag.`agent-code`, `agent-number`, `agent-name`, pro.`agent-leader`, `program-start`, ".
-        "DATE_FORMAT(`program-start`,'%M %Y') AS `start-month`, `program-name` AS `program`, pro.`allowance`, ".
-        "TIMESTAMPDIFF(MONTH,`program-start`,LAST_DAY('$year-$month-01'))+1  AS `month`, SUM(`fyp-month`) AS `target-fyp`, SUM(`case-month`) AS `target-cases`, ".
-        "IF(`position`<>'FC',COALESCE(team.`achieved-fyp`,0)+COALESCE(team2.`achieved-fyp`,0)+COALESCE(team3.`achieved-fyp`,0)+COALESCE(`production`.`achieved-fyp`,0),COALESCE(`production`.`achieved-fyp`,0)) AS `achieved-fyp`, ".
-        "IF(`position`<>'FC',COALESCE(team.`achieved-cases`,0),COALESCE(`production`.`achieved-cases`,0)) AS `achieved-cases`, ".
-        "IF(SIGN(SUM(`fyp-month`)-IF(`position`<>'FC',COALESCE(team.`achieved-fyp`,0)+COALESCE(team2.`achieved-fyp`,0)+COALESCE(team3.`achieved-fyp`,0)+COALESCE(`production`.`achieved-fyp`,0),COALESCE(`production`.`achieved-fyp`,0)))=-1,0,".
-        "SUM(`fyp-month`)-IF(`position`<>'FC',COALESCE(team.`achieved-fyp`,0)+COALESCE(team2.`achieved-fyp`,0)+COALESCE(team3.`achieved-fyp`,0)+COALESCE(`production`.`achieved-fyp`,0),COALESCE(`production`.`achieved-fyp`,0))) AS `gap-fyp`, ".
-        "IF(SIGN(`case-month`-IF(`position`<>'FC',COALESCE(team.`achieved-cases`,0),COALESCE(`production`.`achieved-cases`,0)))=-1,0,SUM(`case-month`)-IF(`position`<>'FC',COALESCE(team.`achieved-cases`,0),COALESCE(`production`.`achieved-cases`,0))) AS `gap-cases`, ".
-        "IF((SUM(`fyp-month`)-IF(`position`<>'FC',COALESCE(team.`achieved-fyp`,0)+COALESCE(team2.`achieved-fyp`,0)+COALESCE(team3.`achieved-fyp`,0)+COALESCE(`production`.`achieved-fyp`,0),COALESCE(`production`.`achieved-fyp`,0)))<=0,pro.`allowance`,0) AS `achieved-allowance` ".
-        "FROM `agent` ag INNER JOIN `agent-program` pro ON ag.`agent-code`=pro.`agent-code` INNER JOIN `program` pr ON pro.`program`=pr.`program-code` ".
-        "AND pr.`program-duration`>=TIMESTAMPDIFF(MONTH,`program-start`, LAST_DAY('$year-$month-01'))+1 ".
-        "INNER JOIN `program-target` t ON pro.`program`=t.`program-code` AND pro.`allowance`=t.`allowance` AND ".
-        "t.`month`<=TIMESTAMPDIFF(MONTH,`program-start`, LAST_DAY('$year-$month-01'))+1 ".
-
-        "LEFT JOIN (SELECT `agent-code`, ROUND(SUM(`evaluation`)) AS `achieved-fyp`, COUNT(`status-polis`='PP') AS `achieved-cases` FROM $prod GROUP BY `agent-code`) AS `production` ON ag.`agent-code`=`production`.`agent-code` ".
-
-        "LEFT JOIN (SELECT ap.`agent-code`, ROUND(SUM(`evaluation`)) AS `achieved-fyp`, ".
-        "0 AS `achieved-cases` FROM $prod INNER JOIN `agent-program` ap ON `production`.`agent-leader`=ap.`agent-code` ".
-        "GROUP BY ap.`agent-code`) team ON ag.`agent-code`=team.`agent-code`".
-
-        "LEFT JOIN (SELECT ap.`agent-code`, ap.`agent-leader`, `achieved-fyp`, `achieved-cases` FROM ".
-        "(SELECT ap.`agent-code`, ap.`agent-leader`, ROUND(SUM(`evaluation`)) AS `achieved-fyp`, ".
-        "0 AS `achieved-cases` FROM $prod INNER JOIN `agent-program` ap ON `production`.`agent-leader`=ap.`agent-code` ".
-        "GROUP BY ap.`agent-code`) team ".
-        "INNER JOIN `agent-program` ap ON team.`agent-leader`=ap.`agent-code` GROUP BY ap.`agent-code`) team2 ON ag.`agent-code`=team2.`agent-code` ".
-
-        "LEFT JOIN (SELECT ap.`agent-code`, SUM(`achieved-fyp`) AS `achieved-fyp`, `achieved-cases` FROM ".
-        "(SELECT ap.`agent-code`, ap.`agent-leader`, `achieved-fyp`, `achieved-cases` FROM ".
-        "(SELECT ap.`agent-code`, ap.`agent-leader`, ROUND(SUM(`evaluation`)) AS `achieved-fyp`, ".
-        "0 AS `achieved-cases` FROM $prod INNER JOIN `agent-program` ap ON `production`.`agent-leader`=ap.`agent-code` ".
-        "GROUP BY ap.`agent-code`) team ".
-        "INNER JOIN `agent-program` ap ON team.`agent-leader`=ap.`agent-code` GROUP BY ap.`agent-code`) team2 ".
-        "INNER JOIN `agent-program` ap ON team2.`agent-leader`=ap.`agent-code` GROUP BY ap.`agent-code`) team3 ".
-        "ON ag.`agent-code`=team3.`agent-code` ".
-
-        "WHERE `program-start`<=LAST_DAY('$year-$month-01') AND TIMESTAMPDIFF(MONTH,`program-start`,LAST_DAY('$year-$month-01'))+1 BETWEEN 1 AND `program-duration` AND ".
-        "LAST_DAY('$year-$month-01')<=IF(`program-end`<>'0000-00-00',`program-end`,LAST_DAY('$year-$month-01')) GROUP BY ag.`agent-code` ORDER BY pro.`agent-leader`,`program-start`";
-
-        $monthToDate = "SELECT ag.`agent-code`, ag.`agent-number`, ag.`agent-name`, SUM(`agency`.`ape`) AS `ape`, SUM(IF(`agency`.`agent-code`=ag.`agent-code`,`agency`.`commision`,0)) AS `commision`, ".
-        "SUM(ROUND(IF(`agency`.`agent-leader`=ag.`agent-code` AND `agency`.`leader-position`='BP*',0.3,IF(`agency`.`agent-leader`=ag.`agent-code` OR `agency`.`agent-leader2`=ag.`agent-code` OR `agency`.`agent-leader3`=ag.`agent-code`,0.2,0))*`commision`)) AS `overriding`, SUM(`agency`.`evaluation`) AS `mdrt`, ".
-        "SUM(`agency`.`ot-contest`) AS `super-achiever` FROM `agent` ag INNER JOIN `agent-program` ap ON ag.`agent-code`=ap.`agent-code` LEFT JOIN (SELECT `policy-no`, `team`.`agent-code`, `team`.`agent-leader`, `team`.`leader-position`, `team`.`agent-leader2`, ap3.`agent-leader` AS `agent-leader3`, ".
-        "`customer-name`, `case-start-date`, `case_month`, `status-polis`, `case-pay-method`, `case-currency`, `case-curr-rate`, `case-product`, `production-credit`, `contest-credit`, `topup-production-credit`, `topup-contest-credit`, `case_premium`, `topup_premium`, `case_premium`*`case-pay-method` AS `ape`, `commision`, ".
-        "ROUND(((COALESCE(`contest-credit`,0)/100)*(`case_premium`*`case-curr-rate`))+((COALESCE(`topup-contest-credit`,0)/100)*(`topup_premium`*`case-curr-rate`))) AS `evaluation`, ".
-        "ROUND(((COALESCE(`production-credit`,0)/100)*(`case_premium`*`case-curr-rate`))+((COALESCE(`topup-production-credit`,0)/100)*(`topup_premium`*`case-curr-rate`))) AS `ot-contest` ".
-
-        "FROM (SELECT `policy-no`, `production`.`agent-code`, `production`.`agent-leader`, ap2.`position` AS `leader-position`, ap2.`agent-leader` AS `agent-leader2`, `customer-name`, `case-start-date`, `case_month`, `status-polis`, `case-pay-method`, `case-currency`, `case-curr-rate`, `case-product`, ".
-        "`production-credit`, `contest-credit`, `topup-production-credit`, `topup-contest-credit`, `case_premium`, `topup_premium`, `commision`, ROUND(((COALESCE(`contest-credit`,0)/100)*(`case_premium`*`case-curr-rate`))+((COALESCE(`topup-contest-credit`,0)/100)*(`topup_premium`*`case-curr-rate`))) AS `evaluation`, ".
-        "ROUND(((COALESCE(`production-credit`,0)/100)*(`case_premium`*`case-curr-rate`))+((COALESCE(`topup-production-credit`,0)/100)*(`topup_premium`*`case-curr-rate`))) AS `ot-contest` ".
-
-        "FROM (SELECT `policy-no`, `production`.`agent-code`, `agent-leader`, `customer-name`, `case-start-date`, `case_month`, `status-polis`, ".
-        "`case-pay-method`, `case-currency`, `case-curr-rate`, `case-product`, `production-credit`, `contest-credit`, `topup-production-credit`, `topup-contest-credit`, `case_premium`, `topup_premium`, `commision`, ".
-        "ROUND(((COALESCE(`contest-credit`,0)/100)*(`case_premium`*`case-curr-rate`))+((COALESCE(`topup-contest-credit`,0)/100)*(`topup_premium`*`case-curr-rate`))) AS `evaluation`, ".
-        "ROUND(((COALESCE(`production-credit`,0)/100)*(`case_premium`*`case-curr-rate`))+((COALESCE(`topup-production-credit`,0)/100)*(`topup_premium`*`case-curr-rate`))) AS `ot-contest` ".
-
-        "FROM $prod WHERE `case_month`='$month $year') AS `production` ".
-        "INNER JOIN `agent-program` ap2 ON `production`.`agent-leader`=ap2.`agent-code`) AS `team` ".
-        "INNER JOIN `agent-program` ap3 ON `team`.`agent-leader2`=ap3.`agent-code`) AS `agency` ".
-        "ON ag.`agent-code`=`agency`.`agent-code` OR ag.`agent-code`=`agency`.`agent-leader` OR ag.`agent-code`=`agency`.`agent-leader2` ".
-        "OR ag.`agent-code`=`agency`.`agent-leader3` GROUP BY ag.`agent-code`";
-
-        $recruit = "SELECT ag.`agent-code`, ROUND(0.1*SUM(`production`.`commision`)) AS `bonus-recruit` FROM `agent` ag LEFT JOIN
-        (SELECT `agent-recruiter`, `production`.* FROM `agent` ag INNER JOIN $prod ON ag.`agent-code`=`production`.`agent-code` WHERE `case_month`='$month $year' ORDER BY `case-start-date`) AS `production` ON ag.`agent-code`=`production`.`agent-recruiter` GROUP BY ag.`agent-code`";
-
-        $returnArr = selectDB(
-            $connection,
-            "ag.`agent-code`, ag.`agent-number`, ag.`agent-name`, IF(mtd.`commision`>0 OR `overriding`>0,COALESCE(SUM(`achieved-allowance`),0),0) AS `allowance`, COALESCE(mtd.`commision`,0) AS `commision`, COALESCE(recruit.`bonus-recruit`,0) AS `recruit-bonus`, COALESCE(ROUND((`bonus-percent`/100)*mtd.`commision`),0) AS `production-bonus`, ".
-            "`overriding`, ROUND(IF(mtd.`commision`>0 OR `overriding`>0,COALESCE(SUM(`achieved-allowance`),0),0)+COALESCE(ROUND((`bonus-percent`/100)*mtd.`commision`),0)+COALESCE(mtd.`commision`,0)+COALESCE(recruit.`bonus-recruit`,0)+COALESCE(mtd.`overriding`,0)) AS `total_amount`",
-            "`agent` AS `ag` LEFT JOIN ($allowance) AS `ytd` ON ag.`agent-code`=`ytd`.`agent-code` LEFT JOIN ($monthToDate) AS `mtd` ON ag.`agent-code`=`mtd`.`agent-code` LEFT JOIN ($recruit) AS `recruit` ON ag.`agent-code`=`recruit`.`agent-code` LEFT JOIN `contest` AS `mnbonus` ON `mnbonus`.`contest-code`=(SELECT `contest-code` FROM `contest` ".
-            "WHERE `contest-type`='speprod' AND `minimum-premium`<=`ape` AND '$year' BETWEEN YEAR(`contest-start`) AND YEAR(`contest-end`) ORDER BY `minimum-premium` DESC LIMIT 1) ",
-            "ag.`agent-code` IS NOT NULL GROUP BY `agent-code` ORDER BY `total_amount` DESC"
-        );
+    /**
+     * Build the evaluation and contest credit calculation expression
+     */
+    private function buildEvaluationExpression($creditType = 'contest_credit'): string
+    {
+        $credit = "`$creditType`";
+        return "ROUND(((COALESCE($credit,0)/100)*(`case_premium`*`curr_rate`)+"
+            . "((COALESCE(`topup_$creditType`,0)/100)*(`topup_premium`*`curr_rate`))))";
     }
 
-    public function reportAnnual() {
-        $year = $request["report_year"];
-        $connection = connectToDB();
-        advanceSelectDB($connection,"SET SQL_BIG_SELECTS=1;");
+    /**
+     * Build team-level aggregation subquery
+     */
+    private function buildTeamAggregationQuery($prod, $teamLevel)
+    {
+        // Base query: Tier 1 aggregation
+        $query = DB::query()->fromSub($prod, 'prod')
+            ->join('agent_programs as ap', 'prod.agent_id', '=', 'ap.agent_id')
+            ->select([
+                'ap.agent_leader_id as agent_id',
+                DB::raw("ROUND(SUM((COALESCE(contest_credit,0)/100)*((case_premium*curr_rate)+((COALESCE(topup_contest_credit,0)/100)*(topup_premium*curr_rate))))) AS achieved_fyp"),
+                DB::raw("0 AS achieved_cases")
+            ])
+            ->groupBy('ap.agent_leader_id');
 
-        $prod = production_query($year);
-        $recruit = "SELECT ag.`agent-code`, ROUND(0.1*SUM(`production`.`commision`)) AS `bonus-recruit`
-        FROM `agent` ag LEFT JOIN (SELECT `agent-recruiter`, prod.* FROM `agent` ag
-        INNER JOIN $prod ON ag.`agent-code`=prod.`agent-code`
-        WHERE YEAR(`case-start-date`)='$year' ORDER BY `case-start-date`) AS `production`
-        ON ag.`agent-code`=`production`.`agent-recruiter` GROUP BY ag.`agent-code`";
-
-        $monthToDate = "SELECT ag.`agent-code`, ag.`agent-number`, ag.`agent-name`, SUM(`agency`.`ape`) AS `ape`, SUM(IF(`agency`.`agent-code`=ag.`agent-code`,`agency`.`commision`,0)) AS `commision`, ".
-        "SUM(ROUND(IF(`agency`.`agent-leader`=ag.`agent-code` AND `agency`.`leader-position`='BP*',0.3,IF(`agency`.`agent-leader`=ag.`agent-code` OR `agency`.`agent-leader2`=ag.`agent-code` OR `agency`.`agent-leader3`=ag.`agent-code`,0.2,0))*`commision`)) AS `overriding`, ".
-        "SUM(`agency`.`evaluation`) AS `mdrt`, SUM(`agency`.`ot-contest`) AS `super-achiever` FROM `agent` ag INNER JOIN `agent-program` ap ON ag.`agent-code`=ap.`agent-code` LEFT JOIN ".
-        "(SELECT `policy-no`, `team`.`agent-code`, `team`.`agent-leader`, `team`.`leader-position`, `team`.`agent-leader2`, ap3.`agent-leader` AS `agent-leader3`, ".
-        "`customer-name`, `case-start-date`, `case_month`, `status-polis`, `case-pay-method`, `case-currency`, `case-curr-rate`, `case-product`, ".
-        "`production-credit`, `contest-credit`, `topup-production-credit`, `topup-contest-credit`, `case_premium`, `topup_premium`, `case_premium`*`case-pay-method` AS `ape`, `commision`, ".
-        "ROUND(((COALESCE(`contest-credit`,0)/100)*(`case_premium`*`case-curr-rate`))+((COALESCE(`topup-contest-credit`,0)/100)*(`topup_premium`*`case-curr-rate`))) AS `evaluation`, ".
-        "ROUND(((COALESCE(`production-credit`,0)/100)*(`case_premium`*`case-curr-rate`))+((COALESCE(`topup-production-credit`,0)/100)*(`topup_premium`*`case-curr-rate`))) AS `ot-contest` FROM ".
-        "(SELECT `policy-no`, `production`.`agent-code`, `production`.`agent-leader`, ap2.`position` AS `leader-position`, ap2.`agent-leader` AS `agent-leader2`, ".
-        "`customer-name`, `case-start-date`, `case_month`, `status-polis`, `case-pay-method`, `case-currency`, `case-curr-rate`, `case-product`, `production-credit`, `contest-credit`, ".
-        "`topup-production-credit`, `topup-contest-credit`, `case_premium`, `topup_premium`, `commision`, ".
-        "ROUND(((COALESCE(`contest-credit`,0)/100)*(`case_premium`*`case-curr-rate`))+((COALESCE(`topup-contest-credit`,0)/100)*(`topup_premium`*`case-curr-rate`))) AS `evaluation`, ".
-        "ROUND(((COALESCE(`production-credit`,0)/100)*(`case_premium`*`case-curr-rate`))+((COALESCE(`topup-production-credit`,0)/100)*(`topup_premium`*`case-curr-rate`))) AS `ot-contest` FROM ".
-        "(SELECT `policy-no`, `production`.`agent-code`, ap.`agent-leader`, `customer-name`, `case-start-date`, `case_month`, `status-polis`, `case-pay-method`, `case-currency`, `case-curr-rate`, ".
-        "`case-product`, `production-credit`, `contest-credit`, `topup-production-credit`, `topup-contest-credit`, `case_premium`, `topup_premium`, `commision`, ".
-        "ROUND(((COALESCE(`contest-credit`,0)/100)*(`case_premium`*`case-curr-rate`))+((COALESCE(`topup-contest-credit`,0)/100)*(`topup_premium`*`case-curr-rate`))) AS `evaluation`, ".
-        "ROUND(((COALESCE(`production-credit`,0)/100)*(`case_premium`*`case-curr-rate`))+((COALESCE(`topup-production-credit`,0)/100)*(`topup_premium`*`case-curr-rate`))) AS `ot-contest` FROM ".
-        "$prod INNER JOIN `agent-program` ap ON `production`.`agent-code`=ap.`agent-code`) AS `production` INNER JOIN `agent-program` ap2 ON `production`.`agent-leader`=ap2.`agent-code`) AS `team` ".
-        "INNER JOIN `agent-program` ap3 ON `team`.`agent-leader2`=ap3.`agent-code`) AS `agency` ON ag.`agent-code`=`agency`.`agent-code` OR ag.`agent-code`=`agency`.`agent-leader` ".
-        "OR ag.`agent-code`=`agency`.`agent-leader2` OR ag.`agent-code`=`agency`.`agent-leader3` WHERE SUBSTRING_INDEX(`case_month`,' ',-1)='$year' AND `agency`.`evaluation` IS NOT NULL AND `agency`.`ot-contest` IS NOT NULL GROUP BY ag.`agent-code`";
-
-        $query = "SELECT mtd.`agent-code`, mtd.`agent-number`, mtd.`agent-name`, ytd.`achieved-allowance` AS `allowance`, COALESCE(mtd.`commision`,0) AS `commision`, COALESCE(recruit.`bonus-recruit`,0) AS `recruit-bonus`, ".
-        "COALESCE(mtd.`overriding`,0) AS `overriding`, COALESCE(ROUND((`anbonus`.`bonus-percent`/100)*mtd.`commision`),0) AS `annual-bonus`, ".
-        "ROUND(COALESCE(ytd.`achieved-allowance`,0)+COALESCE(mtd.`commision`,0)+COALESCE(recruit.`bonus-recruit`,0)+COALESCE(mtd.`overriding`,0)+COALESCE(ROUND((`anbonus`.`bonus-percent`/100)*mtd.`commision`),0)) AS `total_amount` FROM ";
-
-        $endMonth = ($year==date("Y"))?intval(date("m")):12;
-        for ($monthNo = 1;$monthNo <= $endMonth;$monthNo++) {
-            if ($monthNo == 1) $ytd = "(SELECT `agent-code`, SUM(`achieved-allowance`) AS `achieved-allowance` FROM (";
-            $month = str_pad($monthNo, 2, "0", STR_PAD_LEFT);
-            $ytd .= "(SELECT ag.`agent-code`, `agent-name`, `agent-leader`, `program-start`, ".
-            "DATE_FORMAT(`program-start`,'%M %Y') AS `start-month`, `program-name` AS `program`, pro.`allowance`, ".
-            "TIMESTAMPDIFF(MONTH,`program-start`,LAST_DAY('$year-$month-01'))+1  AS `month`, ".
-            "IF(IF(`position`<>'FC',COALESCE(team.`achieved-fyp`,0)+COALESCE(team2.`achieved-fyp`,0)+COALESCE(team3.`achieved-fyp`,0)+COALESCE(production.`achieved-fyp`,0),COALESCE(production.`achieved-fyp`,0))-SUM(`fyp-month`)>=0 AND IF(`position`<>'FC',COALESCE(team.`achieved-cases`,0),COALESCE(production.`achieved-cases`,0))-SUM(`case-month`)>=0,pro.`allowance`,0) AS `achieved-allowance` ".
-            "FROM `agent` ag INNER JOIN `agent-program` pro ON ag.`agent-code`=pro.`agent-code` INNER JOIN `program` pr ON pro.`program`=pr.`program-code` ".
-            "INNER JOIN `program-target` t ON pro.`program`=t.`program-code` AND pro.`allowance`=t.`allowance` AND ".
-            "pr.`program-duration`>=TIMESTAMPDIFF(MONTH,`program-start`, LAST_DAY('$year-$month-01'))+1  ".
-            "LEFT JOIN (SELECT prod.`agent-code`, ROUND(SUM((COALESCE(`contest-credit`,0)/100)*((`case_premium`*`case-curr-rate`)+((COALESCE(`topup-contest-credit`,0)/100)*(`topup_premium`*`case-curr-rate`))))) AS `achieved-fyp`, ".
-            "COUNT(DISTINCT `policy-no`) AS `achieved-cases` FROM $prod GROUP BY `agent-code`) `production` ON ag.`agent-code`=`production`.`agent-code` ".
-            "LEFT JOIN (SELECT `agent-leader` AS `agent-code`, ROUND(SUM((COALESCE(`contest-credit`,0)/100)*((`case_premium`*`case-curr-rate`)+((COALESCE(`topup-contest-credit`,0)/100)*(`topup_premium`*`case-curr-rate`))))) AS `achieved-fyp`, ".
-            "0 AS `achieved-cases` FROM $prod INNER JOIN `agent-program` ap ON prod.`agent-code`=ap.`agent-code` ".
-            "GROUP BY `agent-leader`) team ON ag.`agent-code`=team.`agent-code`".
-            "LEFT JOIN (SELECT `agent-leader` AS `agent-code`, `achieved-fyp`, `achieved-cases` FROM ".
-            "(SELECT `agent-leader` AS `agent-code`, ROUND(SUM((COALESCE(`contest-credit`,0)/100)*((`case_premium`*`case-curr-rate`)+((COALESCE(`topup-contest-credit`,0)/100)*(`topup_premium`*`case-curr-rate`))))) AS `achieved-fyp`, ".
-            "0 AS `achieved-cases` FROM $prod ".
-            "INNER JOIN `agent-program` ap ON prod.`agent-code`=ap.`agent-code` GROUP BY `agent-leader`) team INNER JOIN `agent-program` ap ON team.`agent-code`=ap.`agent-code` GROUP BY `agent-leader`) team2 ON ag.`agent-code`=team2.`agent-code` ".
-            "LEFT JOIN (SELECT `agent-leader` AS `agent-code`, SUM(`achieved-fyp`) AS `achieved-fyp`, `achieved-cases` FROM ".
-            "(SELECT `agent-leader` AS `agent-code`, SUM(`achieved-fyp`) AS `achieved-fyp`, `achieved-cases` FROM ".
-            "(SELECT `agent-leader` AS `agent-code`, ROUND(SUM((COALESCE(`contest-credit`,0)/100)*((`case_premium`*`case-curr-rate`)+((COALESCE(`topup-contest-credit`,0)/100)*(`topup_premium`*`case-curr-rate`))))) AS `achieved-fyp`, ".
-            "0 AS `achieved-cases` FROM $prod ".
-            "INNER JOIN `agent-program` ap ON prod.`agent-code`=ap.`agent-code` GROUP BY `agent-leader`) team INNER JOIN `agent-program` ap ON team.`agent-code`=ap.`agent-code` GROUP BY `agent-leader`) team INNER JOIN `agent-program` ap ON team.`agent-code`=ap.`agent-code` GROUP BY `agent-leader`) team3 ON ag.`agent-code`=team3.`agent-code` ".
-            "WHERE `program-start`<=LAST_DAY('$year-$month-01') AND TIMESTAMPDIFF(MONTH,`program-start`,LAST_DAY('$year-$month-01'))+1 BETWEEN 1 AND `program-duration` AND ".
-            "LAST_DAY('$year-$month-01')<=IF(`program-end`<>'0000-00-00',`program-end`,LAST_DAY('$year-$month-01')) GROUP BY ag.`agent-code` ORDER BY `agent-leader`,`program-start`)";
-
-            if ($monthNo < $endMonth) {
-                $ytd .= " UNION ALL ";
-            } else if ($monthNo == $endMonth) {
-                $ytd .= ") AS `annual` GROUP BY `agent-code`)";
-                $query .= $ytd;
-                $query .= " AS `ytd` RIGHT JOIN ($monthToDate) AS `mtd` ON mtd.`agent-code`=ytd.`agent-code` ";
-                $query .= "LEFT JOIN ($recruit) AS `recruit` ON mtd.`agent-code`=`recruit`.`agent-code` LEFT JOIN `contest` AS `anbonus` ON `anbonus`.`contest-code`=";
-                $query .= "(SELECT `contest-code` FROM `contest` WHERE `contest-type`='annual' AND `minimum-premium`<=mtd.`ape` AND '$year' BETWEEN YEAR(`contest-start`) AND YEAR(`contest-end`) ORDER BY `minimum-premium` DESC LIMIT 1) ";
-                $query .= "WHERE mtd.`agent-code` IS NOT NULL GROUP BY `agent-code` ORDER BY `total_amount` DESC";
-            }
+        // Build nested team aggregations based on level
+        for ($i = 1; $i < $teamLevel; $i++) {
+            $prevQuery = $query;
+            $query = DB::query()->fromSub($prevQuery, 'team')
+                ->join('agent_programs as ap', 'team.agent_id', '=', 'ap.agent_id')
+                ->select([
+                    'ap.agent_leader_id as agent_id',
+                    DB::raw("SUM(team.achieved_fyp) AS achieved_fyp"),
+                    DB::raw("0 AS achieved_cases")
+                ])
+                ->groupBy('ap.agent_leader_id');
         }
+
+        return $query;
+    }
+
+    /**
+     * Build the month-specific allowance query for a single month
+     */
+    private function buildMonthAllowanceQuery($year, $month, $prod)
+    {
+        $evaluation = $this->buildEvaluationExpression('contest_credit');
+        
+        $individualProd = DB::query()->fromSub($prod, 'prod')
+            ->select([
+                'prod.agent_id',
+                DB::raw("ROUND(SUM($evaluation)) AS achieved_fyp"),
+                DB::raw("COUNT(DISTINCT policy_no) AS achieved_cases")
+            ])
+            ->groupBy('prod.agent_id');
+
+        $teamProd = DB::query()->fromSub($prod, 'prod')
+            ->join('agent_programs as ap', 'prod.agent_id', '=', 'ap.agent_id')
+            ->select([
+                'ap.agent_leader_id as agent_id',
+                DB::raw("ROUND(SUM($evaluation)) AS achieved_fyp"),
+                DB::raw("0 as achieved_cases")
+            ])
+            ->groupBy('ap.agent_leader_id');
+            
+        $team2Prod = $this->buildTeamAggregationQuery($prod, 2);
+        $team3Prod = $this->buildTeamAggregationQuery($prod, 3);
+
+        return DB::table('agents as ag')
+            ->join('agent_programs as pro', 'ag.id', '=', 'pro.agent_id')
+            ->join('programs as pr', 'pro.program_id', '=', 'pr.id')
+            ->join('program_targets as t', function($join) {
+                $join->on('pro.program_id', '=', 't.program_id')
+                     ->on('pro.allowance', '=', 't.allowance');
+            })
+            ->leftJoinSub($individualProd, 'production', 'ag.id', '=', 'production.agent_id')
+            ->leftJoinSub($teamProd, 'team', 'ag.id', '=', 'team.agent_id')
+            ->leftJoinSub($team2Prod, 'team2', 'ag.id', '=', 'team2.agent_id')
+            ->leftJoinSub($team3Prod, 'team3', 'ag.id', '=', 'team3.agent_id')
+            ->whereRaw("pro.program_start <= LAST_DAY('$year-$month-01')")
+            ->whereRaw("TIMESTAMPDIFF(MONTH, pro.program_start, LAST_DAY('$year-$month-01')) + 1 BETWEEN 1 AND pr.duration")
+            ->whereRaw("LAST_DAY('$year-$month-01') <= IF(pro.program_end IS NOT NULL, pro.program_end, LAST_DAY('$year-$month-01'))")
+            ->whereRaw("t.month <= TIMESTAMPDIFF(MONTH, pro.program_start, LAST_DAY('$year-$month-01')) + 1")
+            ->select([
+                'ag.id', 'ag.name', 'pro.agent_leader_id', 'pro.program_start',
+                DB::raw("DATE_FORMAT(pro.program_start, '%M %Y') AS start_month"),
+                'pr.name as program', 'pro.allowance',
+                DB::raw("TIMESTAMPDIFF(MONTH, pro.program_start, LAST_DAY('$year-$month-01')) + 1 AS month"),
+                DB::raw("
+                    IF(
+                        IF(pro.position <> 'FC',
+                           COALESCE(team.achieved_fyp, 0) + COALESCE(team2.achieved_fyp, 0) + COALESCE(team3.achieved_fyp, 0) + COALESCE(production.achieved_fyp, 0),
+                           COALESCE(production.achieved_fyp, 0)
+                        ) - SUM(t.fyp_month) >= 0 
+                        AND 
+                        IF(pro.position <> 'FC',
+                           COALESCE(team.achieved_cases, 0),
+                           COALESCE(production.achieved_cases, 0)
+                        ) - SUM(t.case_month) >= 0,
+                        pro.allowance,
+                        0
+                    ) AS achieved_allowance
+                ")
+            ])
+            ->groupBy([
+                'ag.id', 'ag.name', 'pro.agent_leader_id', 'pro.program_start', 'pr.name', 'pro.allowance', 'pro.position', 'pro.program_end', 'pr.duration',
+                'production.achieved_fyp', 'production.achieved_cases',
+                'team.achieved_fyp', 'team.achieved_cases',
+                'team2.achieved_fyp', 'team3.achieved_fyp'
+            ])
+            ->orderBy('pro.agent_leader_id')
+            ->orderBy('pro.program_start');
+    }
+
+    /**
+     * Build the Month-To-Date (MTD) query
+     */
+    /**
+     * Build the Month-To-Date (MTD) query
+     */
+    private function buildMTDQuery($year, $prod)
+    {
+        $evaluation = $this->buildEvaluationExpression('contest_credit');
+        $otContest = $this->buildEvaluationExpression('production_credit');
+        
+        // Level 1: Production joined with Agent Program to get Leader 1
+        $production = DB::query()->fromSub($prod, 'prod')
+            ->join('agent_programs as ap', 'prod.agent_id', '=', 'ap.agent_id')
+            ->select([
+                'prod.policy_no', 'prod.agent_id', 'ap.agent_leader_id',
+                'prod.holder_name as customer_name', 'prod.start_date', 'prod.case_month', 'prod.status_polis',
+                'prod.pay_method', 'prod.currency_id', 'prod.curr_rate', 'prod.product_id',
+                'prod.production_credit', 'prod.contest_credit', 'prod.topup_production_credit', 'prod.topup_contest_credit',
+                'prod.case_premium', 'prod.topup_premium', 'prod.commission',
+                DB::raw('prod.case_premium * prod.pay_method AS ape'),
+                DB::raw("$evaluation AS evaluation"),
+                DB::raw("$otContest AS ot_contest")
+            ]);
+
+        // Level 2: Join again to get Leader 2
+        $team = DB::query()->fromSub($production, 'production')
+            ->join('agent_programs as ap2', 'production.agent_leader_id', '=', 'ap2.agent_id')
+            ->select([
+                'production.*',
+                'ap2.position as leader_position',
+                'ap2.agent_leader_id as agent_leader_id2'
+            ]);
+
+        // Level 3: Join again to get Leader 3 (Agency view)
+        $agency = DB::query()->fromSub($team, 'team')
+             ->join('agent_programs as ap3', 'team.agent_leader_id2', '=', 'ap3.agent_id')
+             ->select([
+                 'team.*',
+                 'ap3.agent_leader_id as agent_leader_id3'
+             ]);
+
+        return DB::table('agents as ag')
+            ->join('agent_programs as ap', 'ag.id', '=', 'ap.agent_id')
+            ->leftJoinSub($agency, 'agency', function($join) {
+                $join->on('ag.id', '=', 'agency.agent_id')
+                     ->orOn('ag.id', '=', 'agency.agent_leader_id')
+                     ->orOn('ag.id', '=', 'agency.agent_leader_id2')
+                     ->orOn('ag.id', '=', 'agency.agent_leader_id3');
+            })
+            ->whereRaw("SUBSTRING_INDEX(agency.case_month, ' ', -1) = ?", [$year])
+            ->whereNotNull('agency.evaluation')
+            ->whereNotNull('agency.ot_contest')
+            ->select([
+                'ag.id', 'ag.official_number', 'ag.name',
+                DB::raw('SUM(agency.ape) AS ape'),
+                DB::raw('SUM(IF(agency.agent_id = ag.id, agency.commission, 0)) AS commission'),
+                DB::raw("SUM(ROUND(IF(agency.agent_leader_id = ag.id AND agency.leader_position = 'BP*', 0.3, IF(agency.agent_leader_id = ag.id OR agency.agent_leader_id2 = ag.id OR agency.agent_leader_id3 = ag.id, 0.2, 0)) * agency.commission)) AS overriding"),
+                DB::raw('SUM(agency.evaluation) AS mdrt'),
+                DB::raw('SUM(agency.ot_contest) AS super_achiever')
+            ])
+            ->groupBy('ag.id');
+    }
+
+    /**
+     * Build the Recruit Bonus query
+     */
+    /**
+     * Build the Recruit Bonus query
+     */
+    private function buildRecruitBonusQuery($year, $prod)
+    {
+        // Production subquery with filtered recruiter logic
+        $productionSub = DB::query()->fromSub($prod, 'prod')
+             ->join('agents as ag', 'prod.agent_id', '=', 'ag.id')
+             ->whereYear('prod.start_date', $year)
+             ->select('ag.recruiter_id', 'prod.commission')
+             ->orderBy('prod.start_date');
+
+        return DB::table('agents as ag')
+             ->leftJoinSub($productionSub, 'production', 'ag.id', '=', 'production.recruiter_id')
+             ->groupBy('ag.id')
+             ->select([
+                 'ag.id', 
+                 DB::raw('ROUND(0.1*SUM(production.commission)) AS bonus_recruit')
+             ]);
+    }
+
+    public function reportMonthly($year, $month)
+    {
+        $prod = $this->productionQuery($year);
+
+        // Build production subquery filtered by month
+        $monthProduction = DB::query()->fromSub($prod, 'prod')
+            ->where('prod.case_month', date('m Y', strtotime("$year-$month-01")))
+            ->select([
+                'prod.policy_no',
+                'prod.agent_id as agent_code',
+                'prod.agent_id as agent_leader',
+                'prod.holder_name as customer_name',
+                'prod.start_date as case_start_date',
+                'prod.case_month',
+                'prod.status_polis',
+                'prod.pay_method as case_pay_method',
+                'prod.currency_id as case_currency',
+                'prod.curr_rate as case_curr_rate',
+                'prod.product_id as case_product',
+                'prod.production_credit',
+                'prod.contest_credit',
+                'prod.case_premium',
+                'prod.topup_premium',
+                'prod.commission',
+                DB::raw("prod.evaluation"),
+                DB::raw("prod.evaluation as ot_contest")
+            ]);
+
+        // MTD aggregation by agent
+        $mtdSelect = $this->buildMTDQuery($year, $prod);
+
+        // Recruit bonus
+        $recruitSelect = $this->buildRecruitBonusQuery($year, $prod);
+
+        // YTD allowance (simplified)
+        $ytdSelect = DB::table('agents as ag')
+            ->join('agent_programs as ap', 'ag.id', '=', 'ap.agent_id')
+            ->join('programs as pr', 'ap.program_id', '=', 'pr.id')
+            ->join('program_targets as pt', function ($join) {
+                $join->on('ap.program_id', '=', 'pt.program_id')
+                    ->on('ap.allowance', '=', 'pt.allowance');
+            })
+            ->select([
+                'ag.id as agent_code',
+                DB::raw("SUM(IF(COALESCE(pt.fyp_month, 0) <= 0, ap.allowance, 0)) as achieved_allowance")
+            ])
+            ->groupBy('ag.id');
+
+        // Final query
+        return DB::table('agents as ag')
+            ->leftJoinSub($ytdSelect, 'ytd', 'ag.id', '=', 'ytd.agent_code')
+            ->leftJoinSub($mtdSelect, 'mtd', 'ag.id', '=', 'mtd.id')
+            ->leftJoinSub($recruitSelect, 'recruit', 'ag.id', '=', 'recruit.id')
+            ->leftJoin('contests as mnbonus', function ($join) use ($year) {
+                $join->on('mnbonus.type', '=', DB::raw("'speprod'"))
+                    ->whereRaw("? BETWEEN YEAR(mnbonus.start) AND YEAR(mnbonus.end)", [$year]);
+            })
+            ->select([
+                'ag.id',
+                'ag.official_number',
+                'ag.name',
+                DB::raw("IF(COALESCE(mtd.commission, 0) > 0 OR COALESCE(mtd.overriding, 0) > 0, COALESCE(ytd.achieved_allowance, 0), 0) as allowance"),
+                DB::raw("COALESCE(mtd.commission, 0) as commission"),
+                DB::raw("COALESCE(recruit.bonus_recruit, 0) as recruit_bonus"),
+                DB::raw("COALESCE(ROUND((mnbonus.bonus_percent / 100) * mtd.commission), 0) as production_bonus"),
+                DB::raw("COALESCE(mtd.overriding, 0) as overriding"),
+                DB::raw("ROUND(IF(COALESCE(mtd.commission, 0) > 0 OR COALESCE(mtd.overriding, 0) > 0, COALESCE(ytd.achieved_allowance, 0), 0) + COALESCE(ROUND((mnbonus.bonus_percent / 100) * mtd.commission), 0) + COALESCE(mtd.commission, 0) + COALESCE(recruit.bonus_recruit, 0) + COALESCE(mtd.overriding, 0)) as total_amount")
+            ])
+            ->whereNotNull('ag.id')
+            ->orderBy('total_amount', 'DESC')
+            ->get();
+    }
+
+    public function reportAnnual($year)
+    {
+        $prod = $this->productionQuery($year);
+        $endMonth = ($year == date("Y")) ? intval(date("m")) : 12;
+
+        // Build YTD query with UNION of all months
+        $queries = collect(range(1, $endMonth))->map(function ($monthNo) use ($year, $prod) {
+            $month = str_pad($monthNo, 2, "0", STR_PAD_LEFT);
+            return $this->buildMonthAllowanceQuery($year, $month, $prod);
+        });
+        
+        // Handle Union All - taking the first query and unioning the rest
+        $firstQuery = $queries->shift();
+        foreach ($queries as $query) {
+            $firstQuery->unionAll($query);
+        }
+
+        $ytdQuery = DB::query()->fromSub($firstQuery, 'annual')
+            ->select(['id as agent_id', DB::raw("SUM(achieved_allowance) AS achieved_allowance")])
+            ->groupBy('id');
+
+        // Build MTD query
+        $mtdQuery = $this->buildMTDQuery($year, $prod);
+
+        // Build Recruit Bonus query
+        $recruitQuery = $this->buildRecruitBonusQuery($year, $prod);
+
+        // Build the final query
+        $finalQuery = DB::table('agents as ag') // Start from a base table if needed, or join subqueries directly like before
+             ->fromSub($ytdQuery, 'ytd')
+            ->rightJoinSub($mtdQuery, 'mtd', 'mtd.id', '=', 'ytd.agent_id')
+            ->leftJoinSub($recruitQuery, 'recruit', 'mtd.id', '=', 'recruit.id')
+            ->leftJoin('contests as anbonus', function ($join) use ($year) {
+                $join->on('anbonus.type', '=', DB::raw("'annual'"))
+                    ->whereRaw("anbonus.minimum_premium <= mtd.ape")
+                    ->whereRaw("? BETWEEN YEAR(anbonus.start) AND YEAR(anbonus.end)", [$year]);
+            })
+            ->select([
+                'mtd.id as agent_id',
+                'mtd.official_number',
+                'mtd.name',
+                DB::raw('ytd.achieved_allowance AS allowance'),
+                DB::raw('COALESCE(mtd.commission, 0) AS commission'),
+                DB::raw('COALESCE(recruit.bonus_recruit, 0) AS recruit_bonus'),
+                DB::raw('COALESCE(mtd.overriding, 0) AS overriding'),
+                DB::raw('COALESCE(ROUND((anbonus.bonus_percent / 100) * mtd.commission), 0) AS annual_bonus'),
+                DB::raw('ROUND(COALESCE(ytd.achieved_allowance, 0) + COALESCE(mtd.commission, 0) + COALESCE(recruit.bonus_recruit, 0) + COALESCE(mtd.overriding, 0) + COALESCE(ROUND((anbonus.bonus_percent / 100) * mtd.commission), 0)) AS total_amount')
+            ])
+            ->whereNotNull('mtd.id')
+            ->groupBy('mtd.id')
+            ->orderBy('total_amount', 'DESC')
+            ->get();
+
+        return $finalQuery;
     }
 }

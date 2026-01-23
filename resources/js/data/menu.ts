@@ -114,7 +114,7 @@ export const menuItems: MenuItem[] = [
             {
                 title: "Monthly Income List",
                 type: 'link',
-                href: '/reports/income-monthly'
+                href: '/reports/monthly'
             },
             {
                 title: "Semesterly Income List",
@@ -124,7 +124,7 @@ export const menuItems: MenuItem[] = [
             {
                 title:"Yearly Income List",
                 type:'link',
-                href:'/reports/income-yearly'
+                href:'/reports/annual'
             }
         ]
     }

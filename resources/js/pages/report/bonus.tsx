@@ -45,9 +45,7 @@ export default function BonusGap(props:{data: BonusData[], agencies: z.infer<typ
                                 min="2022-01"
                                 style={{ width: '200px' }}
                                 value={month}
-                                onChange={(e) => {
-                                    setMonth(e.target.value);
-                                }}
+                                onChange={(e) => setMonth(e.target.value)}
                             />
                         </div>
                         <div className="d-flex align-items-center gap-2">
@@ -63,7 +61,7 @@ export default function BonusGap(props:{data: BonusData[], agencies: z.infer<typ
                                     })),
                                 ]}
                                 value={agency}
-                                onChange={(e) => {setAgency(e.target.value)}}
+                                onChange={(value) => {setAgency(value.toString())}}
                             />
                         </div>
                         <button
@@ -72,7 +70,7 @@ export default function BonusGap(props:{data: BonusData[], agencies: z.infer<typ
                                 if (month && agency) router.visit(`/reports/bonusgap?month=${month}&agency=${agency}`);
                             }}
                         >
-                            Filter
+                            Cari
                         </button>
                     </div>
                 </div>

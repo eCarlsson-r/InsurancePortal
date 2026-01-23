@@ -197,10 +197,10 @@ export default function Receipt({
                         id="product_id"
                         label="Produk"
                         value={data.policy?.product_id}
-                        onChange={(e) =>
+                        onChange={(value) =>
                             setData('policy', {
                                 ...data.policy,
-                                product_id: e.target.value,
+                                product_id: value.toString(),
                             })
                         }
                         options={products.map((p) => ({
@@ -213,10 +213,10 @@ export default function Receipt({
                         id="holder_id"
                         label="Pemegang Polis"
                         value={data.policy?.holder_id}
-                        onChange={(e) =>
+                        onChange={(value) =>
                             setData('policy', {
                                 ...data.policy,
-                                holder_id: e.target.value,
+                                holder_id: value.toString(),
                             })
                         }
                         options={customers.map((c) => ({
@@ -229,8 +229,8 @@ export default function Receipt({
                         id="agent_id"
                         label="Agen"
                         value={data.policy?.agent_id}
-                        onChange={(e) =>
-                            setData('agent_id', e.target.value)
+                        onChange={(value) =>
+                            setData('agent_id', value.toString())
                         }
                         options={agents.map((a) => ({
                             value: a.id || '',
@@ -276,11 +276,13 @@ export default function Receipt({
                         id="pay_method"
                         label="Metode Bayar"
                         value={data.pay_method}
-                        onChange={(e) => setData('pay_method', e.target.value)}
+                        onChange={(value) => setData('pay_method', value.toString())}
                         options={[
-                            { value: '1', label: 'Transfer' },
-                            { value: '2', label: 'Credit Card' },
-                            { value: '3', label: 'Cash' },
+                            { value: '1', label: 'Tahunan' },
+                            { value: '2', label: 'Semesteran' },
+                            { value: '4', label: 'Tiga Bulanan' },
+                            { value: '12', label: 'Bulanan' },
+                            { value: '0', label: 'Sekaligus' }
                         ]}
                         row
                     />

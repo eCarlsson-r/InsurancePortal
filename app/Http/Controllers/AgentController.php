@@ -142,11 +142,35 @@ class AgentController extends Controller
         return redirect()->back();
     }
 
+    public function report_monthly(Request $request) {
+        $monthYear = explode("-", $request["report_month"]);
+        $month = (isset($request["report_month"])) ? $monthYear[1] : date("m");
+        $year = (isset($request["report_month"])) ? $monthYear[0] : date("Y");
+
+        $data = $this->productionService->reportMonthly($year, $month);
+
+        return Inertia::render("report/monthly", [
+            "data" => $data,
+            "year" => $year,
+            "month" => $month
+        ]);
+    }
+
     public function report_semester(Request $request) {
         $year = $request->year;
         $data = $this->productionService->reportSemester($year);
 
         return Inertia::render("report/semester", [
+            "data" => $data,
+            "year" => $year
+        ]);
+    }
+
+    public function report_annual(Request $request) {
+        $year = $request->year;
+        $data = $this->productionService->reportAnnual($year);
+
+        return Inertia::render("report/annual", [
             "data" => $data,
             "year" => $year
         ]);

@@ -128,7 +128,7 @@ export default function AgentForm({
                 { label: 'Agen', active: true, i18n: 'agent' },
             ]}
             headerActions={
-                <SubmitButton 
+                <SubmitButton
                     processing={processing}
                     onClick={handleSubmit}
                 >
@@ -182,8 +182,8 @@ export default function AgentForm({
                                     id="gender"
                                     label="Jenis Kelamin"
                                     value={data.gender}
-                                    onChange={(e) =>
-                                        setData('gender', e.target.value === '' ? '' : parseInt(e.target.value, 10))
+                                    onChange={(value) =>
+                                        setData('gender', Number(value))
                                     }
                                     data-i18n="gender"
                                     row
@@ -334,8 +334,8 @@ export default function AgentForm({
                                     id="status"
                                     label="Status"
                                     value={data.status}
-                                    onChange={(e) =>
-                                        setData('status', e.target.value === '' ? '' : parseInt(e.target.value, 10))
+                                    onChange={(value) =>
+                                        setData('status', Number(value))
                                     }
                                     data-i18n="status"
                                     row
@@ -434,13 +434,12 @@ export default function AgentForm({
                                     id="agency_id"
                                     label="Agency / Regional"
                                     value={data.agency_id}
-                                    onChange={(e) =>
-                                        setData('agency_id', e.target.value === '' ? '' : parseInt(e.target.value, 10))
+                                    onChange={(value) =>
+                                        setData('agency_id', Number(value))
                                     }
                                     data-i18n="apply-agency"
                                     row
                                     options={[
-                                        { value: '', label: 'Pilih Agency' },
                                         ...agencies.map((agency) => ({
                                             value: agency.id || 0,
                                             label: agency.name,
@@ -480,13 +479,12 @@ export default function AgentForm({
                                     id="recruiter_id"
                                     label="Perekruit"
                                     value={data.recruiter_id}
-                                    onChange={(e) =>
-                                        setData('recruiter_id', e.target.value === '' ? '' : parseInt(e.target.value, 10))
+                                    onChange={(value) =>
+                                        setData('recruiter_id', Number(value))
                                     }
                                     data-i18n="recruiter"
                                     row
                                     options={[
-                                        { value: '', label: 'Pilih Perekruit' },
                                         ...agents.map((recruiter) => ({
                                             value: recruiter.id || 0,
                                             label: recruiter.name,
@@ -543,61 +541,69 @@ export default function AgentForm({
                                                                         />
                                                                     </td>
                                                                     <td>
-                                                                        <select
-                                                                            className="form-control form-control-sm"
+                                                                        <SelectInput
+                                                                            id={`program_position_${idx}`}
+                                                                            className="form-control-sm"
                                                                             value={program.position}
-                                                                            onChange={(e) => {
+                                                                            onChange={(value) => {
                                                                                 const newPrograms = [...data.programs];
                                                                                 newPrograms[idx] = {
                                                                                     ...newPrograms[idx],
-                                                                                    position: e.target.value,
+                                                                                    position: value.toString(),
                                                                                 };
                                                                                 setData('programs', newPrograms);
                                                                             }}
-                                                                        >
-                                                                            <option value="FC">Financial Consultant</option>
-                                                                            <option value="BP*">Business Partner *</option>
-                                                                            <option value="BP**">Business Partner **</option>
-                                                                            <option value="BP***">Business Partner ***</option>
-                                                                        </select>
+                                                                            options={[
+                                                                                { value: 'FC', label: 'Financial Consultant' },
+                                                                                { value: 'BP*', label: 'Business Partner *' },
+                                                                                { value: 'BP**', label: 'Business Partner **' },
+                                                                                { value: 'BP***', label: 'Business Partner ***' },
+                                                                            ]}
+                                                                        />
                                                                     </td>
                                                                     <td>
-                                                                        <select
-                                                                            className="form-control form-control-sm"
+                                                                        <SelectInput
+                                                                            id={`program_leader_${idx}`}
+                                                                            className="form-control-sm"
                                                                             value={program.agent_leader_id || ''}
-                                                                            onChange={(e) => {
+                                                                            onChange={(value) => {
                                                                                 const newPrograms = [...data.programs];
                                                                                 newPrograms[idx] = {
                                                                                     ...newPrograms[idx],
-                                                                                    agent_leader_id: parseInt(e.target.value, 10),
+                                                                                    agent_leader_id: value === '' ? null : parseInt(value.toString(), 10),
                                                                                 };
                                                                                 setData('programs', newPrograms);
                                                                             }}
-                                                                        >
-                                                                            <option value="">Select Leader</option>
-                                                                            {agents.map((agent) => (
-                                                                                <option key={agent.id} value={agent.id}>{agent.name}</option>
-                                                                            ))}
-                                                                        </select>
+                                                                            options={[
+                                                                                { value: '', label: 'Select Leader' },
+                                                                                ...agents.map((agent) => ({
+                                                                                    value: agent.id || 0,
+                                                                                    label: agent.name,
+                                                                                })),
+                                                                            ]}
+                                                                        />
                                                                     </td>
                                                                     <td>
-                                                                        <select
-                                                                            className="form-control form-control-sm"
+                                                                        <SelectInput
+                                                                            id={`program_program_${idx}`}
+                                                                            className="form-control-sm"
                                                                             value={program.program_id ?? ''}
-                                                                            onChange={(e) => {
+                                                                            onChange={(value) => {
                                                                                 const newPrograms = [...data.programs];
                                                                                 newPrograms[idx] = {
                                                                                     ...newPrograms[idx],
-                                                                                    program_id: parseInt(e.target.value, 10),
+                                                                                    program_id: value === '' ? null : parseInt(value.toString(), 10),
                                                                                 };
                                                                                 setData('programs', newPrograms);
                                                                             }}
-                                                                        >
-                                                                            <option value="">Pilih Program</option>
-                                                                            {programs.map((p) => (
-                                                                                <option key={p.id} value={p.id}>{p.name}</option>
-                                                                            ))}
-                                                                        </select>
+                                                                            options={[
+                                                                                { value: '', label: 'Pilih Program' },
+                                                                                ...programs.map((p) => ({
+                                                                                    value: p.id || 0,
+                                                                                    label: p.name,
+                                                                                })),
+                                                                            ]}
+                                                                        />
                                                                     </td>
                                                                     <td>
                                                                         <input

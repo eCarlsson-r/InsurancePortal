@@ -5,6 +5,7 @@ import { Table } from 'react-bootstrap';
 import { useState } from 'react';
 import { z } from 'zod';
 import { router } from '@inertiajs/react';
+import { exportTableToExcel } from '@/utils/exportToExcel';
 
 type ReportData = {
     name: string;
@@ -20,14 +21,32 @@ export default function EmpireClubReport({data, agencies, prod_agency, prod_year
     const [year, setYear] = useState(prod_year || '');
     const [agency, setAgency] = useState(prod_agency || '');
 
+    const exportToExcel = () => {
+        const exportData = data.map(item => ({
+            'Nama Agen': item.name,
+            'APE terkumpul': item.current_ape,
+            'Cases terkumpul': item.current_cases,
+            'Tiket tercapai': item.current_trip,
+            'Tiket selanjutnya': item.next_trip,
+            'Kurang APE': item.ape_gap,
+            'Kurang Cases': item.cases_gap,
+        }));
+
+        exportTableToExcel(exportData, {
+            fileName: 'Empire-Club-Report',
+            sheetName: 'Empire Club Report',
+            currencyColumns: ['B', 'F'], // APE terkumpul and Kurang APE columns
+        });
+    }
+
     return (
         <TablePage
-            headTitle="Laporan Empire Club"
+            headTitle="Empire Club"
             title="Laporan Empire Club"
-            i18nTitle="empire-report"
+            i18nTitle="empire-club"
             breadcrumbs={[
                 { label: 'Laporan', href: 'javascript:void(0)', i18n: 'report' },
-                { label: 'Laporan Empire Club', active: true, i18n: 'empire-report' },
+                { label: 'Laporan MDRT Internasional', active: true, i18n: 'empire-club' },
             ]}
             toolbar={
                 <div className="d-flex align-items-center justify-content-between w-100">
@@ -38,12 +57,12 @@ export default function EmpireClubReport({data, agencies, prod_agency, prod_year
                         <div className="d-flex align-items-center gap-2">
                             <SelectInput
                                 id="empire-year"
-                                label="Year"
-                                style={{ width: '100px' }}
+                                label="Tahun"
+                                style={{ width: '150px' }}
                                 value={year}
-                                onChange={(e) => {setYear(e.target.value)}}
+                                onChange={(value) => {setYear(value.toString())}}
+                                placeholder="Pilih Tahun"
                                 options={[
-                                    { value: '', label: 'Pilih Tahun' },
                                     ...Array.from({ length: 10 }, (_, i) => ({
                                         value: (new Date().getFullYear() - i).toString(),
                                         label: (new Date().getFullYear() - i).toString(),
@@ -56,15 +75,15 @@ export default function EmpireClubReport({data, agencies, prod_agency, prod_year
                                 id="empire-agency"
                                 label="Agency"
                                 style={{ width: '300px' }}
+                                placeholder="Pilih Agency"
                                 options={[
-                                    { value: '', label: 'Pilih Agency' },
                                     ...agencies.map((agency) => ({
                                         value: agency.id || 0,
                                         label: agency.name,
                                     })),
                                 ]}
                                 value={agency}
-                                onChange={(e) => {setAgency(e.target.value)}}
+                                onChange={(value) => {setAgency(value.toString())}}
                             />
                         </div>
                         <button
@@ -73,7 +92,14 @@ export default function EmpireClubReport({data, agencies, prod_agency, prod_year
                                 if (year && agency) router.visit(`/reports/empire?year=${year}&agency=${agency}`);
                             }}
                         >
-                            Filter
+                            Cari
+                        </button>
+                        <button
+                            className="btn btn-success"
+                            onClick={exportToExcel}
+                            disabled={data.length === 0}
+                        >
+                            Ekspor ke Excel
                         </button>
                     </div>
                 </div>
