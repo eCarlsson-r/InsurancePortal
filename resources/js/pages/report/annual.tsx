@@ -9,7 +9,7 @@ type AnnualData = {
     official_number: string,
     name: string,
     allowance: number,
-    commision: number,
+    commission: number,
     recruit_bonus: number,
     overriding: number,
     annual_bonus: number,
@@ -35,7 +35,7 @@ export default function Annual({ data, year }: { data: AnnualData[]; year: strin
         const exportData = data.map(item => ({
             'Kode Agen': item.official_number,
             'Nama Agen': item.name,
-            'Komisi': item.commision,
+            'Komisi': item.commission,
             'Bonus Tahunan': item.annual_bonus,
             'Overriding': item.overriding,
             'Bonus Rekrut': item.recruit_bonus,
@@ -109,7 +109,7 @@ export default function Annual({ data, year }: { data: AnnualData[]; year: strin
                             <tr key={record.id}>
                                 <td>{record.official_number}</td>
                                 <td>{record.name}</td>
-                                <td>{formatCurrency(record.commision)}</td>
+                                <td>{formatCurrency(record.commission)}</td>
                                 <td>{formatCurrency(record.annual_bonus)}</td>
                                 <td>{formatCurrency(record.overriding)}</td>
                                 <td>{formatCurrency(record.recruit_bonus)}</td>

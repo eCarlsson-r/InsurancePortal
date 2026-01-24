@@ -4,11 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Models\Agency;
 use App\Models\Agent;
+use App\Services\ProductionService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class AgencyController extends Controller
 {
+    protected $productionService;
+
+    public function __construct(ProductionService $productionService)
+    {
+        $this->productionService = $productionService;
+    }
+
     public function index(Request $request)
     {
         $search = $request->input('search');
@@ -58,5 +66,13 @@ class AgencyController extends Controller
     public function destroy(Agency $agency) {
         $agency->delete();
         return redirect()->back();
+    }
+
+    public function dashboard() {
+        $dashboard = $this->productionService->dashboard();
+
+        return Inertia::render('dashboard', [
+            'data' => $dashboard
+        ]);
     }
 }

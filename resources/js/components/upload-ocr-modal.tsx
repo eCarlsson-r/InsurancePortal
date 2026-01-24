@@ -170,6 +170,10 @@ export default function UploadOcrModal({ show, onHide }: UploadOcrModalProps) {
                                                 `/sales/policy/create?ocr_id=${activeOcrId}`,
                                             );
                                         }}
+                                        onError={() => {
+                                            setIsProcessing(false);
+                                            setActiveOcrId(null);
+                                        }}
                                     />
                                 )
                             )}

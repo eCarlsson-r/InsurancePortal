@@ -9,7 +9,7 @@ export default function TemplateLayout({ children }: PropsWithChildren) {
 
     useEffect(() => {
         // Initialize MetisMenu
-        let mm: unknown;
+        let mm: MetisMenu | null = null;
         if (sideMenuRef.current) {
             mm = new MetisMenu(sideMenuRef.current);
         }
@@ -45,7 +45,6 @@ export default function TemplateLayout({ children }: PropsWithChildren) {
             data-sidebar-position="fixed"
             data-header-position="fixed"
             data-container="wide"
-            direction="ltr"
             data-primary="color_6"
         >
             {/* Nav Header */}

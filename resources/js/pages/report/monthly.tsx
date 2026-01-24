@@ -17,8 +17,8 @@ type MonthlyData = {
     total_amount: number
 };
 
-export default function Monthly({ data, month }: { data: MonthlyData[]; month: string }) {
-    const [selectedMonth, setSelectedMonth] = useState(month);
+export default function Monthly({ data, report_month }: { data: MonthlyData[]; report_month: string }) {
+    const [month, setMonth] = useState(report_month);
     const formatCurrency = (value: number) => {
         return new Intl.NumberFormat('id-ID', {
             style: 'currency',
@@ -28,9 +28,9 @@ export default function Monthly({ data, month }: { data: MonthlyData[]; month: s
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSelectedMonth(e.target.value);
+        setMonth(e.target.value);
         router.get('/reports/monthly', {
-            month: e.target.value,
+            report_month: e.target.value,
         });
     };
 
@@ -72,7 +72,7 @@ export default function Monthly({ data, month }: { data: MonthlyData[]; month: s
                             id="monthly-month"
                             label="Year"
                             style={{ width: '200px' }}
-                            value={selectedMonth}
+                            value={month}
                             onChange={handleChange}
                         />
                     </div>

@@ -90,6 +90,27 @@ class PolicyController extends Controller
         if ($request->investments) $policy->investments()->createMany($request->investments);
         if ($request->riders) $policy->riders()->createMany($request->riders);
 
+        // 3. Move the file from Temp/OCR storage to Permanent storage
+        // Assuming ocr_id is the filename or a key to the file path
+        $tempPath = 'ocr-temp/' . $request->ocr_id . '.pdf';
+        $permanentPath = 'policies/' . $request->ocr_id . '.pdf';
+
+        if (Storage::disk('local')->exists($tempPath)) {
+            // Move file physically
+            Storage::disk('local')->move($tempPath, $permanentPath);
+
+            // 4. Record the file in your Database
+            File::create([
+                'name' => $request->ocr_id . '.pdf',
+                'type' => 'application/pdf',
+                'extension' => 'pdf',
+                'size' => Storage::disk('local')->size($permanentPath),
+                'upload_date' => now(),
+                'purpose' => 'case',
+                'document_id' => $policy->id, // Link to the new policy
+            ]);
+        }
+
         return Redirect::route('sales.policy.index')->with('message', 'Data Berhasil Disimpan!');
     }
 
@@ -105,6 +126,7 @@ class PolicyController extends Controller
         $extracted = null;
         if ($request->has('ocr_id')) {
             $extracted = Cache::get("ocr_result_" . $request->ocr_id);
+            $extracted['data']['ocr_id'] = $request->ocr_id;
 
             return Inertia::render('policy/form', [
                 'extracted' => $extracted['data'],

@@ -1,5 +1,6 @@
 import SelectInput from '@/components/form/select-input';
 import TextInput from '@/components/form/text-input';
+import FormField from '@/components/form/form-field';
 import SubmitButton from '@/components/form/submit-button';
 import FormPage from '@/layouts/FormPage';
 import { programSchema } from '@/schemas/models';
@@ -111,7 +112,7 @@ export default function ProgramForm({
                                     id="position"
                                     label="Jabatan"
                                     value={data.position}
-                                    onChange={(e) => setData('position', e.target.value)}
+                                    onChange={(value) => setData('position', value.toString())}
                                     options={[
                                         { value: 'FC', label: 'Financial Consultant' },
                                         { value: 'BP*', label: 'Business Partner *' },
@@ -121,9 +122,13 @@ export default function ProgramForm({
                                     row
                                 />
 
-                                <div className="row form-group mb-3">
-                                    <label className="col-sm-3 col-form-label">Allowance</label>
-                                    <div className="col-sm-9 d-flex gap-2 align-items-center">
+                                <FormField
+                                    id="allowance"
+                                    label="Allowance"
+                                    row
+                                    className="mb-3"
+                                >
+                                    <div className="d-flex gap-2 align-items-center">
                                         <input
                                             type="number"
                                             className="form-control"
@@ -140,7 +145,7 @@ export default function ProgramForm({
                                             placeholder="Maksimal"
                                         />
                                     </div>
-                                </div>
+                                </FormField>
 
                                 <TextInput
                                     id="duration"
@@ -174,7 +179,7 @@ export default function ProgramForm({
                                     </button>
                                 </div>
                                 <div className="table-responsive">
-                                    <Table className="table-sm table-bordered">
+                                    <Table bordered>
                                         <thead>
                                             <tr>
                                                 <th style={{ width: '80px' }}>Bulan</th>
@@ -189,11 +194,13 @@ export default function ProgramForm({
                                                 data.targets.map((target, index) => (
                                                     <tr key={index}>
                                                         <td>
-                                                            <input
+                                                            <TextInput
+                                                                id={`target-month-${index}`}
                                                                 type="number"
-                                                                className="form-control form-control-sm text-center"
+                                                                parentClassName="mb-1 mt-1"
+                                                                className="form-control-sm text-center"
                                                                 value={target.month}
-                                                                onChange={(value) => {
+                                                                onChange={(e) => {
                                                                     const newTargets = [...data.targets];
                                                                     newTargets[index].month = parseInt(e.target.value);
                                                                     setData('targets', newTargets);
@@ -201,11 +208,13 @@ export default function ProgramForm({
                                                             />
                                                         </td>
                                                         <td>
-                                                            <input
+                                                            <TextInput
+                                                                id={`target-fyp-${index}`}
                                                                 type="number"
-                                                                className="form-control form-control-sm"
+                                                                className="form-control-sm"
+                                                                parentClassName="mb-1 mt-1"
                                                                 value={target.fyp_month}
-                                                                onChange={(value) => {
+                                                                onChange={(e) => {
                                                                     const newTargets = [...data.targets];
                                                                     newTargets[index].fyp_month = parseFloat(e.target.value);
                                                                     setData('targets', newTargets);
@@ -213,11 +222,13 @@ export default function ProgramForm({
                                                             />
                                                         </td>
                                                         <td>
-                                                            <input
+                                                            <TextInput
+                                                                id={`target-case-${index}`}
                                                                 type="number"
-                                                                className="form-control form-control-sm text-center"
+                                                                parentClassName="mb-1 mt-1"
+                                                                className="form-control-sm text-center"
                                                                 value={target.case_month}
-                                                                onChange={(value) => {
+                                                                onChange={(e) => {
                                                                     const newTargets = [...data.targets];
                                                                     newTargets[index].case_month = parseInt(e.target.value);
                                                                     setData('targets', newTargets);
@@ -225,11 +236,13 @@ export default function ProgramForm({
                                                             />
                                                         </td>
                                                         <td>
-                                                            <input
+                                                            <TextInput
+                                                                id={`target-allowance-${index}`}
                                                                 type="number"
-                                                                className="form-control form-control-sm"
+                                                                className="form-control-sm"
+                                                                parentClassName="mb-1 mt-1"
                                                                 value={target.allowance}
-                                                                onChange={(value) => {
+                                                                onChange={(e) => {
                                                                     const newTargets = [...data.targets];
                                                                     newTargets[index].allowance = parseFloat(e.target.value);
                                                                     setData('targets', newTargets);

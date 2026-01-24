@@ -19,7 +19,8 @@ export default function Login({status}: LoginProps) {
                             <div className="row no-gutters">
                                 <div className="col-xl-12">
                                     <div className="auth-form">
-                                        <h4 className="text-center mb-4">
+                                        <img className="img-fluid" src="/images/logo-full.png" alt="" />
+                                        <h4 className="text-center my-4">
                                             Sign in your account
                                         </h4>
 

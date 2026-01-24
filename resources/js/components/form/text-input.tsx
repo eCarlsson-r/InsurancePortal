@@ -6,6 +6,7 @@ interface TextInputProps extends InputHTMLAttributes<HTMLInputElement> {
     label?: string;
     error?: string;
     row?: boolean;
+    parentClassName?: string;
 }
 
 export default function TextInput({
@@ -14,10 +15,11 @@ export default function TextInput({
     error,
     row,
     className = '',
+    parentClassName = 'mb-3',
     ...props
 }: TextInputProps) {
     return (
-        <FormField id={id} label={label} error={error} row={row} required={props.required}>
+        <FormField id={id} label={label} className={parentClassName} error={error} row={row} required={props.required}>
             <input
                 id={id}
                 className={`form-control ${className}`}

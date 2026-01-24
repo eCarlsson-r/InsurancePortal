@@ -19,9 +19,7 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
+    Route::get('/', [AgencyController::class, 'dashboard'])->name('dashboard');
 
     Route::prefix('master')->name('master.')->group(function () {
         Route::controller(CustomerController::class)->group(function() {
@@ -105,7 +103,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('birthday', 'report_birthday')->name('birthday');
             Route::get('religion', 'report_religion')->name('religion');
         });
-        Route::get('duedate', [ReceiptController::class, 'report_due_date'])->name('duedate');
 
         Route::controller(PolicyController::class)->group(function() {
             Route::get('production', 'report_production')->name('production');
@@ -115,14 +112,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('bonusgap', 'report_bonus_gap')->name('bonusgap');
         });
 
+        Route::controller(AgentController::class)->group(function() {
+            Route::get('monthly', 'report_monthly')->name('monthly');
+            Route::get('semester', 'report_semester')->name('semester');
+            Route::get('annual', 'report_annual')->name('annual');
+        });
+
+        Route::get('duedate', [ReceiptController::class, 'report_due_date'])->name('duedate');
         Route::get('financing', [ProgramController::class, 'report_program'])->name('program');
-        Route::get('monthly', [AgentController::class, 'report_monthly'])->name('monthly');
-        Route::get('semester', [AgentController::class, 'report_semester'])->name('semester');
-        Route::get('annual', [AgentController::class, 'report_annual'])->name('annual');
     });
 
     Route::get('/extraction-status/{id}', function ($id) {
-        $status = Cache::get("extraction_status_{$id}", 'Initializing...');
+        $status = Cache::get("extraction_status_{$id}", 'Memulai pembacaan...');
 
         // Determine progress percentage for the UI
         if (str_contains($status, '(')) {
@@ -136,7 +137,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         }
 
         return response()->json([
-            'status' => $status,
+            'status' => explode('(', $status)[0],
             'percentage' => $percentage,
             'is_finished' => ($percentage === 100)
         ]);

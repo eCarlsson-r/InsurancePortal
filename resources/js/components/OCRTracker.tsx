@@ -10,9 +10,11 @@ interface ProgressData {
 const OCRTracker = ({
     ocrId,
     onFinish,
+    onError
 }: {
     ocrId: string;
     onFinish: () => void;
+    onError: () => void;
 }) => {
     const [progress, setProgress] = useState({
         status: 'initializing...',
@@ -37,6 +39,8 @@ const OCRTracker = ({
                 if (result.is_finished || result.status === 'completed') {
                     clearInterval(interval);
                     if (onFinish) onFinish();
+                } else if (result.status.includes("Error")) {
+                    if (onError) onError();
                 }
             } catch (e) {
                 console.error('Tracker polling failed', e);

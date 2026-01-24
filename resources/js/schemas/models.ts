@@ -157,6 +157,7 @@ export const riderSchema = z.object({
 export const policySchema = z
     .object({
         id: z.number().int().optional(),
+        ocr_id: z.string().optional(),
         case_code: z.string(),
         policy_no: z.string(),
         holder_id: z.string().optional(),

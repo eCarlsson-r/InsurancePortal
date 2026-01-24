@@ -1,11 +1,11 @@
 import SelectInput from '@/components/form/select-input';
 import TablePage from '@/layouts/TablePage';
 import { agentSchema } from '@/schemas/models';
+import { exportTableToExcel } from '@/utils/exportToExcel';
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
 import { Table } from 'react-bootstrap';
 import { z } from 'zod';
-import { exportTableToExcel } from '@/utils/exportToExcel';
 
 interface ProductionRecord {
     id: string;
@@ -13,28 +13,38 @@ interface ProductionRecord {
     holder_name: string;
     insured_name: string;
     sp: string;
-    fyp:number;
+    fyp: number;
     topup: number;
     ape: number;
     contest_ape: number;
     total_commission: number;
-};
+}
 
-export default function Production({data, agents, prod_agent, prod_year}: {data: ProductionRecord[], agents: z.infer<typeof agentSchema>[], prod_agent: string, prod_year: string}) {
+export default function Production({
+    data,
+    agents,
+    prod_agent,
+    prod_year,
+}: {
+    data: ProductionRecord[];
+    agents: z.infer<typeof agentSchema>[];
+    prod_agent: string;
+    prod_year: string;
+}) {
     const [year, setYear] = useState(prod_year || '');
     const [agent, setAgent] = useState(prod_agent || '');
 
     const exportToExcel = () => {
-        const exportData = data.map(item => ({
+        const exportData = data.map((item) => ({
             'Nomor Polis': item.sp,
             'Nama Agen': item.agent_name,
             'Nama Pemegang Polis': item.holder_name,
             'Nama Tertanggung': item.insured_name,
-            'FYP': item.fyp,
-            'Topup': item.topup,
-            'APE': item.ape,
-            'Contest': item.contest_ape,
-            'Komisi': item.total_commission,
+            FYP: item.fyp,
+            Topup: item.topup,
+            APE: item.ape,
+            Contest: item.contest_ape,
+            Komisi: item.total_commission,
         }));
 
         exportTableToExcel(exportData, {
@@ -50,12 +60,23 @@ export default function Production({data, agents, prod_agent, prod_year}: {data:
             title="Laporan Produksi"
             i18nTitle="production-report"
             breadcrumbs={[
-                { label: 'Laporan', href: 'javascript:void(0)', i18n: 'report' },
-                { label: 'Laporan Produksi', active: true, i18n: 'production-report' },
+                {
+                    label: 'Laporan',
+                    href: 'javascript:void(0)',
+                    i18n: 'report',
+                },
+                {
+                    label: 'Laporan Produksi',
+                    active: true,
+                    i18n: 'production-report',
+                },
             ]}
             toolbar={
                 <div className="d-flex align-items-center justify-content-between w-100">
-                    <h4 className="card-title mb-0" data-i18n="agent-production-report">
+                    <h4
+                        className="card-title mb-0"
+                        data-i18n="agent-production-report"
+                    >
                         Laporan Produksi Agen
                     </h4>
                     <div className="d-flex align-items-center gap-3">
@@ -72,7 +93,9 @@ export default function Production({data, agents, prod_agent, prod_year}: {data:
                                     })),
                                 ]}
                                 value={agent}
-                                onChange={(value) => {setAgent(value.toString())}}
+                                onChange={(value) => {
+                                    setAgent(value.toString());
+                                }}
                             />
                         </div>
                         <div className="d-flex align-items-center gap-2">
@@ -81,12 +104,18 @@ export default function Production({data, agents, prod_agent, prod_year}: {data:
                                 label="Tahun"
                                 style={{ width: '200px' }}
                                 value={year}
-                                onChange={(value) => {setYear(value.toString())}}
+                                onChange={(value) => {
+                                    setYear(value.toString());
+                                }}
                                 placeholder="Pilih tahun"
                                 options={[
                                     ...Array.from({ length: 10 }, (_, i) => ({
-                                        value: (new Date().getFullYear() - i).toString(),
-                                        label: (new Date().getFullYear() - i).toString(),
+                                        value: (
+                                            new Date().getFullYear() - i
+                                        ).toString(),
+                                        label: (
+                                            new Date().getFullYear() - i
+                                        ).toString(),
                                     })),
                                 ]}
                             />
@@ -94,7 +123,10 @@ export default function Production({data, agents, prod_agent, prod_year}: {data:
                         <button
                             className="btn btn-primary"
                             onClick={() => {
-                                if (year && agent) router.visit(`/reports/production?year=${year}&agent=${agent}`);
+                                if (year && agent)
+                                    router.visit(
+                                        `/reports/production?year=${year}&agent=${agent}`,
+                                    );
                             }}
                         >
                             Cari
@@ -110,7 +142,7 @@ export default function Production({data, agents, prod_agent, prod_year}: {data:
                 </div>
             }
         >
-            <Table hover striped bordered>
+            <Table hover striped bordered responsive>
                 <thead>
                     <tr>
                         <th>Nomor Polis</th>
@@ -132,45 +164,52 @@ export default function Production({data, agents, prod_agent, prod_year}: {data:
                                 <td>{item.agent_name}</td>
                                 <td>{item.holder_name}</td>
                                 <td>{item.insured_name}</td>
-                                <td>{Number(item.fyp).toLocaleString(
-                                    'id-ID',
-                                    {
+                                <td>
+                                    {Number(item.fyp).toLocaleString('id-ID', {
                                         style: 'currency',
                                         currency: 'IDR',
-                                    },
-                                )}</td>
-                                <td>{Number(item.topup).toLocaleString(
-                                    'id-ID',
-                                    {
+                                    })}
+                                </td>
+                                <td>
+                                    {Number(item.topup).toLocaleString(
+                                        'id-ID',
+                                        {
+                                            style: 'currency',
+                                            currency: 'IDR',
+                                        },
+                                    )}
+                                </td>
+                                <td>
+                                    {Number(item.ape).toLocaleString('id-ID', {
                                         style: 'currency',
                                         currency: 'IDR',
-                                    },
-                                )}</td>
-                                <td>{Number(item.ape).toLocaleString(
-                                    'id-ID',
-                                    {
+                                    })}
+                                </td>
+                                <td>
+                                    {Number(item.contest_ape).toLocaleString(
+                                        'id-ID',
+                                        {
+                                            style: 'currency',
+                                            currency: 'IDR',
+                                        },
+                                    )}
+                                </td>
+                                <td>
+                                    {Number(
+                                        item.total_commission,
+                                    ).toLocaleString('id-ID', {
                                         style: 'currency',
                                         currency: 'IDR',
-                                    },
-                                )}</td>
-                                <td>{Number(item.contest_ape).toLocaleString(
-                                    'id-ID',
-                                    {
-                                        style: 'currency',
-                                        currency: 'IDR',
-                                    },
-                                )}</td>
-                                <td>{Number(item.total_commission).toLocaleString(
-                                    'id-ID',
-                                    {
-                                        style: 'currency',
-                                        currency: 'IDR',
-                                    },
-                                )}</td>
+                                    })}
+                                </td>
                             </tr>
                         ))
                     ) : (
-                        <tr><td colSpan={9} className="text-center">Data Tidak Ditemukan</td></tr>
+                        <tr>
+                            <td colSpan={9} className="text-center">
+                                Data Tidak Ditemukan
+                            </td>
+                        </tr>
                     )}
                 </tbody>
             </Table>

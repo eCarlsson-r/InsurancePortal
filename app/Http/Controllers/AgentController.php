@@ -151,8 +151,7 @@ class AgentController extends Controller
 
         return Inertia::render("report/monthly", [
             "data" => $data,
-            "year" => $year,
-            "month" => $month
+            "report_month" => $request["report_month"]
         ]);
     }
 

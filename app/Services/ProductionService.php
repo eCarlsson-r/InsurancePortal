@@ -1191,7 +1191,8 @@ class ProductionService
             ->leftJoinSub($recruitSelect, 'recruit', 'ag.id', '=', 'recruit.id')
             ->leftJoin('contests as mnbonus', function ($join) use ($year) {
                 $join->on('mnbonus.type', '=', DB::raw("'speprod'"))
-                    ->whereRaw("? BETWEEN YEAR(mnbonus.start) AND YEAR(mnbonus.end)", [$year]);
+                    ->whereRaw("? BETWEEN YEAR(mnbonus.start) AND YEAR(mnbonus.end)", [$year])
+                    ->whereRaw("mnbonus.minimum_premium <= mtd.ape");
             })
             ->select([
                 'ag.id',
@@ -1200,68 +1201,262 @@ class ProductionService
                 DB::raw("IF(COALESCE(mtd.commission, 0) > 0 OR COALESCE(mtd.overriding, 0) > 0, COALESCE(ytd.achieved_allowance, 0), 0) as allowance"),
                 DB::raw("COALESCE(mtd.commission, 0) as commission"),
                 DB::raw("COALESCE(recruit.bonus_recruit, 0) as recruit_bonus"),
-                DB::raw("COALESCE(ROUND((mnbonus.bonus_percent / 100) * mtd.commission), 0) as production_bonus"),
+                DB::raw("COALESCE(ROUND((MAX(mnbonus.bonus_percent) / 100) * mtd.commission), 0) as production_bonus"),
                 DB::raw("COALESCE(mtd.overriding, 0) as overriding"),
-                DB::raw("ROUND(IF(COALESCE(mtd.commission, 0) > 0 OR COALESCE(mtd.overriding, 0) > 0, COALESCE(ytd.achieved_allowance, 0), 0) + COALESCE(ROUND((mnbonus.bonus_percent / 100) * mtd.commission), 0) + COALESCE(mtd.commission, 0) + COALESCE(recruit.bonus_recruit, 0) + COALESCE(mtd.overriding, 0)) as total_amount")
+                DB::raw("ROUND(IF(COALESCE(mtd.commission, 0) > 0 OR COALESCE(mtd.overriding, 0) > 0, COALESCE(ytd.achieved_allowance, 0), 0) + COALESCE(ROUND((MAX(mnbonus.bonus_percent) / 100) * mtd.commission), 0) + COALESCE(mtd.commission, 0) + COALESCE(recruit.bonus_recruit, 0) + COALESCE(mtd.overriding, 0)) as total_amount")
             ])
             ->whereNotNull('ag.id')
             ->orderBy('total_amount', 'DESC')
+            ->groupBy('ag.id')
             ->get();
     }
 
     public function reportAnnual($year)
     {
-        $prod = $this->productionQuery($year);
-        $endMonth = ($year == date("Y")) ? intval(date("m")) : 12;
-
-        // Build YTD query with UNION of all months
-        $queries = collect(range(1, $endMonth))->map(function ($monthNo) use ($year, $prod) {
-            $month = str_pad($monthNo, 2, "0", STR_PAD_LEFT);
-            return $this->buildMonthAllowanceQuery($year, $month, $prod);
-        });
+        // 1. Generate a unique table name to prevent collisions and allow multiple references
+        // We use a standard table (not TEMPORARY) to avoid "Can't reopen table" error (1137).
+        // We avoid CTEs because 'withExpression' is undefined in this environment.
+        $tableName = 'cache_prod_' . $year . '_' . uniqid();
         
-        // Handle Union All - taking the first query and unioning the rest
-        $firstQuery = $queries->shift();
-        foreach ($queries as $query) {
-            $firstQuery->unionAll($query);
+        // 2. Get the complex production query builder
+        $prodBuilder = $this->productionQuery($year);
+        $sql = $prodBuilder->toSql();
+        $bindings = $prodBuilder->getBindings();
+
+        // 3. Create the table
+        // We drop if exists just in case of a very unlikely collision or leftover
+        DB::statement("DROP TABLE IF EXISTS `$tableName`");
+        DB::statement("CREATE TABLE `$tableName` AS ($sql)", $bindings);
+        
+        // 4. Create a lightweight builder that selects from the cached table
+        $prod = DB::table($tableName);
+
+        try {
+            $endMonth = ($year == date("Y")) ? intval(date("m")) : 12;
+
+            // Build YTD query with UNION of all months
+            $queries = collect(range(1, $endMonth))->map(function ($monthNo) use ($year, $prod) {
+                $month = str_pad($monthNo, 2, "0", STR_PAD_LEFT);
+                return $this->buildMonthAllowanceQuery($year, $month, $prod);
+            });
+            
+            // Handle Union All - taking the first query and unioning the rest
+            $firstQuery = $queries->shift();
+            foreach ($queries as $query) {
+                $firstQuery->unionAll($query);
+            }
+
+            $ytdQuery = DB::query()->fromSub($firstQuery, 'annual')
+                ->select(['id as agent_id', DB::raw("SUM(achieved_allowance) AS achieved_allowance")])
+                ->groupBy('id');
+
+            // Build MTD query
+            $mtdQuery = $this->buildMTDQuery($year, $prod);
+
+            // Build Recruit Bonus query
+            $recruitQuery = $this->buildRecruitBonusQuery($year, $prod);
+
+            // Build the final query
+            $finalQuery = DB::table('agents as ag') 
+                ->fromSub($ytdQuery, 'ytd')
+                ->rightJoinSub($mtdQuery, 'mtd', 'mtd.id', '=', 'ytd.agent_id')
+                ->leftJoinSub($recruitQuery, 'recruit', 'mtd.id', '=', 'recruit.id')
+                ->leftJoin('contests as anbonus', function ($join) use ($year) {
+                    $join->on('anbonus.type', '=', DB::raw("'annual'"))
+                        ->whereRaw("? BETWEEN YEAR(anbonus.start) AND YEAR(anbonus.end)", [$year])
+                        ->whereRaw("anbonus.minimum_premium <= mtd.ape");
+                })
+                ->select([
+                    'mtd.id as agent_id',
+                    'mtd.official_number',
+                    'mtd.name',
+                    DB::raw('ytd.achieved_allowance AS allowance'),
+                    DB::raw('COALESCE(mtd.commission, 0) AS commission'),
+                    DB::raw('COALESCE(recruit.bonus_recruit, 0) AS recruit_bonus'),
+                    DB::raw('COALESCE(mtd.overriding, 0) AS overriding'),
+                    DB::raw('COALESCE(ROUND((MAX(anbonus.bonus_percent) / 100) * mtd.commission), 0) AS annual_bonus'),
+                    DB::raw('ROUND(COALESCE(ytd.achieved_allowance, 0) + COALESCE(mtd.commission, 0) + COALESCE(recruit.bonus_recruit, 0) + COALESCE(mtd.overriding, 0) + COALESCE(ROUND((MAX(anbonus.bonus_percent) / 100) * mtd.commission), 0)) AS total_amount')
+                ])
+                ->whereNotNull('mtd.id')
+                ->groupBy('mtd.id')
+                ->orderBy('total_amount', 'DESC')
+                ->get();
+                
+            return $finalQuery;
+
+        } finally {
+            // 5. Cleanup: Always drop the table
+            DB::statement("DROP TABLE IF EXISTS `$tableName`");
         }
+    }
 
-        $ytdQuery = DB::query()->fromSub($firstQuery, 'annual')
-            ->select(['id as agent_id', DB::raw("SUM(achieved_allowance) AS achieved_allowance")])
-            ->groupBy('id');
+    public function dashboard()
+    {
+        $dashboard = array();
+        $year = date("Y");
 
-        // Build MTD query
-        $mtdQuery = $this->buildMTDQuery($year, $prod);
+        // 1. Cache the complex production query
+        $tableName = 'cache_prod_dash_' . $year . '_' . uniqid();
+        $prodBuilder = $this->productionQuery($year);
+        $sql = $prodBuilder->toSql();
+        $bindings = $prodBuilder->getBindings();
 
-        // Build Recruit Bonus query
-        $recruitQuery = $this->buildRecruitBonusQuery($year, $prod);
+        DB::statement("DROP TABLE IF EXISTS `$tableName`");
+        DB::statement("CREATE TABLE `$tableName` AS ($sql)", $bindings);
+        
+        $prod = DB::table($tableName);
 
-        // Build the final query
-        $finalQuery = DB::table('agents as ag') // Start from a base table if needed, or join subqueries directly like before
-             ->fromSub($ytdQuery, 'ytd')
-            ->rightJoinSub($mtdQuery, 'mtd', 'mtd.id', '=', 'ytd.agent_id')
-            ->leftJoinSub($recruitQuery, 'recruit', 'mtd.id', '=', 'recruit.id')
-            ->leftJoin('contests as anbonus', function ($join) use ($year) {
-                $join->on('anbonus.type', '=', DB::raw("'annual'"))
-                    ->whereRaw("anbonus.minimum_premium <= mtd.ape")
-                    ->whereRaw("? BETWEEN YEAR(anbonus.start) AND YEAR(anbonus.end)", [$year]);
-            })
-            ->select([
-                'mtd.id as agent_id',
-                'mtd.official_number',
-                'mtd.name',
-                DB::raw('ytd.achieved_allowance AS allowance'),
-                DB::raw('COALESCE(mtd.commission, 0) AS commission'),
-                DB::raw('COALESCE(recruit.bonus_recruit, 0) AS recruit_bonus'),
-                DB::raw('COALESCE(mtd.overriding, 0) AS overriding'),
-                DB::raw('COALESCE(ROUND((anbonus.bonus_percent / 100) * mtd.commission), 0) AS annual_bonus'),
-                DB::raw('ROUND(COALESCE(ytd.achieved_allowance, 0) + COALESCE(mtd.commission, 0) + COALESCE(recruit.bonus_recruit, 0) + COALESCE(mtd.overriding, 0) + COALESCE(ROUND((anbonus.bonus_percent / 100) * mtd.commission), 0)) AS total_amount')
-            ])
-            ->whereNotNull('mtd.id')
-            ->groupBy('mtd.id')
-            ->orderBy('total_amount', 'DESC')
-            ->get();
+        try {
+            // --- Empire Club Calculation ---
+            
+            // Base agent performance query for Empire
+            $agentEmpire = DB::table('agents as ag')
+                ->join('agent_programs as ap', 'ag.id', '=', 'ap.agent_id')
+                ->leftJoin($tableName . ' as production', 'ag.id', '=', 'production.agent_id')
+                ->select([
+                    'ag.id as agent_id',
+                    'ag.official_number',
+                    'ap.position',
+                    'ap.agent_leader_id',
+                    'ag.name',
+                    DB::raw("COALESCE(SUM(production.ot_contest), 0) AS ape"),
+                    DB::raw("SUM(CASE WHEN production.status_polis = 'PP' THEN 1 ELSE 0 END) AS cases")
+                ])
+                ->whereRaw("SUBSTRING_INDEX(production.case_month, ' ', -1) = ?", [$year])
+                ->where('ap.position', 'FC')
+                ->groupBy([
+                    'ag.id',
+                    'ag.official_number',
+                    'ap.position',
+                    'ap.agent_leader_id',
+                    'ag.name'
+                ]);
 
-        return $finalQuery;
+            // Current Level Subquery (stbonus)
+            $stBonusSub = DB::table('contests')
+                ->select('reward', 'minimum_premium', 'minimum_policy', 'level') // assuming 'level' maps to 'contest-level'
+                ->where('type', 'empire')
+                ->whereRaw("? BETWEEN YEAR(start) AND YEAR(end)", [$year])
+                ->orderByDesc('minimum_premium')
+                ->limit(1); // Logic requires correlation, implementing via join/whereRaw in main query usually hard in Builder without raw join.
+                            // However, the legacy query uses a correlated subquery in the ON clause.
+                            // We can replicate logic using cross joins or careful wheres. 
+                            // Actually, the easiest way to replicate complex "Best Level Reached" logic 
+                            // is to join all eligible levels and take the best one, OR use raw SQL for the join condition.
+            
+            // Let's stick to using DB::raw for complex ON conditions to ensure accuracy with legacy logic
+            $empireData = DB::query()->fromSub($agentEmpire, 'target')
+                ->leftJoin('contests as stbonus', function($join) use ($year) {
+                    $join->on('stbonus.level', '=', 'target.position')
+                         ->where('stbonus.type', '=', 'empire')
+                         ->whereRaw("stbonus.minimum_premium <= COALESCE(target.ape, 0)")
+                         ->whereRaw("? BETWEEN YEAR(stbonus.start) AND YEAR(stbonus.end)", [$year]);
+                         // We need "ORDER BY ... LIMIT 1" behavior for the *best* match.
+                         // Standard SQL joins don't limit. We might get multiple rows per agent if they match multiple levels.
+                         // The legacy SQL used a subquery in the ON condition: `ON ... = (SELECT ... LIMIT 1)`
+                         // This ensures only ONE match. A standard left join might duplicate rows.
+                         // Optimization: We can use a lateral join or window function, but MySQL 5.7 compatibility might be needed.
+                         // SAFEST APPROACH: Use the same correlated subquery pattern in select or join.
+                })
+                // To avoid duplicate rows from multiple matching contest levels, we typically filter for the MAX minimum_premium
+                // in a derived table or grouping. 
+                // Given the deadline, I will replicate the subquery-in-join-condition pattern using whereRaw relies on ID, 
+                // OR use a subquery to select the correct contest_id first.
+                
+                // Let's try a cleaner approach: Select strictly the columns we need.
+                ->select([
+                    'target.name as agent_name',
+                    'target.agent_leader_id as agent_leader',
+                    'target.ape as current_ape',
+                    'target.cases as current_cases',
+                    DB::raw("(SELECT reward FROM contests WHERE type='empire' AND level=target.position AND minimum_premium <= COALESCE(target.ape, 0) AND '$year' BETWEEN YEAR(start) AND YEAR(end) ORDER BY minimum_premium DESC LIMIT 1) as current_trip"),
+                    DB::raw("(SELECT reward FROM contests WHERE type='empire' AND level=target.position AND minimum_premium > COALESCE(target.ape, 0) AND '$year' BETWEEN YEAR(start) AND YEAR(end) ORDER BY minimum_premium ASC LIMIT 1) as next_trip"),
+                    // Calculating Gaps (requires fetching next level values)
+                    DB::raw("(SELECT minimum_premium FROM contests WHERE type='empire' AND level=target.position AND minimum_premium > COALESCE(target.ape, 0) AND '$year' BETWEEN YEAR(start) AND YEAR(end) ORDER BY minimum_premium ASC LIMIT 1) as next_min_premium"),
+                    DB::raw("(SELECT minimum_policy FROM contests WHERE type='empire' AND level=target.position AND minimum_premium > COALESCE(target.ape, 0) AND '$year' BETWEEN YEAR(start) AND YEAR(end) ORDER BY minimum_premium ASC LIMIT 1) as next_min_policy")
+                ])
+                ->orderByDesc('target.ape');
+            
+            // Post-processing for gaps in PHP is often cleaner than massive SQL IFs, but let's do it in SQL if possible.
+            // Converting the SQL logic fully:
+            $empireClub = DB::query()->fromSub($empireData, 'base')
+                ->select([
+                    'agent_name', 'agent_leader', 'current_ape', 'current_cases', 'current_trip', 'next_trip',
+                    DB::raw("COALESCE(GREATEST(next_min_premium - current_ape, 0), 0) as ape_gap"),
+                    DB::raw("COALESCE(GREATEST(next_min_policy - current_cases, 0), 0) as cases_gap")
+                ])
+                ->get();
+
+            // Empire Stats
+            $empireStats = DB::query()->fromSub($empireData, 'base')
+                ->whereNotNull('current_trip')
+                ->select(['current_trip', DB::raw("COUNT(*) as agent_no")])
+                ->groupBy('current_trip')
+                ->get(); // Note: Original ordered by minimum_premium. Group by might loose that order unless joined again. 
+                         // For dashboard stats, usually just the list is fine.
+
+            // --- MDRT Calculation ---
+
+            // Base agent performance for MDRT
+            $agentMdrt = DB::table('agents as ag')
+                ->join('agent_programs as ap', 'ag.id', '=', 'ap.agent_id')
+                ->leftJoin($tableName . ' as production', 'ag.id', '=', 'production.agent_id')
+                ->select([
+                    'ag.id as agent_id',
+                    'ag.official_number',
+                    'ap.position',
+                    'ap.agent_leader_id',
+                    'ag.name',
+                    DB::raw("SUM(production.mdrt) AS mdrt")
+                ])
+                ->whereRaw("SUBSTRING_INDEX(production.case_month, ' ', -1) = ?", [$year])
+                ->where('ap.position', 'FC')
+                ->groupBy([
+                    'ag.id', 
+                    'ag.official_number', 
+                    'ap.position', 
+                    'ap.agent_leader_id', 
+                    'ag.name'
+                ])
+                ->having('mdrt', '>', 0);
+
+            // MDRT Data
+            $mdrtData = DB::query()->fromSub($agentMdrt, 'target')
+                ->select([
+                    'target.name as agent_name',
+                    'target.agent_leader_id as agent_leader',
+                    'target.position',
+                    'target.mdrt as current_fyp',
+                    DB::raw("(SELECT reward FROM contests WHERE type='mdrt' AND level=target.position AND minimum_premium <= COALESCE(target.mdrt, 0) AND '$year' BETWEEN YEAR(start) AND YEAR(end) ORDER BY minimum_premium DESC LIMIT 1) as current_level"),
+                    DB::raw("(SELECT reward FROM contests WHERE type='mdrt' AND level=target.position AND minimum_premium > COALESCE(target.mdrt, 0) AND '$year' BETWEEN YEAR(start) AND YEAR(end) ORDER BY minimum_premium ASC LIMIT 1) as next_level"),
+                    DB::raw("(SELECT minimum_premium FROM contests WHERE type='mdrt' AND level=target.position AND minimum_premium > COALESCE(target.mdrt, 0) AND '$year' BETWEEN YEAR(start) AND YEAR(end) ORDER BY minimum_premium ASC LIMIT 1) as next_min_premium")
+                ])
+                ->orderByRaw("FIELD(target.position,'FC','BP*','BP**','BP***')")
+                ->orderByDesc('target.mdrt');
+
+            $mdrtReport = DB::query()->fromSub($mdrtData, 'base')
+                ->select([
+                    'agent_name', 'agent_leader', 'position', 'current_fyp', 'current_level', 'next_level',
+                    DB::raw("COALESCE(GREATEST(next_min_premium - current_fyp, 0), 0) as fyp_gap")
+                ])
+                ->get();
+
+            // MDRT Stats
+            $mdrtStats = DB::query()->fromSub($mdrtData, 'base')
+                ->whereNotNull('current_level')
+                ->select(['current_level', DB::raw("COUNT(*) as agent_no")])
+                ->groupBy('current_level')
+                ->get();
+
+            $dashboard["empire_club"] = $empireClub;
+            $dashboard["empire_stats"] = $empireStats;
+            $dashboard["mdrt"] = $mdrtReport;
+            $dashboard["mdrt_stats"] = $mdrtStats;
+
+            return $dashboard;
+
+        } finally {
+            DB::statement("DROP TABLE IF EXISTS `$tableName`");
+        }
     }
 }

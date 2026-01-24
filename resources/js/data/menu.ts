@@ -8,17 +8,17 @@ export interface MenuItem {
 
 export const menuItems: MenuItem[] = [
     {
-        title: 'Sales',
+        title: 'Penjualan',
         type: 'link',
         icon: 'fa fa-briefcase',
         children: [
             {
-                title: 'Cases / Policies',
+                title: 'SP / Polis',
                 type: 'link',
                 href: '/sales/policy'
             },
             {
-                title: 'Receipts',
+                title: 'Kwitansi',
                 type: 'link',
                 href: '/sales/receipt'
             }
@@ -30,12 +30,12 @@ export const menuItems: MenuItem[] = [
         icon: 'fa fa-database',
         children: [
             {
-                title: 'Customer',
+                title: 'Nasabah',
                 type: 'link',
                 href: '/master/customer'
             },
             {
-                title: 'Agent',
+                title: 'Agen',
                 type: 'link',
                 href: '/master/agent'
             },
@@ -45,12 +45,12 @@ export const menuItems: MenuItem[] = [
                 href: '/master/program'
             },
             {
-                title: 'Product',
+                title: 'Produk',
                 type: 'link',
                 href: '/master/product'
             },
             {
-                title: 'Fund Types',
+                title: 'Jenis Dana',
                 type: 'link',
                 href: '/master/fund'
             },
@@ -60,69 +60,69 @@ export const menuItems: MenuItem[] = [
                 href: '/master/agency'
             },
             {
-                title: 'Contest',
+                title: 'Kontes',
                 type: 'link',
                 href: '/master/contest'
             }
         ],
     },
     {
-        title: 'Reports',
+        title: 'Laporan',
         type: 'link',
         icon: 'fa fa-file-text',
         children: [
             {
-                title: 'Production Report',
+                title: 'Laporan Produksi',
                 type: 'link',
                 href: '/reports/production'
             },
             {
-                title: 'Bonus Gap Report',
+                title: 'Laporan Gap Bonus',
                 type: 'link',
                 href: '/reports/bonusgap'
             },
             {
-                title: 'MDRT Report',
+                title: 'Laporan MDRT',
                 type: 'link',
                 href: '/reports/mdrt'
             },
             {
-                title: 'Empire Club Report',
+                title: 'Laporan Empire Club',
                 type: 'link',
                 href: '/reports/empire'
             },
             {
-                title: 'Financing Report',
+                title: 'Laporan Financing',
                 type: 'link',
                 href: '/reports/financing'
             },
             {
-                title: 'Due Date Report',
+                title: 'Laporan Jatuh Tempo',
                 type: 'link',
                 href: '/reports/duedate'
             },
             {
-                title: "Customer's Birthday",
+                title: 'Laporan Ulang Tahun',
                 type: 'link',
                 href: '/reports/birthday'
             },
             {
-                title: "Customer's Religion",
+                title: 'Laporan Agama',
                 type: 'link',
                 href: '/reports/religion'
             },
             {
-                title: "Monthly Income List",
+                title: 'Income List Bulanan',
                 type: 'link',
                 href: '/reports/monthly'
             },
             {
-                title: "Semesterly Income List",
+                title: 'Income List Semester',
                 type:'link',
                 href:'/reports/semester'
             },
             {
-                title:"Yearly Income List",
+                title:'Income List Tahunan',
                 type:'link',
                 href:'/reports/annual'
             }

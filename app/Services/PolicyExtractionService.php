@@ -118,8 +118,8 @@ class PolicyExtractionService {
 
             if ($aiKey === 'product_name') {
                 $productName = $mappedData['product_name'];
-                $product = Product::where('name', 'LIKE', "%{$productName}%");
-                if ($product) $mappedData['product_name'] = $product->first()->id;
+                $product = Product::where('name', 'LIKE', "%{$productName}%")->first();
+                if ($product) $mappedData['product_name'] = $product->id;
                 unset($mappedData['product_name']);
             }
         }
@@ -133,13 +133,13 @@ class PolicyExtractionService {
 
         // Group definitions with their designated data source
         $groups = [
-            'policy_metadata' => [
+            'Data Polis' => [
                 'source' => $summaryText,
                 'fields' => "insurance_policy_number, product_name (Look for capitalized words before 'Produk' or concatenated with 'Produk'.), total_sum_assured_benefit_amount, total_premium_amount_to_pay, ".
                             "policy_start_effective_date, premium_payment_frequency, currency_code (Must be 'IDR' if document mentions Rp, Rupiah, or IDR. Must be 'USD' if document mentions $, USD, or Dollar), ".
                             "insurance_coverage_period_years, premium_paying_period_years"
             ],
-            'customer_info' => [
+            'Data Pemegang Polis' => [
                 'source' => $spajText,
                 'fields' => "distribution_header (Extract the full text that looks like 'Agency No. : [number]' or 'Channel: [text] No. : [number]'), ".
                             "policy_holder_full_name, policy_holder_gender, policy_holder_ktp_nik_number, ".
@@ -149,7 +149,7 @@ class PolicyExtractionService {
                             "policy_holder_home_address_street, policy_holder_home_postal_code, policy_holder_home_city, ".
                             "policy_holder_work_office_address, policy_holder_work_postal_code, policy_holder_work_city"
             ],
-            'insured_info' => [
+            'Data Tertanggung' => [
                 'source' => $spajText,
                 'fields' => "insured_person_full_name, insured_person_gender, insured_person_birth_date, ".
                             "insured_person_city_of_birth, insured_person_marital_status, insured_person_current_profession, ".
@@ -164,7 +164,7 @@ class PolicyExtractionService {
             $percentage = round(($count / count($groups)) * 100);
             Cache::put("extraction_status_{$jobId}", "Sedang membaca {$name} ({$percentage}%)...", 600);
 
-            if ($name === 'insured_info') {
+            if ($name === 'Data Tertanggung') {
                 $sections = $this->getSectionsForAi($config['source']);
                 $config['source'] = $sections['TU'] ?? $config['source']; // Focus only on Section IV (TU)
             }
