@@ -19,6 +19,8 @@ class File extends Model
         'document_id',
     ];
 
+    protected $appends = ['path'];
+
     protected $casts = [
         'upload_date' => 'date',
     ];
@@ -26,7 +28,7 @@ class File extends Model
     public function policy()
     {
         if ($this->purpose === 'case') {
-            return $this->belongsTo(Policy::class, 'document_id', 'case_code');
+            return $this->belongsTo(Policy::class, 'document_id', 'id');
         }
     }
 
@@ -35,5 +37,10 @@ class File extends Model
         if ($this->purpose === 'agent') {
             return $this->belongsTo(Agent::class, 'document_id');
         }
+    }
+
+    public function getPathAttribute()
+    {
+        return route('sales.policy.file', ['id' => $this->id]);
     }
 }

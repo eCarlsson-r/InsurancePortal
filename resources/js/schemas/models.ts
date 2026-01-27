@@ -1,5 +1,17 @@
 import { z } from 'zod';
 
+export const fileSchema = z.object({
+    id: z.number().int().optional(),
+    name: z.string(),
+    type: z.string(),
+    ext: z.string(),
+    path: z.string().optional(),
+    size: z.number().int(),
+    upload_date: z.coerce.date(),
+    purpose: z.string(),
+    document_id: z.string(),
+});
+
 export const agencySchema = z.object({
     id: z.number().int().optional(),
     name: z.string(),
@@ -51,6 +63,7 @@ export const agentSchema = z.object({
     recruiter_id: z.number().int(),
     notes: z.string(),
     programs: z.array(agentProgramSchema),
+    files: z.array(fileSchema).optional()
 });
 
 export const contestSchema = z.object({
@@ -88,17 +101,6 @@ export const customerSchema = z.object({
     work_postal: z.string(),
     work_city: z.string(),
     description: z.string(),
-});
-
-export const fileSchema = z.object({
-    id: z.number().int().optional(),
-    name: z.string(),
-    type: z.string(),
-    ext: z.string(),
-    size: z.number().int(),
-    upload_date: z.coerce.date(),
-    purpose: z.string(),
-    document_id: z.string(),
 });
 
 export const fundSchema = z.object({
@@ -182,7 +184,8 @@ export const policySchema = z
         investments: z.array(investmentSchema),
         riders: z.array(riderSchema),
         customer: customerSchema.optional(),
-        product: productSchema.optional()
+        product: productSchema.optional(),
+        files: z.array(fileSchema).optional()
     })
     .superRefine((values, ctx) => {
         // If they are NOT the same person, make insured fields mandatory

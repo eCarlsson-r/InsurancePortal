@@ -1,7 +1,8 @@
 import Pagination from '@/components/pagination';
+import UploadModal from '@/components/upload-modal';
 import UploadOcrModal from '@/components/upload-ocr-modal';
 import TablePage from '@/layouts/TablePage';
-import {router } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
 import { useCallback, useEffect, useState } from 'react';
 import { InputGroup, Table } from 'react-bootstrap';
 
@@ -16,6 +17,7 @@ interface PolicyData {
     premium: number;
     topup_premium: number;
     base_insure: number;
+    files?: { id: string; name: string }[];
 }
 
 interface PolicyProps {
@@ -35,6 +37,8 @@ interface PolicyProps {
 export default function Policy({ policies, filters }: PolicyProps) {
     const [searchQuery, setSearchQuery] = useState(filters.q || '');
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [documentId, setDocumentId] = useState('');
+    const [fileModalOpen, setFileModalOpen] = useState(false);
 
     const handleSearch = useCallback(() => {
         router.get(
@@ -68,8 +72,9 @@ export default function Policy({ policies, filters }: PolicyProps) {
         setIsModalOpen(true);
     };
 
-    const handleUpload = (caseCode: string) => {
-        console.log('Upload for case:', caseCode);
+    const handleUpload = (policyId: string) => {
+        setFileModalOpen(true);
+        setDocumentId(policyId);
     };
 
     const handleDelete = (caseCode: string) => {
@@ -120,7 +125,11 @@ export default function Policy({ policies, filters }: PolicyProps) {
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 onKeyPress={handleKeyPress}
                             />
-                            <button className="btn btn-primary" type="button" onClick={handleSearch}>
+                            <button
+                                className="btn btn-primary"
+                                type="button"
+                                onClick={handleSearch}
+                            >
                                 <i className="fa fa-search"></i>
                             </button>
                         </InputGroup>
@@ -148,6 +157,11 @@ export default function Policy({ policies, filters }: PolicyProps) {
                     {policies.data.length > 0 ? (
                         policies.data.map((policy) => (
                             <tr
+                                className={
+                                    policy.files && policy.files.length > 0
+                                        ? 'fw-bold'
+                                        : ''
+                                }
                                 key={policy.id}
                                 onClick={() => handleRowClick(policy.id)}
                             >
@@ -180,15 +194,21 @@ export default function Policy({ policies, filters }: PolicyProps) {
                                 <td>{policy.product.name}</td>
                                 <td>{policy.agent.name}</td>
                                 <td>{formatCurrency(policy.premium)}</td>
-                                <td>{formatCurrency(policy.topup_premium || 0)}</td>
+                                <td>
+                                    {formatCurrency(policy.topup_premium || 0)}
+                                </td>
                                 <td>{formatCurrency(policy.base_insure)}</td>
                             </tr>
                         ))
                     ) : (
                         <tr>
-                            <td colSpan={10} className="text-center text-muted py-4">
+                            <td
+                                colSpan={10}
+                                className="text-center text-muted py-4"
+                            >
                                 No policies found.{' '}
-                                {searchQuery && `Try adjusting your search query.`}
+                                {searchQuery &&
+                                    `Try adjusting your search query.`}
                             </td>
                         </tr>
                     )}
@@ -198,6 +218,13 @@ export default function Policy({ policies, filters }: PolicyProps) {
             <UploadOcrModal
                 show={isModalOpen}
                 onHide={() => setIsModalOpen(false)}
+            />
+
+            <UploadModal
+                show={fileModalOpen}
+                onHide={() => setFileModalOpen(false)}
+                documentId={documentId}
+                documentPurpose="case"
             />
         </TablePage>
     );

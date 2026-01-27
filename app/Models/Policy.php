@@ -43,7 +43,7 @@ class Policy extends Model
 
     public function files()
     {
-        return $this->hasMany(File::class, 'file_document_id', 'case_code');
+        return $this->hasMany(File::class, 'document_id', 'id');
     }
 
     public function holder()

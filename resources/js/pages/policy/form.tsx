@@ -1,18 +1,30 @@
 import CheckboxInput from '@/components/form/checkbox-input';
-import SelectInput from '@/components/form/select-input';
-import TextareaInput from '@/components/form/textarea-input';
-import TextInput from '@/components/form/text-input';
-import UploadOcrModal from '@/components/upload-ocr-modal';
 import DateInput from '@/components/form/date-input';
+import SelectInput from '@/components/form/select-input';
+import SubmitButton from '@/components/form/submit-button';
+import TextInput from '@/components/form/text-input';
+import TextareaInput from '@/components/form/textarea-input';
+import UploadOcrModal from '@/components/upload-ocr-modal';
 import FormPage from '@/layouts/FormPage';
-import { policySchema, agentSchema, productSchema, fundSchema } from '@/schemas/models';
+import {
+    agentSchema,
+    fundSchema,
+    policySchema,
+    productSchema,
+} from '@/schemas/models';
 import { Link, useForm } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import { Accordion, InputGroup, Table } from 'react-bootstrap';
 import { z } from 'zod';
-import SubmitButton from '@/components/form/submit-button';
 
-export default function PolicyForm({extracted, fileUrl, policy, agents, products, funds}: {
+export default function PolicyForm({
+    extracted,
+    fileUrl,
+    policy,
+    agents,
+    products,
+    funds,
+}: {
     extracted: z.infer<typeof policySchema>;
     fileUrl: string;
     policy: z.infer<typeof policySchema>;
@@ -23,69 +35,70 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
     const isEdit = !!policy;
 
     // Initial form state with safe defaults
-    const { data, setData, post, put, processing, errors } = useForm<z.infer<typeof policySchema>>(
+    const { data, setData, post, put, processing, errors } = useForm<
+        z.infer<typeof policySchema>
+    >(
         isEdit
-        ? policy
-        : extracted || 
-        {
-            id: '',
-            agent_id: 0,
-            entry_date: new Date(),
-            bill_at: 1,
-            is_insure_holder: false,
-            holder_insured_relationship: '',
-            product_id: 0,
-            insure_period: 1,
-            pay_period: 1,
-            currency_id: 1,
-            curr_rate: 1.0,
-            start_date: new Date(),
-            base_insure: 0,
-            premium: 0,
-            pay_method: 1,
-            description: '',
-            policy_no: '',
-            holder: {
-                name: '',
-                gender: 1,
-                birth_place: '',
-                birth_date: '',
-                marital: 1,
-                religion: 0,
-                identity: '',
-                profession: '',
-                mobile: '',
-                email: '',
-                home_address: '',
-                home_postal: '',
-                home_city: '',
-                work_address: '',
-                work_postal: '',
-                work_city: '',
-                description: ''
-            },
-            insured: {
-                name: '',
-                gender: 1,
-                birth_place: '',
-                birth_date: '',
-                marital: 1,
-                religion: 1,
-                identity: '',
-                profession: '',
-                mobile: '',
-                email: '',
-                home_address: '',
-                home_postal: '',
-                home_city: '',
-                work_address: '',
-                work_postal: '',
-                work_city: '',
-                description: ''
-            },
-            investments: [],
-            riders: [],
-        },
+            ? policy
+            : extracted || {
+                  id: '',
+                  agent_id: 0,
+                  entry_date: new Date(),
+                  bill_at: 1,
+                  is_insure_holder: false,
+                  holder_insured_relationship: '',
+                  product_id: 0,
+                  insure_period: 1,
+                  pay_period: 1,
+                  currency_id: 1,
+                  curr_rate: 1.0,
+                  start_date: new Date(),
+                  base_insure: 0,
+                  premium: 0,
+                  pay_method: 1,
+                  description: '',
+                  policy_no: '',
+                  holder: {
+                      name: '',
+                      gender: 1,
+                      birth_place: '',
+                      birth_date: '',
+                      marital: 1,
+                      religion: 0,
+                      identity: '',
+                      profession: '',
+                      mobile: '',
+                      email: '',
+                      home_address: '',
+                      home_postal: '',
+                      home_city: '',
+                      work_address: '',
+                      work_postal: '',
+                      work_city: '',
+                      description: '',
+                  },
+                  insured: {
+                      name: '',
+                      gender: 1,
+                      birth_place: '',
+                      birth_date: '',
+                      marital: 1,
+                      religion: 1,
+                      identity: '',
+                      profession: '',
+                      mobile: '',
+                      email: '',
+                      home_address: '',
+                      home_postal: '',
+                      home_city: '',
+                      work_address: '',
+                      work_postal: '',
+                      work_city: '',
+                      description: '',
+                  },
+                  investments: [],
+                  riders: [],
+              },
     );
 
     const [ocrModalOpen, setOcrModalOpen] = useState(false);
@@ -108,17 +121,17 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
 
             // Check if object is different before setting to avoid loop
             if (JSON.stringify(syncData) !== JSON.stringify(data.insured)) {
-                 setData((prev) => ({
+                setData((prev) => ({
                     ...prev,
                     insured: syncData,
-                    holder_insured_relationship: '1'
+                    holder_insured_relationship: '1',
                 }));
             }
         }
     }, [data.is_insure_holder, data.holder, data.insured, setData]);
 
     const handleSubmit = () => {
-        console.info("Submit policy : ", isEdit)
+        console.info('Submit policy : ', isEdit);
         if (isEdit) {
             put(`/sales/policy/${policy.id}`);
         } else {
@@ -178,6 +191,27 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                 <div className="row">
                     {/* PDF Preview Sidebar (Sticky) */}
                     <div className="col-lg-6 d-none d-lg-block">
+                        {data.files && data.files.length > 0 && (
+                            <Accordion>
+                                {data.files?.map((file) => (
+                                    <Accordion.Item
+                                        eventKey={file.id?.toString() || ''}
+                                    >
+                                        <Accordion.Header>
+                                            {file.name}
+                                        </Accordion.Header>
+                                        <Accordion.Body>
+                                            <iframe
+                                                src={`/file/${file.id}#toolbar=0&navpanes=0`}
+                                                width="100%"
+                                                height="600px"
+                                                style={{ border: 'none' }}
+                                            />
+                                        </Accordion.Body>
+                                    </Accordion.Item>
+                                ))}
+                            </Accordion>
+                        )}
                         {fileUrl && (
                             <Accordion defaultActiveKey="0">
                                 <Accordion.Item eventKey="0">
@@ -206,7 +240,9 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="case_no"
                                         label="No. SP"
                                         value={data.case_code}
-                                        onChange={(e) => setData('case_code', e.target.value)}
+                                        onChange={(e) =>
+                                            setData('case_code', e.target.value)
+                                        }
                                         error={errors.id}
                                         row
                                     />
@@ -215,7 +251,12 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="agent_id"
                                         label="Agen"
                                         value={data.agent_id}
-                                        onChange={(value) => setData('agent_id', value.toString())}
+                                        onChange={(value) =>
+                                            setData(
+                                                'agent_id',
+                                                value.toString(),
+                                            )
+                                        }
                                         error={errors.agent_id}
                                         options={agents.map((agent) => ({
                                             value: agent.id || '',
@@ -230,9 +271,16 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         value={
                                             typeof data.entry_date === 'string'
                                                 ? data.entry_date
-                                                : data.entry_date.toISOString().split('T')[0]
+                                                : data.entry_date
+                                                      .toISOString()
+                                                      .split('T')[0]
                                         }
-                                        onChange={(e) => setData('entry_date', new Date(e.target.value))}
+                                        onChange={(e) =>
+                                            setData(
+                                                'entry_date',
+                                                new Date(e.target.value),
+                                            )
+                                        }
                                         error={errors.entry_date}
                                         row
                                     />
@@ -241,7 +289,9 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="bill_at"
                                         label="Tagih"
                                         value={data.bill_at}
-                                        onChange={(value) => setData('bill_at', Number(value))}
+                                        onChange={(value) =>
+                                            setData('bill_at', Number(value))
+                                        }
                                         error={errors.bill_at}
                                         options={[
                                             { value: 1, label: 'Rumah' },
@@ -254,7 +304,12 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="insure-holder"
                                         label="Data pemegang polis sama dengan data tertanggung."
                                         checked={data.is_insure_holder}
-                                        onChange={(e) => setData('is_insure_holder', e.target.checked)}
+                                        onChange={(e) =>
+                                            setData(
+                                                'is_insure_holder',
+                                                e.target.checked,
+                                            )
+                                        }
                                     />
                                 </Accordion.Body>
                             </Accordion.Item>
@@ -269,7 +324,12 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="holder_name"
                                         label="Nama Lengkap"
                                         value={data.holder.name}
-                                        onChange={(value) => setData('holder', { ...data.holder, name: value.toString() })}
+                                        onChange={(value) =>
+                                            setData('holder', {
+                                                ...data.holder,
+                                                name: value.toString(),
+                                            })
+                                        }
                                         row
                                     />
 
@@ -277,7 +337,12 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="holder_gender"
                                         label="Jenis Kelamin"
                                         value={data.holder.gender}
-                                        onChange={(value) => setData('holder', { ...data.holder, gender: Number(value) })}
+                                        onChange={(value) =>
+                                            setData('holder', {
+                                                ...data.holder,
+                                                gender: Number(value),
+                                            })
+                                        }
                                         options={[
                                             { value: 1, label: 'Pria' },
                                             { value: 2, label: 'Wanita' },
@@ -286,18 +351,34 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                     />
 
                                     <div className="mb-3 row form-group">
-                                        <label className="col-sm-3 col-form-label">Tempat dan Tanggal Lahir</label>
+                                        <label className="col-sm-3 col-form-label">
+                                            Tempat dan Tanggal Lahir
+                                        </label>
                                         <InputGroup className="col-sm-9">
                                             <TextInput
                                                 id="holder_birth_place"
                                                 placeholder="Tempat"
+                                                className="col-sm-8"
                                                 value={data.holder.birth_place}
-                                                onChange={(e) => setData('holder', { ...data.holder, birth_place: e.target.value })}
+                                                onChange={(e) =>
+                                                    setData('holder', {
+                                                        ...data.holder,
+                                                        birth_place:
+                                                            e.target.value,
+                                                    })
+                                                }
                                             />
                                             <DateInput
                                                 id="holder_birth_date"
                                                 value={data.holder.birth_date}
-                                                onChange={(e) => setData('holder', { ...data.holder, birth_date: e.target.value })}
+                                                className="col-sm-4"
+                                                onChange={(e) =>
+                                                    setData('holder', {
+                                                        ...data.holder,
+                                                        birth_date:
+                                                            e.target.value,
+                                                    })
+                                                }
                                             />
                                         </InputGroup>
                                     </div>
@@ -306,7 +387,12 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="holder_marital"
                                         label="Status"
                                         value={data.holder.marital}
-                                        onChange={(value) => setData('holder', { ...data.holder, marital: Number(value) })}
+                                        onChange={(value) =>
+                                            setData('holder', {
+                                                ...data.holder,
+                                                marital: Number(value),
+                                            })
+                                        }
                                         options={[
                                             { value: 1, label: 'Single' },
                                             { value: 2, label: 'Kawin' },
@@ -320,7 +406,12 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="holder_religion"
                                         label="Agama"
                                         value={data.holder.religion}
-                                        onChange={(value) => setData('holder', { ...data.holder, religion: Number(value) })}
+                                        onChange={(value) =>
+                                            setData('holder', {
+                                                ...data.holder,
+                                                religion: Number(value),
+                                            })
+                                        }
                                         options={[
                                             { value: 0, label: '' },
                                             { value: 1, label: 'Budha' },
@@ -335,7 +426,12 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="holder_identity_number"
                                         label="Nomor Identitas"
                                         value={data.holder.identity}
-                                        onChange={(e) => setData('holder', { ...data.holder, identity: e.target.value })}
+                                        onChange={(e) =>
+                                            setData('holder', {
+                                                ...data.holder,
+                                                identity: e.target.value,
+                                            })
+                                        }
                                         row
                                     />
 
@@ -343,7 +439,12 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="holder_profession"
                                         label="Pekerjaan"
                                         value={data.holder.profession}
-                                        onChange={(e) => setData('holder', { ...data.holder, profession: e.target.value })}
+                                        onChange={(e) =>
+                                            setData('holder', {
+                                                ...data.holder,
+                                                profession: e.target.value,
+                                            })
+                                        }
                                         row
                                     />
 
@@ -351,7 +452,12 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="holder_mobile"
                                         label="Nomor Ponsel"
                                         value={data.holder.mobile}
-                                        onChange={(e) => setData('holder', { ...data.holder, mobile: e.target.value })}
+                                        onChange={(e) =>
+                                            setData('holder', {
+                                                ...data.holder,
+                                                mobile: e.target.value,
+                                            })
+                                        }
                                         row
                                     />
 
@@ -360,7 +466,12 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         label="Alamat e-Mail"
                                         type="email"
                                         value={data.holder.email}
-                                        onChange={(e) => setData('holder', { ...data.holder, email: e.target.value })}
+                                        onChange={(e) =>
+                                            setData('holder', {
+                                                ...data.holder,
+                                                email: e.target.value,
+                                            })
+                                        }
                                         row
                                     />
 
@@ -368,25 +479,44 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="holder_home_address"
                                         label="Alamat Rumah"
                                         value={data.holder.home_address}
-                                        onChange={(e) => setData('holder', { ...data.holder, home_address: e.target.value })}
+                                        onChange={(e) =>
+                                            setData('holder', {
+                                                ...data.holder,
+                                                home_address: e.target.value,
+                                            })
+                                        }
                                         row
                                     />
 
                                     <div className="mb-3 row form-group">
-                                        <label className="col-sm-3 col-form-label">Kode Pos / Kota</label>
+                                        <label className="col-sm-3 col-form-label">
+                                            Kode Pos / Kota
+                                        </label>
                                         <div className="col-sm-9 d-flex gap-2">
                                             <TextInput
                                                 id="holder_home_postal"
                                                 placeholder="Kode Pos"
                                                 style={{ maxWidth: '100px' }}
                                                 value={data.holder.home_postal}
-                                                onChange={(e) => setData('holder', { ...data.holder, home_postal: e.target.value })}
+                                                onChange={(e) =>
+                                                    setData('holder', {
+                                                        ...data.holder,
+                                                        home_postal:
+                                                            e.target.value,
+                                                    })
+                                                }
                                             />
                                             <TextInput
                                                 id="holder_home_city"
                                                 placeholder="Kota"
                                                 value={data.holder.home_city}
-                                                onChange={(e) => setData('holder', { ...data.holder, home_city: e.target.value })}
+                                                onChange={(e) =>
+                                                    setData('holder', {
+                                                        ...data.holder,
+                                                        home_city:
+                                                            e.target.value,
+                                                    })
+                                                }
                                             />
                                         </div>
                                     </div>
@@ -395,25 +525,44 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="holder_work_address"
                                         label="Alamat Kantor"
                                         value={data.holder.work_address}
-                                        onChange={(e) => setData('holder', { ...data.holder, work_address: e.target.value })}
+                                        onChange={(e) =>
+                                            setData('holder', {
+                                                ...data.holder,
+                                                work_address: e.target.value,
+                                            })
+                                        }
                                         row
                                     />
 
                                     <div className="mb-3 row form-group">
-                                        <label className="col-sm-3 col-form-label">Kode Pos / Kota</label>
+                                        <label className="col-sm-3 col-form-label">
+                                            Kode Pos / Kota
+                                        </label>
                                         <div className="col-sm-9 d-flex gap-2">
                                             <TextInput
                                                 id="holder_work_postal"
                                                 placeholder="Kode Pos"
                                                 style={{ maxWidth: '100px' }}
                                                 value={data.holder.work_postal}
-                                                onChange={(e) => setData('holder', { ...data.holder, work_postal: e.target.value })}
+                                                onChange={(e) =>
+                                                    setData('holder', {
+                                                        ...data.holder,
+                                                        work_postal:
+                                                            e.target.value,
+                                                    })
+                                                }
                                             />
                                             <TextInput
                                                 id="holder_work_city"
                                                 placeholder="Kota"
                                                 value={data.holder.work_city}
-                                                onChange={(e) => setData('holder', { ...data.holder, work_city: e.target.value })}
+                                                onChange={(e) =>
+                                                    setData('holder', {
+                                                        ...data.holder,
+                                                        work_city:
+                                                            e.target.value,
+                                                    })
+                                                }
                                             />
                                         </div>
                                     </div>
@@ -430,7 +579,12 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="insured_name"
                                         label="Nama Lengkap"
                                         value={data.insured.name}
-                                        onChange={(e) => setData('insured', { ...data.insured, name: e.target.value })}
+                                        onChange={(e) =>
+                                            setData('insured', {
+                                                ...data.insured,
+                                                name: e.target.value,
+                                            })
+                                        }
                                         disabled={data.is_insure_holder}
                                         row
                                     />
@@ -439,7 +593,12 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="insured_gender"
                                         label="Jenis Kelamin"
                                         value={data.insured.gender}
-                                        onChange={(value) => setData('insured', { ...data.insured, gender: Number(value) })}
+                                        onChange={(value) =>
+                                            setData('insured', {
+                                                ...data.insured,
+                                                gender: Number(value),
+                                            })
+                                        }
                                         disabled={data.is_insure_holder}
                                         options={[
                                             { value: 1, label: 'Pria' },
@@ -449,19 +608,33 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                     />
 
                                     <div className="mb-3 row form-group">
-                                        <label className="col-sm-3 col-form-label">Tempat & Tgl Lahir</label>
+                                        <label className="col-sm-3 col-form-label">
+                                            Tempat & Tgl Lahir
+                                        </label>
                                         <div className="col-sm-9 d-flex gap-2">
                                             <TextInput
                                                 id="insured_birth_place"
                                                 placeholder="Tempat"
                                                 value={data.insured.birth_place}
-                                                onChange={(e) => setData('insured', { ...data.insured, birth_place: e.target.value })}
+                                                onChange={(e) =>
+                                                    setData('insured', {
+                                                        ...data.insured,
+                                                        birth_place:
+                                                            e.target.value,
+                                                    })
+                                                }
                                                 disabled={data.is_insure_holder}
                                             />
                                             <DateInput
                                                 id="insured_birth_date"
                                                 value={data.insured.birth_date}
-                                                onChange={(e) => setData('insured', { ...data.insured, birth_date: e.target.value })}
+                                                onChange={(e) =>
+                                                    setData('insured', {
+                                                        ...data.insured,
+                                                        birth_date:
+                                                            e.target.value,
+                                                    })
+                                                }
                                                 disabled={data.is_insure_holder}
                                             />
                                         </div>
@@ -471,7 +644,12 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="insured_marital"
                                         label="Status"
                                         value={data.insured.marital}
-                                        onChange={(value) => setData('insured', { ...data.insured, marital: Number(value) })}
+                                        onChange={(value) =>
+                                            setData('insured', {
+                                                ...data.insured,
+                                                marital: Number(value),
+                                            })
+                                        }
                                         disabled={data.is_insure_holder}
                                         options={[
                                             { value: 1, label: 'Single' },
@@ -486,11 +664,22 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="holder_insured_relationship"
                                         label="Hubungan"
                                         value={data.holder_insured_relationship}
-                                        onChange={(value) => setData('holder_insured_relationship', value.toString())}
+                                        onChange={(value) =>
+                                            setData(
+                                                'holder_insured_relationship',
+                                                value.toString(),
+                                            )
+                                        }
                                         disabled={data.is_insure_holder}
                                         options={[
-                                            { value: '1', label: 'Diri Sendiri' },
-                                            { value: '2', label: 'Suami / Istri' },
+                                            {
+                                                value: '1',
+                                                label: 'Diri Sendiri',
+                                            },
+                                            {
+                                                value: '2',
+                                                label: 'Suami / Istri',
+                                            },
                                             { value: '3', label: 'Anak' },
                                             { value: '4', label: 'Orang Tua' },
                                             { value: '5', label: 'Lainnya' },
@@ -502,7 +691,12 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="insured_profession"
                                         label="Pekerjaan"
                                         value={data.insured.profession}
-                                        onChange={(e) => setData('insured', { ...data.insured, profession: e.target.value })}
+                                        onChange={(e) =>
+                                            setData('insured', {
+                                                ...data.insured,
+                                                profession: e.target.value,
+                                            })
+                                        }
                                         disabled={data.is_insure_holder}
                                         row
                                     />
@@ -511,27 +705,46 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="insured_home_address"
                                         label="Alamat Rumah"
                                         value={data.insured.home_address}
-                                        onChange={(e) => setData('insured', { ...data.insured, home_address: e.target.value })}
+                                        onChange={(e) =>
+                                            setData('insured', {
+                                                ...data.insured,
+                                                home_address: e.target.value,
+                                            })
+                                        }
                                         disabled={data.is_insure_holder}
                                         row
                                     />
 
                                     <div className="mb-3 row form-group">
-                                        <label className="col-sm-3 col-form-label">Kode Pos / Kota</label>
+                                        <label className="col-sm-3 col-form-label">
+                                            Kode Pos / Kota
+                                        </label>
                                         <div className="col-sm-9 d-flex gap-2">
                                             <TextInput
                                                 id="insured_home_postal"
                                                 placeholder="Kode Pos"
                                                 style={{ maxWidth: '100px' }}
                                                 value={data.insured.home_postal}
-                                                onChange={(e) => setData('insured', { ...data.insured, home_postal: e.target.value })}
+                                                onChange={(e) =>
+                                                    setData('insured', {
+                                                        ...data.insured,
+                                                        home_postal:
+                                                            e.target.value,
+                                                    })
+                                                }
                                                 disabled={data.is_insure_holder}
                                             />
                                             <TextInput
                                                 id="insured_home_city"
                                                 placeholder="Kota"
                                                 value={data.insured.home_city}
-                                                onChange={(e) => setData('insured', { ...data.insured, home_city: e.target.value })}
+                                                onChange={(e) =>
+                                                    setData('insured', {
+                                                        ...data.insured,
+                                                        home_city:
+                                                            e.target.value,
+                                                    })
+                                                }
                                                 disabled={data.is_insure_holder}
                                             />
                                         </div>
@@ -549,7 +762,9 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="policy_no"
                                         label="No. Polis"
                                         value={data.policy_no}
-                                        onChange={(e) => setData('policy_no', e.target.value)}
+                                        onChange={(e) =>
+                                            setData('policy_no', e.target.value)
+                                        }
                                         row
                                     />
 
@@ -557,13 +772,16 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="product_id"
                                         label="Produk"
                                         value={data.product_id}
-                                        onChange={(value) => setData('product_id', value.toString())}
-                                        options={
-                                            products.map((product) => ({
-                                                value: product.id || '',
-                                                label: product.name,
-                                            }))
+                                        onChange={(value) =>
+                                            setData(
+                                                'product_id',
+                                                value.toString(),
+                                            )
                                         }
+                                        options={products.map((product) => ({
+                                            value: product.id || '',
+                                            label: product.name,
+                                        }))}
                                         row
                                     />
 
@@ -571,7 +789,12 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="currency_id"
                                         label="Mata Uang"
                                         value={data.currency_id}
-                                        onChange={(value) => setData('currency_id', Number(value))}
+                                        onChange={(value) =>
+                                            setData(
+                                                'currency_id',
+                                                Number(value),
+                                            )
+                                        }
                                         options={[
                                             { value: 1, label: 'Rupiah' },
                                             { value: 2, label: 'Dollar' },
@@ -580,13 +803,20 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                     />
 
                                     <div className="mb-3 row form-group">
-                                        <label className="col-sm-3 col-form-label">Premi Dasar</label>
+                                        <label className="col-sm-3 col-form-label">
+                                            Premi Dasar
+                                        </label>
                                         <InputGroup className="col-sm-9">
                                             <input
                                                 type="number"
                                                 className="form-control"
                                                 value={data.premium}
-                                                onChange={(e) => setData('premium', Number(e.target.value))}
+                                                onChange={(e) =>
+                                                    setData(
+                                                        'premium',
+                                                        Number(e.target.value),
+                                                    )
+                                                }
                                             />
                                             <InputGroup.Text>x</InputGroup.Text>
                                             <input
@@ -594,7 +824,12 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                                 className="form-control"
                                                 style={{ maxWidth: '100px' }}
                                                 value={data.curr_rate}
-                                                onChange={(e) => setData('curr_rate', Number(e.target.value))}
+                                                onChange={(e) =>
+                                                    setData(
+                                                        'curr_rate',
+                                                        Number(e.target.value),
+                                                    )
+                                                }
                                             />
                                         </InputGroup>
                                     </div>
@@ -603,7 +838,9 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="pay_method"
                                         label="Cara Bayar"
                                         value={data.pay_method}
-                                        onChange={(value) => setData('pay_method', Number(value))}
+                                        onChange={(value) =>
+                                            setData('pay_method', Number(value))
+                                        }
                                         options={[
                                             { value: 1, label: 'Tahunan' },
                                             { value: 2, label: 'Enam Bulanan' },
@@ -619,14 +856,21 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         label="U.P. Dasar"
                                         type="number"
                                         value={data.base_insure}
-                                        onChange={(e) => setData('base_insure', Number(e.target.value))}
+                                        onChange={(e) =>
+                                            setData(
+                                                'base_insure',
+                                                Number(e.target.value),
+                                            )
+                                        }
                                         row
                                     />
 
                                     {/* Investments Table */}
                                     <div className="mb-3 mt-4">
                                         <div className="d-flex justify-content-between align-items-center mb-2">
-                                            <h6 className="mb-0">Pilihan Investasi</h6>
+                                            <h6 className="mb-0">
+                                                Pilihan Investasi
+                                            </h6>
                                             <button
                                                 type="button"
                                                 className="btn btn-sm btn-primary"
@@ -640,56 +884,119 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                             <thead>
                                                 <tr>
                                                     <th>Jenis Investasi</th>
-                                                    <th style={{ width: '100px' }}>Percent</th>
-                                                    <th style={{ width: '40px' }}></th>
+                                                    <th
+                                                        style={{
+                                                            width: '100px',
+                                                        }}
+                                                    >
+                                                        Percent
+                                                    </th>
+                                                    <th
+                                                        style={{
+                                                            width: '40px',
+                                                        }}
+                                                    ></th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {(data.investments && data.investments.length > 0) ? (data.investments.map((item, index) => (
-                                                    <tr key={index}>
-                                                        <td>
-                                                            <SelectInput
-                                                                id={`investment_fund_${index}`}
-                                                                value={item.fund_id}
-                                                                onChange={(value) => {
-                                                                    const newInvestments = [...data.investments];
-                                                                    newInvestments[index].fund_id = Number(value);
-                                                                    setData('investments', newInvestments);
-                                                                }}
-                                                                options={[
-                                                                    { value: 0, label: 'Pilih Fund' },
-                                                                    ...funds.map((fund) => ({
-                                                                        value: fund.id || 0,
-                                                                        label: fund.name,
-                                                                    })),
-                                                                ]}
-                                                            />
-                                                        </td>
-                                                        <td>
-                                                            <TextInput
-                                                                id={`investment_allocation_${index}`}
-                                                                type="number"
-                                                                value={item.allocation}
-                                                                onChange={(e) => {
-                                                                    const newInvestments = [...data.investments];
-                                                                    newInvestments[index].allocation = parseFloat(e.target.value);
-                                                                    setData('investments', newInvestments);
-                                                                }}
-                                                            />
-                                                        </td>
-                                                        <td className="text-center">
-                                                            <button
-                                                                type="button"
-                                                                className="btn btn-link btn-sm text-danger p-0"
-                                                                onClick={() => removeInvestment(index)}
-                                                            >
-                                                                <i className="fa fa-trash"></i>
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                ))) : (
+                                                {data.investments &&
+                                                data.investments.length > 0 ? (
+                                                    data.investments.map(
+                                                        (item, index) => (
+                                                            <tr key={index}>
+                                                                <td>
+                                                                    <SelectInput
+                                                                        id={`investment_fund_${index}`}
+                                                                        value={
+                                                                            item.fund_id
+                                                                        }
+                                                                        onChange={(
+                                                                            value,
+                                                                        ) => {
+                                                                            const newInvestments =
+                                                                                [
+                                                                                    ...data.investments,
+                                                                                ];
+                                                                            newInvestments[
+                                                                                index
+                                                                            ].fund_id =
+                                                                                Number(
+                                                                                    value,
+                                                                                );
+                                                                            setData(
+                                                                                'investments',
+                                                                                newInvestments,
+                                                                            );
+                                                                        }}
+                                                                        options={[
+                                                                            {
+                                                                                value: 0,
+                                                                                label: 'Pilih Fund',
+                                                                            },
+                                                                            ...funds.map(
+                                                                                (
+                                                                                    fund,
+                                                                                ) => ({
+                                                                                    value:
+                                                                                        fund.id ||
+                                                                                        0,
+                                                                                    label: fund.name,
+                                                                                }),
+                                                                            ),
+                                                                        ]}
+                                                                    />
+                                                                </td>
+                                                                <td>
+                                                                    <TextInput
+                                                                        id={`investment_allocation_${index}`}
+                                                                        type="number"
+                                                                        value={
+                                                                            item.allocation
+                                                                        }
+                                                                        onChange={(
+                                                                            e,
+                                                                        ) => {
+                                                                            const newInvestments =
+                                                                                [
+                                                                                    ...data.investments,
+                                                                                ];
+                                                                            newInvestments[
+                                                                                index
+                                                                            ].allocation =
+                                                                                parseFloat(
+                                                                                    e
+                                                                                        .target
+                                                                                        .value,
+                                                                                );
+                                                                            setData(
+                                                                                'investments',
+                                                                                newInvestments,
+                                                                            );
+                                                                        }}
+                                                                    />
+                                                                </td>
+                                                                <td className="text-center">
+                                                                    <button
+                                                                        type="button"
+                                                                        className="btn btn-link btn-sm text-danger p-0"
+                                                                        onClick={() =>
+                                                                            removeInvestment(
+                                                                                index,
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        <i className="fa fa-trash"></i>
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        ),
+                                                    )
+                                                ) : (
                                                     <tr>
-                                                        <td colSpan={3} className="text-center text-muted py-2">
+                                                        <td
+                                                            colSpan={3}
+                                                            className="text-center text-muted py-2"
+                                                        >
                                                             Belum ada investasi
                                                         </td>
                                                     </tr>
@@ -701,7 +1008,9 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                     {/* Riders Table */}
                                     <div className="mb-3 mt-4">
                                         <div className="d-flex justify-content-between align-items-center mb-2">
-                                            <h6 className="mb-0">Asuransi Tambahan</h6>
+                                            <h6 className="mb-0">
+                                                Asuransi Tambahan
+                                            </h6>
                                             <button
                                                 type="button"
                                                 className="btn btn-sm btn-primary"
@@ -712,7 +1021,10 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                             </button>
                                         </div>
                                         <div className="table-responsive">
-                                            <Table bordered style={{ minWidth: '600px' }}>
+                                            <Table
+                                                bordered
+                                                style={{ minWidth: '600px' }}
+                                            >
                                                 <thead>
                                                     <tr>
                                                         <th>Rider</th>
@@ -720,91 +1032,205 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                                         <th>Premi</th>
                                                         <th>Masa Asuransi</th>
                                                         <th>Masa Bayar</th>
-                                                        <th style={{ width: '40px' }}></th>
+                                                        <th
+                                                            style={{
+                                                                width: '40px',
+                                                            }}
+                                                        ></th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {(data.riders && data.riders.length > 0) ? (data.riders.map((item, index) => (
-                                                        <tr key={index}>
-                                                            <td>
-                                                                <SelectInput
-                                                                    id={`rider_product_${index}`}
-                                                                    value={item.product_id}
-                                                                    onChange={(value) => {
-                                                                        const newRiders = [...data.riders];
-                                                                        newRiders[index].product_id = value.toString();
-                                                                        setData('riders', newRiders);
-                                                                    }}
-                                                                    options={[
-                                                                        { value: '', label: 'Pilih Rider' },
-                                                                        ...products.filter(p => p.type === "5").map((product) => ({
-                                                                            value: product.id || '',
-                                                                            label: product.name,
-                                                                        })),
-                                                                    ]}
-                                                                />
-                                                            </td>
-                                                            <td>
-                                                                <TextInput
-                                                                    id={`rider_insure_amount_${index}`}
-                                                                    type="number"
-                                                                    value={item.insure_amount}
-                                                                    onChange={(e) => {
-                                                                        const newRiders = [...data.riders];
-                                                                        newRiders[index].insure_amount = Number(e.target.value);
-                                                                        setData('riders', newRiders);
-                                                                    }}
-                                                                />
-                                                            </td>
-                                                            <td>
-                                                                <TextInput
-                                                                    id={`rider_premium_${index}`}
-                                                                    type="number"
-                                                                    value={item.premium}
-                                                                    onChange={(e) => {
-                                                                        const newRiders = [...data.riders];
-                                                                        newRiders[index].premium = Number(e.target.value);
-                                                                        setData('riders', newRiders);
-                                                                    }}
-                                                                />
-                                                            </td>
-                                                            <td>
-                                                                <TextInput
-                                                                    id={`rider_insure_period_${index}`}
-                                                                    type="number"
-                                                                    value={item.insure_period}
-                                                                    onChange={(e) => {
-                                                                        const newRiders = [...data.riders];
-                                                                        newRiders[index].insure_period = Number(e.target.value);
-                                                                        setData('riders', newRiders);
-                                                                    }}
-                                                                />
-                                                            </td>
-                                                            <td>
-                                                                <TextInput
-                                                                    id={`rider_pay_period_${index}`}
-                                                                    type="number"
-                                                                    value={item.pay_period}
-                                                                    onChange={(e) => {
-                                                                        const newRiders = [...data.riders];
-                                                                        newRiders[index].pay_period = Number(e.target.value);
-                                                                        setData('riders', newRiders);
-                                                                    }}
-                                                                />
-                                                            </td>
-                                                            <td className="text-center">
-                                                                <button
-                                                                    type="button"
-                                                                    className="btn btn-link btn-sm text-danger p-0"
-                                                                    onClick={() => removeRider(index)}
-                                                                >
-                                                                    <i className="fa fa-trash"></i>
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                    ))) : (
+                                                    {data.riders &&
+                                                    data.riders.length > 0 ? (
+                                                        data.riders.map(
+                                                            (item, index) => (
+                                                                <tr key={index}>
+                                                                    <td>
+                                                                        <SelectInput
+                                                                            id={`rider_product_${index}`}
+                                                                            value={
+                                                                                item.product_id
+                                                                            }
+                                                                            onChange={(
+                                                                                value,
+                                                                            ) => {
+                                                                                const newRiders =
+                                                                                    [
+                                                                                        ...data.riders,
+                                                                                    ];
+                                                                                newRiders[
+                                                                                    index
+                                                                                ].product_id =
+                                                                                    value.toString();
+                                                                                setData(
+                                                                                    'riders',
+                                                                                    newRiders,
+                                                                                );
+                                                                            }}
+                                                                            options={[
+                                                                                {
+                                                                                    value: '',
+                                                                                    label: 'Pilih Rider',
+                                                                                },
+                                                                                ...products
+                                                                                    .filter(
+                                                                                        (
+                                                                                            p,
+                                                                                        ) =>
+                                                                                            p.type ===
+                                                                                            '5',
+                                                                                    )
+                                                                                    .map(
+                                                                                        (
+                                                                                            product,
+                                                                                        ) => ({
+                                                                                            value:
+                                                                                                product.id ||
+                                                                                                '',
+                                                                                            label: product.name,
+                                                                                        }),
+                                                                                    ),
+                                                                            ]}
+                                                                        />
+                                                                    </td>
+                                                                    <td>
+                                                                        <TextInput
+                                                                            id={`rider_insure_amount_${index}`}
+                                                                            type="number"
+                                                                            value={
+                                                                                item.insure_amount
+                                                                            }
+                                                                            onChange={(
+                                                                                e,
+                                                                            ) => {
+                                                                                const newRiders =
+                                                                                    [
+                                                                                        ...data.riders,
+                                                                                    ];
+                                                                                newRiders[
+                                                                                    index
+                                                                                ].insure_amount =
+                                                                                    Number(
+                                                                                        e
+                                                                                            .target
+                                                                                            .value,
+                                                                                    );
+                                                                                setData(
+                                                                                    'riders',
+                                                                                    newRiders,
+                                                                                );
+                                                                            }}
+                                                                        />
+                                                                    </td>
+                                                                    <td>
+                                                                        <TextInput
+                                                                            id={`rider_premium_${index}`}
+                                                                            type="number"
+                                                                            value={
+                                                                                item.premium
+                                                                            }
+                                                                            onChange={(
+                                                                                e,
+                                                                            ) => {
+                                                                                const newRiders =
+                                                                                    [
+                                                                                        ...data.riders,
+                                                                                    ];
+                                                                                newRiders[
+                                                                                    index
+                                                                                ].premium =
+                                                                                    Number(
+                                                                                        e
+                                                                                            .target
+                                                                                            .value,
+                                                                                    );
+                                                                                setData(
+                                                                                    'riders',
+                                                                                    newRiders,
+                                                                                );
+                                                                            }}
+                                                                        />
+                                                                    </td>
+                                                                    <td>
+                                                                        <TextInput
+                                                                            id={`rider_insure_period_${index}`}
+                                                                            type="number"
+                                                                            value={
+                                                                                item.insure_period
+                                                                            }
+                                                                            onChange={(
+                                                                                e,
+                                                                            ) => {
+                                                                                const newRiders =
+                                                                                    [
+                                                                                        ...data.riders,
+                                                                                    ];
+                                                                                newRiders[
+                                                                                    index
+                                                                                ].insure_period =
+                                                                                    Number(
+                                                                                        e
+                                                                                            .target
+                                                                                            .value,
+                                                                                    );
+                                                                                setData(
+                                                                                    'riders',
+                                                                                    newRiders,
+                                                                                );
+                                                                            }}
+                                                                        />
+                                                                    </td>
+                                                                    <td>
+                                                                        <TextInput
+                                                                            id={`rider_pay_period_${index}`}
+                                                                            type="number"
+                                                                            value={
+                                                                                item.pay_period
+                                                                            }
+                                                                            onChange={(
+                                                                                e,
+                                                                            ) => {
+                                                                                const newRiders =
+                                                                                    [
+                                                                                        ...data.riders,
+                                                                                    ];
+                                                                                newRiders[
+                                                                                    index
+                                                                                ].pay_period =
+                                                                                    Number(
+                                                                                        e
+                                                                                            .target
+                                                                                            .value,
+                                                                                    );
+                                                                                setData(
+                                                                                    'riders',
+                                                                                    newRiders,
+                                                                                );
+                                                                            }}
+                                                                        />
+                                                                    </td>
+                                                                    <td className="text-center">
+                                                                        <button
+                                                                            type="button"
+                                                                            className="btn btn-link btn-sm text-danger p-0"
+                                                                            onClick={() =>
+                                                                                removeRider(
+                                                                                    index,
+                                                                                )
+                                                                            }
+                                                                        >
+                                                                            <i className="fa fa-trash"></i>
+                                                                        </button>
+                                                                    </td>
+                                                                </tr>
+                                                            ),
+                                                        )
+                                                    ) : (
                                                         <tr>
-                                                            <td colSpan={6} className="text-center text-muted py-2">
+                                                            <td
+                                                                colSpan={6}
+                                                                className="text-center text-muted py-2"
+                                                            >
                                                                 Belum ada rider
                                                             </td>
                                                         </tr>
@@ -818,7 +1244,12 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                                         id="description"
                                         label="Keterangan"
                                         value={data.description}
-                                        onChange={(e) => setData('description', e.target.value)}
+                                        onChange={(e) =>
+                                            setData(
+                                                'description',
+                                                e.target.value,
+                                            )
+                                        }
                                         row
                                     />
                                 </Accordion.Body>
@@ -826,14 +1257,14 @@ export default function PolicyForm({extracted, fileUrl, policy, agents, products
                         </Accordion>
 
                         <div className="card-footer d-flex gap-2 bg-transparent border-0 px-0">
-                            <SubmitButton processing={processing} onClick={handleSubmit}>
+                            <SubmitButton
+                                processing={processing}
+                                onClick={handleSubmit}
+                            >
                                 <i className="fa fa-save me-2"></i>
                                 {isEdit ? 'Perbaharui' : 'Simpan'}
                             </SubmitButton>
-                            <Link
-                                href="/sales"
-                                className="btn btn-secondary"
-                            >
+                            <Link href="/sales" className="btn btn-secondary">
                                 Batal
                             </Link>
                         </div>

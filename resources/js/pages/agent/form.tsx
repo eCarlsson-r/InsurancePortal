@@ -1,7 +1,8 @@
-import SelectInput from '@/components/form/select-input';
-import TextareaInput from '@/components/form/textarea-input';
-import TextInput from '@/components/form/text-input';
 import DateInput from '@/components/form/date-input';
+import SelectInput from '@/components/form/select-input';
+import SubmitButton from '@/components/form/submit-button';
+import TextInput from '@/components/form/text-input';
+import TextareaInput from '@/components/form/textarea-input';
 import FormPage from '@/layouts/FormPage';
 import {
     agencySchema,
@@ -12,7 +13,6 @@ import {
 import { useForm } from '@inertiajs/react';
 import { Accordion, InputGroup, Table } from 'react-bootstrap';
 import { z } from 'zod';
-import SubmitButton from '@/components/form/submit-button';
 
 type AgentFormData = Omit<
     z.infer<typeof agentSchema>,
@@ -32,13 +32,11 @@ type AgentFormData = Omit<
 };
 
 export default function AgentForm({
-    fileUrl,
     agent,
     agencies,
     programs,
     agents,
 }: {
-    fileUrl: string;
     agent?: z.infer<typeof agentSchema> | null;
     agencies: z.infer<typeof agencySchema>[];
     programs: z.infer<typeof programSchema>[];
@@ -128,10 +126,7 @@ export default function AgentForm({
                 { label: 'Agen', active: true, i18n: 'agent' },
             ]}
             headerActions={
-                <SubmitButton
-                    processing={processing}
-                    onClick={handleSubmit}
-                >
+                <SubmitButton processing={processing} onClick={handleSubmit}>
                     {isEdit ? 'Perbarui' : 'Simpan'}
                 </SubmitButton>
             }
@@ -139,24 +134,25 @@ export default function AgentForm({
             <div className="row">
                 <div className="col-md-6">
                     <div style={{ position: 'sticky', top: '20px' }}>
-                        {fileUrl && (
-                            <Accordion
-                                defaultActiveKey="0"
-                                className="mb-4"
-                            >
-                                <Accordion.Item eventKey="0">
-                                    <Accordion.Header as="h4">
-                                        Berkas Keagenan
-                                    </Accordion.Header>
-                                    <Accordion.Body>
-                                        <iframe
-                                            src={`${fileUrl}#toolbar=0&navpanes=0`}
-                                            width="100%"
-                                            height="600px"
-                                            style={{ border: 'none' }}
-                                        />
-                                    </Accordion.Body>
-                                </Accordion.Item>
+                        {data.files && data.files.length > 0 && (
+                            <Accordion>
+                                {data.files?.map((file) => (
+                                    <Accordion.Item
+                                        eventKey={file.id?.toString() || ''}
+                                    >
+                                        <Accordion.Header>
+                                            {file.name}
+                                        </Accordion.Header>
+                                        <Accordion.Body>
+                                            <iframe
+                                                src={`/file/${file.id}#toolbar=0&navpanes=0`}
+                                                width="100%"
+                                                height="600px"
+                                                style={{ border: 'none' }}
+                                            />
+                                        </Accordion.Body>
+                                    </Accordion.Item>
+                                ))}
                             </Accordion>
                         )}
                     </div>
@@ -173,7 +169,9 @@ export default function AgentForm({
                                     id="name"
                                     label="Nama sesuai KTP"
                                     value={data.name}
-                                    onChange={(e) => setData('name', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('name', e.target.value)
+                                    }
                                     data-i18n="name-as-id"
                                     row
                                 />
@@ -188,8 +186,16 @@ export default function AgentForm({
                                     data-i18n="gender"
                                     row
                                     options={[
-                                        { value: 1, label: 'Pria', i18n: 'male' },
-                                        { value: 2, label: 'Wanita', i18n: 'female' },
+                                        {
+                                            value: 1,
+                                            label: 'Pria',
+                                            i18n: 'male',
+                                        },
+                                        {
+                                            value: 2,
+                                            label: 'Wanita',
+                                            i18n: 'female',
+                                        },
                                     ]}
                                 />
 
@@ -231,7 +237,9 @@ export default function AgentForm({
                                     id="address"
                                     label="Alamat"
                                     value={data.address}
-                                    onChange={(e) => setData('address', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('address', e.target.value)
+                                    }
                                     data-i18n="address"
                                     rows={2}
                                     row
@@ -241,7 +249,9 @@ export default function AgentForm({
                                     id="religion"
                                     label="Agama"
                                     value={data.religion}
-                                    onChange={(e) => setData('religion', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('religion', e.target.value)
+                                    }
                                     data-i18n="religion"
                                     row
                                 />
@@ -250,7 +260,12 @@ export default function AgentForm({
                                     id="identity_number"
                                     label="No. KTP"
                                     value={data.identity_number}
-                                    onChange={(e) => setData('identity_number', e.target.value)}
+                                    onChange={(e) =>
+                                        setData(
+                                            'identity_number',
+                                            e.target.value,
+                                        )
+                                    }
                                     data-i18n="id-number"
                                     row
                                 />
@@ -259,7 +274,9 @@ export default function AgentForm({
                                     id="tax_number"
                                     label="NPWP"
                                     value={data.tax_number}
-                                    onChange={(e) => setData('tax_number', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('tax_number', e.target.value)
+                                    }
                                     data-i18n="tax-number"
                                     row
                                 />
@@ -268,7 +285,9 @@ export default function AgentForm({
                                     id="city"
                                     label="Kota Marketing"
                                     value={data.city}
-                                    onChange={(e) => setData('city', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('city', e.target.value)
+                                    }
                                     data-i18n="marketing-city"
                                     row
                                 />
@@ -277,7 +296,9 @@ export default function AgentForm({
                                     id="province"
                                     label="Provinsi"
                                     value={data.province}
-                                    onChange={(e) => setData('province', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('province', e.target.value)
+                                    }
                                     data-i18n="province"
                                     row
                                 />
@@ -286,7 +307,9 @@ export default function AgentForm({
                                     id="postal_code"
                                     label="Kode Pos"
                                     value={data.postal_code}
-                                    onChange={(e) => setData('postal_code', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('postal_code', e.target.value)
+                                    }
                                     data-i18n="postal-code"
                                     row
                                 />
@@ -295,7 +318,9 @@ export default function AgentForm({
                                     id="education"
                                     label="Pendidikan Terakhir"
                                     value={data.education}
-                                    onChange={(e) => setData('education', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('education', e.target.value)
+                                    }
                                     data-i18n="last-education"
                                     row
                                 />
@@ -305,7 +330,9 @@ export default function AgentForm({
                                     label="Nomor Telfon"
                                     type="tel"
                                     value={data.phone}
-                                    onChange={(e) => setData('phone', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('phone', e.target.value)
+                                    }
                                     data-i18n="phone-number"
                                     row
                                 />
@@ -315,7 +342,9 @@ export default function AgentForm({
                                     label="Nomor Ponsel"
                                     type="tel"
                                     value={data.mobile}
-                                    onChange={(e) => setData('mobile', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('mobile', e.target.value)
+                                    }
                                     data-i18n="mobile-number"
                                     row
                                 />
@@ -325,7 +354,9 @@ export default function AgentForm({
                                     label="Alamat e-Mail"
                                     type="email"
                                     value={data.email}
-                                    onChange={(e) => setData('email', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('email', e.target.value)
+                                    }
                                     data-i18n="email-address"
                                     row
                                 />
@@ -340,8 +371,16 @@ export default function AgentForm({
                                     data-i18n="status"
                                     row
                                     options={[
-                                        { value: 1, label: 'Single', i18n: 'single' },
-                                        { value: 2, label: 'Kawin', i18n: 'married' },
+                                        {
+                                            value: 1,
+                                            label: 'Single',
+                                            i18n: 'single',
+                                        },
+                                        {
+                                            value: 2,
+                                            label: 'Kawin',
+                                            i18n: 'married',
+                                        },
                                     ]}
                                 />
 
@@ -349,7 +388,9 @@ export default function AgentForm({
                                     id="spouse"
                                     label="Nama Suami / Isteri"
                                     value={data.spouse}
-                                    onChange={(e) => setData('spouse', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('spouse', e.target.value)
+                                    }
                                     placeholder="Diisi bila menikah"
                                     data-i18n="spouse-name"
                                     row
@@ -359,7 +400,9 @@ export default function AgentForm({
                                     id="occupation"
                                     label="Pekerjaan"
                                     value={data.occupation}
-                                    onChange={(e) => setData('occupation', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('occupation', e.target.value)
+                                    }
                                     data-i18n="occupation"
                                     row
                                 />
@@ -380,8 +423,7 @@ export default function AgentForm({
                                                 onChange={(e) =>
                                                     setData(
                                                         'dependents',
-                                                        e.target.value ===
-                                                            ''
+                                                        e.target.value === ''
                                                             ? ''
                                                             : Number(
                                                                   e.target
@@ -390,7 +432,10 @@ export default function AgentForm({
                                                     )
                                                 }
                                             />
-                                            <InputGroup.Text> orang</InputGroup.Text>
+                                            <InputGroup.Text>
+                                                {' '}
+                                                orang
+                                            </InputGroup.Text>
                                         </InputGroup>
                                     </div>
                                 </div>
@@ -399,7 +444,9 @@ export default function AgentForm({
                                     id="notes"
                                     label="Catatan"
                                     value={data.notes}
-                                    onChange={(e) => setData('notes', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('notes', e.target.value)
+                                    }
                                     data-i18n="notes"
                                     rows={2}
                                     row
@@ -416,7 +463,9 @@ export default function AgentForm({
                                     id="apply_date"
                                     label="Tanggal Pengisian"
                                     value={data.apply_date}
-                                    onChange={(e) => setData('apply_date', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('apply_date', e.target.value)
+                                    }
                                     data-i18n="apply-date"
                                     row
                                 />
@@ -425,7 +474,9 @@ export default function AgentForm({
                                     id="apply_place"
                                     label="Tempat Pengisian"
                                     value={data.apply_place}
-                                    onChange={(e) => setData('apply_place', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('apply_place', e.target.value)
+                                    }
                                     data-i18n="apply-place"
                                     row
                                 />
@@ -451,7 +502,12 @@ export default function AgentForm({
                                     id="official_number"
                                     label="Kode Agen"
                                     value={data.official_number}
-                                    onChange={(e) => setData('official_number', e.target.value)}
+                                    onChange={(e) =>
+                                        setData(
+                                            'official_number',
+                                            e.target.value,
+                                        )
+                                    }
                                     data-i18n="official_number"
                                     placeholder="Kode Agen"
                                     row
@@ -461,7 +517,9 @@ export default function AgentForm({
                                     id="license"
                                     label="Nomor Lisensi"
                                     value={data.license}
-                                    onChange={(e) => setData('license', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('license', e.target.value)
+                                    }
                                     data-i18n="license"
                                     row
                                 />
@@ -470,7 +528,9 @@ export default function AgentForm({
                                     id="due_date"
                                     label="Jatuh Tempo"
                                     value={data.due_date}
-                                    onChange={(e) => setData('due_date', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('due_date', e.target.value)
+                                    }
                                     data-i18n="payable-date"
                                     row
                                 />
@@ -493,7 +553,12 @@ export default function AgentForm({
                                 />
                                 <div className="row form-group mt-4">
                                     <div className="col-12 d-flex justify-content-between align-items-center mb-2">
-                                        <h6 className="mb-0" data-i18n="agent_level">Program Allowance</h6>
+                                        <h6
+                                            className="mb-0"
+                                            data-i18n="agent_level"
+                                        >
+                                            Program Allowance
+                                        </h6>
                                         <button
                                             id="program-launcher"
                                             className="btn btn-sm btn-primary"
@@ -509,34 +574,78 @@ export default function AgentForm({
                                             <Table className="table-sm table-bordered">
                                                 <thead>
                                                     <tr>
-                                                        <th style={{ width: '130px' }} data-i18n="program-start">Mulai</th>
-                                                        <th style={{ width: '150px' }} data-i18n="position">Jabatan</th>
-                                                        <th data-i18n="leader">Leader Langsung</th>
-                                                        <th data-i18n="program">Program</th>
-                                                        <th style={{ width: '120px' }} data-i18n="allowance">Allowance</th>
-                                                        <th style={{ width: '40px' }}></th>
+                                                        <th
+                                                            style={{
+                                                                width: '130px',
+                                                            }}
+                                                            data-i18n="program-start"
+                                                        >
+                                                            Mulai
+                                                        </th>
+                                                        <th
+                                                            style={{
+                                                                width: '150px',
+                                                            }}
+                                                            data-i18n="position"
+                                                        >
+                                                            Jabatan
+                                                        </th>
+                                                        <th data-i18n="leader">
+                                                            Leader Langsung
+                                                        </th>
+                                                        <th data-i18n="program">
+                                                            Program
+                                                        </th>
+                                                        <th
+                                                            style={{
+                                                                width: '120px',
+                                                            }}
+                                                            data-i18n="allowance"
+                                                        >
+                                                            Allowance
+                                                        </th>
+                                                        <th
+                                                            style={{
+                                                                width: '40px',
+                                                            }}
+                                                        ></th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     {data.programs &&
                                                         data.programs.map(
-                                                            (
-                                                                program,
-                                                                idx,
-                                                            ) => (
+                                                            (program, idx) => (
                                                                 <tr key={idx}>
                                                                     <td>
                                                                         <DateInput
                                                                             id={`program_start_${idx}`}
                                                                             className="form-control-sm"
-                                                                            value={program.program_start}
-                                                                            onChange={(e) => {
-                                                                                const newPrograms = [...data.programs];
-                                                                                newPrograms[idx] = {
-                                                                                    ...newPrograms[idx],
-                                                                                    program_start: e.target.value,
-                                                                                };
-                                                                                setData('programs', newPrograms);
+                                                                            value={
+                                                                                program.program_start
+                                                                            }
+                                                                            onChange={(
+                                                                                e,
+                                                                            ) => {
+                                                                                const newPrograms =
+                                                                                    [
+                                                                                        ...data.programs,
+                                                                                    ];
+                                                                                newPrograms[
+                                                                                    idx
+                                                                                ] =
+                                                                                    {
+                                                                                        ...newPrograms[
+                                                                                            idx
+                                                                                        ],
+                                                                                        program_start:
+                                                                                            e
+                                                                                                .target
+                                                                                                .value,
+                                                                                    };
+                                                                                setData(
+                                                                                    'programs',
+                                                                                    newPrograms,
+                                                                                );
                                                                             }}
                                                                         />
                                                                     </td>
@@ -544,20 +653,48 @@ export default function AgentForm({
                                                                         <SelectInput
                                                                             id={`program_position_${idx}`}
                                                                             className="form-control-sm"
-                                                                            value={program.position}
-                                                                            onChange={(value) => {
-                                                                                const newPrograms = [...data.programs];
-                                                                                newPrograms[idx] = {
-                                                                                    ...newPrograms[idx],
-                                                                                    position: value.toString(),
-                                                                                };
-                                                                                setData('programs', newPrograms);
+                                                                            value={
+                                                                                program.position
+                                                                            }
+                                                                            onChange={(
+                                                                                value,
+                                                                            ) => {
+                                                                                const newPrograms =
+                                                                                    [
+                                                                                        ...data.programs,
+                                                                                    ];
+                                                                                newPrograms[
+                                                                                    idx
+                                                                                ] =
+                                                                                    {
+                                                                                        ...newPrograms[
+                                                                                            idx
+                                                                                        ],
+                                                                                        position:
+                                                                                            value.toString(),
+                                                                                    };
+                                                                                setData(
+                                                                                    'programs',
+                                                                                    newPrograms,
+                                                                                );
                                                                             }}
                                                                             options={[
-                                                                                { value: 'FC', label: 'Financial Consultant' },
-                                                                                { value: 'BP*', label: 'Business Partner *' },
-                                                                                { value: 'BP**', label: 'Business Partner **' },
-                                                                                { value: 'BP***', label: 'Business Partner ***' },
+                                                                                {
+                                                                                    value: 'FC',
+                                                                                    label: 'Financial Consultant',
+                                                                                },
+                                                                                {
+                                                                                    value: 'BP*',
+                                                                                    label: 'Business Partner *',
+                                                                                },
+                                                                                {
+                                                                                    value: 'BP**',
+                                                                                    label: 'Business Partner **',
+                                                                                },
+                                                                                {
+                                                                                    value: 'BP***',
+                                                                                    label: 'Business Partner ***',
+                                                                                },
                                                                             ]}
                                                                         />
                                                                     </td>
@@ -565,21 +702,53 @@ export default function AgentForm({
                                                                         <SelectInput
                                                                             id={`program_leader_${idx}`}
                                                                             className="form-control-sm"
-                                                                            value={program.agent_leader_id || ''}
-                                                                            onChange={(value) => {
-                                                                                const newPrograms = [...data.programs];
-                                                                                newPrograms[idx] = {
-                                                                                    ...newPrograms[idx],
-                                                                                    agent_leader_id: value === '' ? null : parseInt(value.toString(), 10),
-                                                                                };
-                                                                                setData('programs', newPrograms);
+                                                                            value={
+                                                                                program.agent_leader_id ||
+                                                                                ''
+                                                                            }
+                                                                            onChange={(
+                                                                                value,
+                                                                            ) => {
+                                                                                const newPrograms =
+                                                                                    [
+                                                                                        ...data.programs,
+                                                                                    ];
+                                                                                newPrograms[
+                                                                                    idx
+                                                                                ] =
+                                                                                    {
+                                                                                        ...newPrograms[
+                                                                                            idx
+                                                                                        ],
+                                                                                        agent_leader_id:
+                                                                                            value ===
+                                                                                            ''
+                                                                                                ? null
+                                                                                                : parseInt(
+                                                                                                      value.toString(),
+                                                                                                      10,
+                                                                                                  ),
+                                                                                    };
+                                                                                setData(
+                                                                                    'programs',
+                                                                                    newPrograms,
+                                                                                );
                                                                             }}
                                                                             options={[
-                                                                                { value: '', label: 'Select Leader' },
-                                                                                ...agents.map((agent) => ({
-                                                                                    value: agent.id || 0,
-                                                                                    label: agent.name,
-                                                                                })),
+                                                                                {
+                                                                                    value: '',
+                                                                                    label: 'Select Leader',
+                                                                                },
+                                                                                ...agents.map(
+                                                                                    (
+                                                                                        agent,
+                                                                                    ) => ({
+                                                                                        value:
+                                                                                            agent.id ||
+                                                                                            0,
+                                                                                        label: agent.name,
+                                                                                    }),
+                                                                                ),
                                                                             ]}
                                                                         />
                                                                     </td>
@@ -587,21 +756,53 @@ export default function AgentForm({
                                                                         <SelectInput
                                                                             id={`program_program_${idx}`}
                                                                             className="form-control-sm"
-                                                                            value={program.program_id ?? ''}
-                                                                            onChange={(value) => {
-                                                                                const newPrograms = [...data.programs];
-                                                                                newPrograms[idx] = {
-                                                                                    ...newPrograms[idx],
-                                                                                    program_id: value === '' ? null : parseInt(value.toString(), 10),
-                                                                                };
-                                                                                setData('programs', newPrograms);
+                                                                            value={
+                                                                                program.program_id ??
+                                                                                ''
+                                                                            }
+                                                                            onChange={(
+                                                                                value,
+                                                                            ) => {
+                                                                                const newPrograms =
+                                                                                    [
+                                                                                        ...data.programs,
+                                                                                    ];
+                                                                                newPrograms[
+                                                                                    idx
+                                                                                ] =
+                                                                                    {
+                                                                                        ...newPrograms[
+                                                                                            idx
+                                                                                        ],
+                                                                                        program_id:
+                                                                                            value ===
+                                                                                            ''
+                                                                                                ? null
+                                                                                                : parseInt(
+                                                                                                      value.toString(),
+                                                                                                      10,
+                                                                                                  ),
+                                                                                    };
+                                                                                setData(
+                                                                                    'programs',
+                                                                                    newPrograms,
+                                                                                );
                                                                             }}
                                                                             options={[
-                                                                                { value: '', label: 'Pilih Program' },
-                                                                                ...programs.map((p) => ({
-                                                                                    value: p.id || 0,
-                                                                                    label: p.name,
-                                                                                })),
+                                                                                {
+                                                                                    value: '',
+                                                                                    label: 'Pilih Program',
+                                                                                },
+                                                                                ...programs.map(
+                                                                                    (
+                                                                                        p,
+                                                                                    ) => ({
+                                                                                        value:
+                                                                                            p.id ||
+                                                                                            0,
+                                                                                        label: p.name,
+                                                                                    }),
+                                                                                ),
                                                                             ]}
                                                                         />
                                                                     </td>
@@ -609,20 +810,51 @@ export default function AgentForm({
                                                                         <input
                                                                             type="number"
                                                                             className="form-control form-control-sm"
-                                                                            value={program.allowance ?? ''}
-                                                                            onChange={(e) => {
-                                                                                const newPrograms = [...data.programs];
-                                                                                newPrograms[idx] = {
-                                                                                    ...newPrograms[idx],
-                                                                                    allowance: e.target.value === '' ? null : parseInt(e.target.value, 10)
-                                                                                };
-                                                                                setData('programs', newPrograms);
+                                                                            value={
+                                                                                program.allowance ??
+                                                                                ''
+                                                                            }
+                                                                            onChange={(
+                                                                                e,
+                                                                            ) => {
+                                                                                const newPrograms =
+                                                                                    [
+                                                                                        ...data.programs,
+                                                                                    ];
+                                                                                newPrograms[
+                                                                                    idx
+                                                                                ] =
+                                                                                    {
+                                                                                        ...newPrograms[
+                                                                                            idx
+                                                                                        ],
+                                                                                        allowance:
+                                                                                            e
+                                                                                                .target
+                                                                                                .value ===
+                                                                                            ''
+                                                                                                ? null
+                                                                                                : parseInt(
+                                                                                                      e
+                                                                                                          .target
+                                                                                                          .value,
+                                                                                                      10,
+                                                                                                  ),
+                                                                                    };
+                                                                                setData(
+                                                                                    'programs',
+                                                                                    newPrograms,
+                                                                                );
                                                                             }}
                                                                         />
                                                                     </td>
                                                                     <td className="text-center">
                                                                         <button
-                                                                            onClick={() => removeProgram(idx)}
+                                                                            onClick={() =>
+                                                                                removeProgram(
+                                                                                    idx,
+                                                                                )
+                                                                            }
                                                                             className="btn btn-link btn-sm text-danger p-0"
                                                                             title="Delete"
                                                                         >

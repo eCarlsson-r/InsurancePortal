@@ -11,6 +11,7 @@ use App\Models\Agent;
 use App\Models\Product;
 use App\Models\Fund;
 use App\Models\Customer;
+use App\Models\File;
 use App\Exceptions\PdfLockedException;
 use App\Jobs\ProcessPolicyOCR;
 use Illuminate\Support\Facades\Log;
@@ -34,10 +35,10 @@ class PolicyController extends Controller
     public function index(Request $request)
     {
         $query = $request->get('q');
-        $policies = Policy::with(['holder', 'insured', 'product', 'agent'])
+        $policies = Policy::with(['holder', 'insured', 'product', 'agent', 'files'])
             ->when($query, function ($q) use ($query) {
                 return $q->where('policy_no', 'like', "%{$query}%")
-                    ->orWhere('id', 'like', "%{$query}%")
+                    ->orWhere('case_code', 'like', "%{$query}%")
                     ->orWhereHas('holder', function ($q) use ($query) {
                         $q->where('name', 'like', "%{$query}%");
                     })
@@ -45,6 +46,7 @@ class PolicyController extends Controller
                         $q->where('name', 'like', "%{$query}%");
                     });
             })
+            ->orderBy('id', 'DESC')
             ->paginate(10)
             ->withQueryString();
 
@@ -58,7 +60,7 @@ class PolicyController extends Controller
 
     public function store(Request $request)
     {
-        $holder_id = Customer::updateOrCreate($request->holder)->id;
+        $holder_id = Customer::updateOrCreate(["identity" => $request->holder['identity']], $request->holder)->id;
 
         if ($request->is_insure_holder) {
             $insured_id = $holder_id;
@@ -67,6 +69,7 @@ class PolicyController extends Controller
         }
 
         $policy = Policy::create([
+            'case_code' => $request->case_code,
             'policy_no' => $request->policy_no,
             'holder_id' => $holder_id,
             'insured_id' => $insured_id,
@@ -91,24 +94,30 @@ class PolicyController extends Controller
         if ($request->riders) $policy->riders()->createMany($request->riders);
 
         // 3. Move the file from Temp/OCR storage to Permanent storage
-        // Assuming ocr_id is the filename or a key to the file path
-        $tempPath = 'ocr-temp/' . $request->ocr_id . '.pdf';
-        $permanentPath = 'policies/' . $request->ocr_id . '.pdf';
+        if ($request->ocr_id) {
+            $cachedOcr = Cache::get("ocr_result_" . $request->ocr_id);
+            
+            if ($cachedOcr && isset($cachedOcr['file_path'])) {
+                $tempPath = $cachedOcr['file_path'];
+                $extension = pathinfo($tempPath, PATHINFO_EXTENSION);
+                $permanentPath = 'case/' . $request->ocr_id . '.' . $extension;
 
-        if (Storage::disk('local')->exists($tempPath)) {
-            // Move file physically
-            Storage::disk('local')->move($tempPath, $permanentPath);
+                if (Storage::disk('local')->exists($tempPath)) {
+                    // Move file physically
+                    Storage::disk('local')->move($tempPath, $permanentPath);
 
-            // 4. Record the file in your Database
-            File::create([
-                'name' => $request->ocr_id . '.pdf',
-                'type' => 'application/pdf',
-                'extension' => 'pdf',
-                'size' => Storage::disk('local')->size($permanentPath),
-                'upload_date' => now(),
-                'purpose' => 'case',
-                'document_id' => $policy->id, // Link to the new policy
-            ]);
+                    // 4. Record the file in your Database
+                    File::create([
+                        'name' => $cachedOcr['file_name'],
+                        'type' => Storage::disk('local')->mimeType($permanentPath),
+                        'extension' => $extension,
+                        'size' => Storage::disk('local')->size($permanentPath),
+                        'upload_date' => now(),
+                        'purpose' => 'case',
+                        'document_id' => $policy->id, // Link to the new policy
+                    ]);
+                }
+            }
         }
 
         return Redirect::route('sales.policy.index')->with('message', 'Data Berhasil Disimpan!');
@@ -183,7 +192,7 @@ class PolicyController extends Controller
 		$logoText = "images/logo-text.png";
 		$action = __FUNCTION__;
 
-        $policy = Policy::with('holder', 'insured', 'agent', 'product', 'investments', 'riders')->findOrFail($id);
+        $policy = Policy::with('holder', 'insured', 'agent', 'product', 'investments', 'riders', 'files')->findOrFail($id);
 
         return Inertia::render('policy/form', [
             'policy' => $policy,

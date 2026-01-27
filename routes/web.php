@@ -16,10 +16,16 @@ use Illuminate\Support\Facades\Cache;
 
 Route::get('/', function () {
     return Inertia::render('auth/login');
-})->name('home');
+});
+Route::get('/login', function () {
+    return Inertia::render('auth/login');
+})->name('login');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/', [AgencyController::class, 'dashboard'])->name('dashboard');
+    Route::get('/', [AgencyController::class, 'dashboard']);
+    Route::get('/dashboard', [AgencyController::class, 'dashboard'])->name('dashboard');
+    Route::post('/upload', [FundController::class, 'upload'])->name('upload');
+    Route::get('/file/{id}', [FundController::class, 'viewFile'])->name('file');
 
     Route::prefix('master')->name('master.')->group(function () {
         Route::controller(CustomerController::class)->group(function() {

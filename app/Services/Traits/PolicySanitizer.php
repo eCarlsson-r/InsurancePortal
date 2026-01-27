@@ -161,7 +161,6 @@ trait PolicySanitizer
 
     private function cleanSignatureDate($value)
     {
-        Log::info($value);
         $val = (string)$value;
 
         // Regex to find a date pattern (DD-MM-YYYY or DD/MM/YYYY) 

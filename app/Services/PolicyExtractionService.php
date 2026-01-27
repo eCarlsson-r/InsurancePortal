@@ -99,7 +99,12 @@ class PolicyExtractionService {
             }
 
             if ($aiKey === 'signature_info') {
-                $mappedData['entry_date'] = $this->cleanSignatureDate(array_values($value)[0]);
+                if (!is_string(array_values($value)[0])) {
+                    $value = array_values($value)[0]["Ditandatangani di"];
+                } else {
+                    $value = array_values($value)[0];
+                }
+                $mappedData['entry_date'] = $this->cleanSignatureDate($value);
                 unset($mappedData['signature_info']);
             }
 
@@ -112,6 +117,7 @@ class PolicyExtractionService {
                     $mappedData['holder_insured_relationship'] = "1";
                 }
 
+                if (!is_string($value)) $value = $value['Hubungan'];
                 $mappedData['holder_insured_relationship'] = $this->cleanRelationship($value);
                 unset($mappedData['insured_relationship']);
             }

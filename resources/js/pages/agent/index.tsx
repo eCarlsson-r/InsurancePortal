@@ -1,4 +1,5 @@
 import Pagination from '@/components/pagination';
+import UploadModal from '@/components/upload-modal';
 import TablePage from '@/layouts/TablePage';
 import { agentSchema } from '@/schemas/models';
 import { Link, router } from '@inertiajs/react';
@@ -22,6 +23,8 @@ interface AgentProps {
 
 export default function Agent({ agents, filters }: AgentProps) {
     const [searchQuery, setSearchQuery] = useState(filters.search || '');
+    const [fileModalOpen, setFileModalOpen] = useState(false);
+    const [documentId, setDocumentId] = useState('');
 
     const handleSearch = useCallback(() => {
         router.get(
@@ -50,6 +53,11 @@ export default function Agent({ agents, filters }: AgentProps) {
 
         return () => clearTimeout(delayDebounceFn);
     }, [searchQuery, filters.search, handleSearch]);
+
+    const handleUpload = (agentId: string) => {
+        setFileModalOpen(true);
+        setDocumentId(agentId);
+    };
 
     const handleDelete = (agentId: string | undefined) => {
         if (agentId && confirm('Are you sure you want to delete this agent?')) {
@@ -89,7 +97,11 @@ export default function Agent({ agents, filters }: AgentProps) {
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 onKeyPress={handleKeyPress}
                             />
-                            <button className="btn btn-primary" type="button" onClick={handleSearch}>
+                            <button
+                                className="btn btn-primary"
+                                type="button"
+                                onClick={handleSearch}
+                            >
                                 <i className="fa fa-search"></i>
                             </button>
                         </InputGroup>
@@ -98,57 +110,96 @@ export default function Agent({ agents, filters }: AgentProps) {
             }
             pagination={<Pagination links={agents.links} />}
         >
-            <div className="table-responsive">
-                <Table hover striped bordered className="vertical-middle">
-                    <thead>
-                        <tr>
-                            <th style={{ width: '120px' }} data-i18n="agent-number">Kode Agen</th>
-                            <th data-i18n="agent-name">Nama Agen</th>
-                            <th style={{ width: '150px' }} data-i18n="agent-level">Jabatan</th>
-                            <th data-i18n="agent-email">Email</th>
-                            <th style={{ width: '150px' }} data-i18n="agent-birth-date">Tanggal Lahir</th>
-                            <th style={{ width: '150px' }} data-i18n="agent-mobile">Nomor Ponsel</th>
-                            <th style={{ width: '50px' }}></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {agents.data.length > 0 ? (
-                            agents.data.map((agent) => (
-                                <tr key={agent.id} className="cursor-pointer" onClick={() => handleRowClick(agent.id)}>
-                                    <td>{agent.official_number}</td>
-                                    <td>{agent.name}</td>
-                                    <td>
-                                        {agent.programs && agent.programs.length > 0 ? agent.programs[0].position : '-'}
-                                    </td>
-                                    <td>{agent.email}</td>
-                                    <td>
-                                        {agent.birth_date ? new Date(agent.birth_date).toLocaleDateString() : '-'}
-                                    </td>
-                                    <td>{agent.mobile}</td>
-                                    <td className="text-center">
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleDelete(agent.id);
-                                            }}
-                                            className="btn btn-sm btn-danger"
-                                            title="Delete"
-                                        >
-                                            <i className="fa fa-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan={7} className="text-center text-muted py-4">
-                                    No agents found.
+            <Table hover striped bordered className="vertical-middle">
+                <thead>
+                    <tr>
+                        <th style={{ width: '120px' }} data-i18n="agent-number">
+                            Kode Agen
+                        </th>
+                        <th data-i18n="agent-name">Nama Agen</th>
+                        <th style={{ width: '150px' }} data-i18n="agent-level">
+                            Jabatan
+                        </th>
+                        <th data-i18n="agent-email">Email</th>
+                        <th
+                            style={{ width: '150px' }}
+                            data-i18n="agent-birth-date"
+                        >
+                            Tanggal Lahir
+                        </th>
+                        <th style={{ width: '150px' }} data-i18n="agent-mobile">
+                            Nomor Ponsel
+                        </th>
+                        <th style={{ width: '50px' }}></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {agents.data.length > 0 ? (
+                        agents.data.map((agent) => (
+                            <tr
+                                key={agent.id}
+                                className="cursor-pointer"
+                                onClick={() => handleRowClick(agent.id)}
+                            >
+                                <td>{agent.official_number}</td>
+                                <td>{agent.name}</td>
+                                <td>
+                                    {agent.programs && agent.programs.length > 0
+                                        ? agent.programs[0].position
+                                        : '-'}
+                                </td>
+                                <td>{agent.email}</td>
+                                <td>
+                                    {agent.birth_date
+                                        ? new Date(
+                                              agent.birth_date,
+                                          ).toLocaleDateString()
+                                        : '-'}
+                                </td>
+                                <td>{agent.mobile}</td>
+                                <td className="text-center">
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleUpload(agent.id || '');
+                                        }}
+                                        className="btn btn-sm btn-primary me-1"
+                                        title="Upload"
+                                    >
+                                        <i className="la la-upload"></i>
+                                    </button>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleDelete(agent.id);
+                                        }}
+                                        className="btn btn-sm btn-danger"
+                                        title="Delete"
+                                    >
+                                        <i className="fa fa-trash"></i>
+                                    </button>
                                 </td>
                             </tr>
-                        )}
-                    </tbody>
-                </Table>
-            </div>
+                        ))
+                    ) : (
+                        <tr>
+                            <td
+                                colSpan={7}
+                                className="text-center text-muted py-4"
+                            >
+                                No agents found.
+                            </td>
+                        </tr>
+                    )}
+                </tbody>
+            </Table>
+
+            <UploadModal
+                show={fileModalOpen}
+                onHide={() => setFileModalOpen(false)}
+                documentId={documentId}
+                documentPurpose="agent"
+            />
         </TablePage>
     );
 }
