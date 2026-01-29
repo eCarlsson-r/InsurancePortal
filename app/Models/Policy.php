@@ -5,10 +5,15 @@ namespace App\Models;
 use App\Models\Customer;
 use App\Models\Agent;
 use App\Models\File;
+use App\Models\Product;
+use App\Models\Rider;
+use App\Models\Investment;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Policy extends Model
 {
+    use HasFactory;
     protected $table = 'cases';
     public $timestamps = false;
 

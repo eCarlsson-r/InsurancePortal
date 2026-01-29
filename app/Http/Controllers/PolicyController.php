@@ -100,7 +100,7 @@ class PolicyController extends Controller
             if ($cachedOcr && isset($cachedOcr['file_path'])) {
                 $tempPath = $cachedOcr['file_path'];
                 $extension = pathinfo($tempPath, PATHINFO_EXTENSION);
-                $permanentPath = 'case/' . $request->ocr_id . '.' . $extension;
+                $permanentPath = 'case/' . $cachedOcr['file_name'] . '.' . $extension;
 
                 if (Storage::disk('local')->exists($tempPath)) {
                     // Move file physically

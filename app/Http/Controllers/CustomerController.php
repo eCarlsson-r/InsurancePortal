@@ -79,7 +79,7 @@ class CustomerController extends Controller
     }
 
     public function update(Request $request, Customer $customer) {
-        $agencyData = $request->validate([
+        $customerData = $request->validate([
             'name' => 'required',
             'gender' => 'required',
             'identity' => 'nullable',

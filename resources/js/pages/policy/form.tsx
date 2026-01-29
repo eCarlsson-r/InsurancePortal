@@ -183,10 +183,7 @@ export default function PolicyForm({
         >
             <form
                 id="case-form"
-                onSubmit={(e) => {
-                    e.preventDefault();
-                    handleSubmit();
-                }}
+                onSubmit={handleSubmit}
             >
                 <div className="row">
                     {/* PDF Preview Sidebar (Sticky) */}
@@ -202,7 +199,7 @@ export default function PolicyForm({
                                         </Accordion.Header>
                                         <Accordion.Body>
                                             <iframe
-                                                src={`/file/${file.id}#toolbar=0&navpanes=0`}
+                                                src={`${file.path}#toolbar=0&navpanes=0`}
                                                 width="100%"
                                                 height="600px"
                                                 style={{ border: 'none' }}
@@ -240,8 +237,11 @@ export default function PolicyForm({
                                         id="case_no"
                                         label="No. SP"
                                         value={data.case_code}
-                                        onChange={(e) =>
-                                            setData('case_code', e.target.value)
+                                        onChange={(event) =>
+                                            setData(
+                                                'case_code',
+                                                event.target.value,
+                                            )
                                         }
                                         error={errors.id}
                                         row
@@ -275,10 +275,10 @@ export default function PolicyForm({
                                                       .toISOString()
                                                       .split('T')[0]
                                         }
-                                        onChange={(e) =>
+                                        onChange={(event) =>
                                             setData(
                                                 'entry_date',
-                                                new Date(e.target.value),
+                                                new Date(event.target.value),
                                             )
                                         }
                                         error={errors.entry_date}
@@ -304,10 +304,10 @@ export default function PolicyForm({
                                         id="insure-holder"
                                         label="Data pemegang polis sama dengan data tertanggung."
                                         checked={data.is_insure_holder}
-                                        onChange={(e) =>
+                                        onChange={(event) =>
                                             setData(
                                                 'is_insure_holder',
-                                                e.target.checked,
+                                                event.target.checked,
                                             )
                                         }
                                     />
@@ -324,11 +324,11 @@ export default function PolicyForm({
                                         id="holder_name"
                                         label="Nama Lengkap"
                                         value={data.holder.name}
-                                        onChange={(value) =>
-                                            setData('holder', {
-                                                ...data.holder,
-                                                name: value.toString(),
-                                            })
+                                        onChange={(event) =>
+                                            setData(
+                                                'holder.name',
+                                                event.target.value.toString(),
+                                            )
                                         }
                                         row
                                     />
@@ -338,10 +338,10 @@ export default function PolicyForm({
                                         label="Jenis Kelamin"
                                         value={data.holder.gender}
                                         onChange={(value) =>
-                                            setData('holder', {
-                                                ...data.holder,
-                                                gender: Number(value),
-                                            })
+                                            setData(
+                                                'holder.gender',
+                                                Number(value),
+                                            )
                                         }
                                         options={[
                                             { value: 1, label: 'Pria' },
@@ -358,25 +358,23 @@ export default function PolicyForm({
                                             <TextInput
                                                 id="holder_birth_place"
                                                 placeholder="Tempat"
-                                                className="col-sm-8"
                                                 value={data.holder.birth_place}
-                                                onChange={(e) =>
+                                                onChange={(event) =>
                                                     setData('holder', {
                                                         ...data.holder,
                                                         birth_place:
-                                                            e.target.value,
+                                                            event.target.value,
                                                     })
                                                 }
                                             />
                                             <DateInput
                                                 id="holder_birth_date"
                                                 value={data.holder.birth_date}
-                                                className="col-sm-4"
-                                                onChange={(e) =>
+                                                onChange={(event) =>
                                                     setData('holder', {
                                                         ...data.holder,
                                                         birth_date:
-                                                            e.target.value,
+                                                            event.target.value,
                                                     })
                                                 }
                                             />
@@ -426,10 +424,10 @@ export default function PolicyForm({
                                         id="holder_identity_number"
                                         label="Nomor Identitas"
                                         value={data.holder.identity}
-                                        onChange={(e) =>
+                                        onChange={(event) =>
                                             setData('holder', {
                                                 ...data.holder,
-                                                identity: e.target.value,
+                                                identity: event.target.value,
                                             })
                                         }
                                         row
@@ -439,10 +437,10 @@ export default function PolicyForm({
                                         id="holder_profession"
                                         label="Pekerjaan"
                                         value={data.holder.profession}
-                                        onChange={(e) =>
+                                        onChange={(event) =>
                                             setData('holder', {
                                                 ...data.holder,
-                                                profession: e.target.value,
+                                                profession: event.target.value,
                                             })
                                         }
                                         row
@@ -452,10 +450,10 @@ export default function PolicyForm({
                                         id="holder_mobile"
                                         label="Nomor Ponsel"
                                         value={data.holder.mobile}
-                                        onChange={(e) =>
+                                        onChange={(event) =>
                                             setData('holder', {
                                                 ...data.holder,
-                                                mobile: e.target.value,
+                                                mobile: event.target.value,
                                             })
                                         }
                                         row
@@ -466,10 +464,10 @@ export default function PolicyForm({
                                         label="Alamat e-Mail"
                                         type="email"
                                         value={data.holder.email}
-                                        onChange={(e) =>
+                                        onChange={(event) =>
                                             setData('holder', {
                                                 ...data.holder,
-                                                email: e.target.value,
+                                                email: event.target.value,
                                             })
                                         }
                                         row
@@ -479,10 +477,11 @@ export default function PolicyForm({
                                         id="holder_home_address"
                                         label="Alamat Rumah"
                                         value={data.holder.home_address}
-                                        onChange={(e) =>
+                                        onChange={(event) =>
                                             setData('holder', {
                                                 ...data.holder,
-                                                home_address: e.target.value,
+                                                home_address:
+                                                    event.target.value,
                                             })
                                         }
                                         row
@@ -498,11 +497,11 @@ export default function PolicyForm({
                                                 placeholder="Kode Pos"
                                                 style={{ maxWidth: '100px' }}
                                                 value={data.holder.home_postal}
-                                                onChange={(e) =>
+                                                onChange={(event) =>
                                                     setData('holder', {
                                                         ...data.holder,
                                                         home_postal:
-                                                            e.target.value,
+                                                            event.target.value,
                                                     })
                                                 }
                                             />
@@ -510,11 +509,11 @@ export default function PolicyForm({
                                                 id="holder_home_city"
                                                 placeholder="Kota"
                                                 value={data.holder.home_city}
-                                                onChange={(e) =>
+                                                onChange={(event) =>
                                                     setData('holder', {
                                                         ...data.holder,
                                                         home_city:
-                                                            e.target.value,
+                                                            event.target.value,
                                                     })
                                                 }
                                             />
@@ -525,10 +524,11 @@ export default function PolicyForm({
                                         id="holder_work_address"
                                         label="Alamat Kantor"
                                         value={data.holder.work_address}
-                                        onChange={(e) =>
+                                        onChange={(event) =>
                                             setData('holder', {
                                                 ...data.holder,
-                                                work_address: e.target.value,
+                                                work_address:
+                                                    event.target.value,
                                             })
                                         }
                                         row
@@ -544,11 +544,11 @@ export default function PolicyForm({
                                                 placeholder="Kode Pos"
                                                 style={{ maxWidth: '100px' }}
                                                 value={data.holder.work_postal}
-                                                onChange={(e) =>
+                                                onChange={(event) =>
                                                     setData('holder', {
                                                         ...data.holder,
                                                         work_postal:
-                                                            e.target.value,
+                                                            event.target.value,
                                                     })
                                                 }
                                             />
@@ -556,11 +556,11 @@ export default function PolicyForm({
                                                 id="holder_work_city"
                                                 placeholder="Kota"
                                                 value={data.holder.work_city}
-                                                onChange={(e) =>
+                                                onChange={(event) =>
                                                     setData('holder', {
                                                         ...data.holder,
                                                         work_city:
-                                                            e.target.value,
+                                                            event.target.value,
                                                     })
                                                 }
                                             />
@@ -579,10 +579,10 @@ export default function PolicyForm({
                                         id="insured_name"
                                         label="Nama Lengkap"
                                         value={data.insured.name}
-                                        onChange={(e) =>
+                                        onChange={(event) =>
                                             setData('insured', {
                                                 ...data.insured,
-                                                name: e.target.value,
+                                                name: event.target.value,
                                             })
                                         }
                                         disabled={data.is_insure_holder}
@@ -616,11 +616,11 @@ export default function PolicyForm({
                                                 id="insured_birth_place"
                                                 placeholder="Tempat"
                                                 value={data.insured.birth_place}
-                                                onChange={(e) =>
+                                                onChange={(event) =>
                                                     setData('insured', {
                                                         ...data.insured,
                                                         birth_place:
-                                                            e.target.value,
+                                                            event.target.value,
                                                     })
                                                 }
                                                 disabled={data.is_insure_holder}
@@ -628,11 +628,11 @@ export default function PolicyForm({
                                             <DateInput
                                                 id="insured_birth_date"
                                                 value={data.insured.birth_date}
-                                                onChange={(e) =>
+                                                onChange={(event) =>
                                                     setData('insured', {
                                                         ...data.insured,
                                                         birth_date:
-                                                            e.target.value,
+                                                            event.target.value,
                                                     })
                                                 }
                                                 disabled={data.is_insure_holder}
@@ -691,10 +691,10 @@ export default function PolicyForm({
                                         id="insured_profession"
                                         label="Pekerjaan"
                                         value={data.insured.profession}
-                                        onChange={(e) =>
+                                        onChange={(event) =>
                                             setData('insured', {
                                                 ...data.insured,
-                                                profession: e.target.value,
+                                                profession: event.target.value,
                                             })
                                         }
                                         disabled={data.is_insure_holder}
@@ -705,10 +705,11 @@ export default function PolicyForm({
                                         id="insured_home_address"
                                         label="Alamat Rumah"
                                         value={data.insured.home_address}
-                                        onChange={(e) =>
+                                        onChange={(event) =>
                                             setData('insured', {
                                                 ...data.insured,
-                                                home_address: e.target.value,
+                                                home_address:
+                                                    event.target.value,
                                             })
                                         }
                                         disabled={data.is_insure_holder}
@@ -725,11 +726,11 @@ export default function PolicyForm({
                                                 placeholder="Kode Pos"
                                                 style={{ maxWidth: '100px' }}
                                                 value={data.insured.home_postal}
-                                                onChange={(e) =>
+                                                onChange={(event) =>
                                                     setData('insured', {
                                                         ...data.insured,
                                                         home_postal:
-                                                            e.target.value,
+                                                            event.target.value,
                                                     })
                                                 }
                                                 disabled={data.is_insure_holder}
@@ -738,11 +739,11 @@ export default function PolicyForm({
                                                 id="insured_home_city"
                                                 placeholder="Kota"
                                                 value={data.insured.home_city}
-                                                onChange={(e) =>
+                                                onChange={(event) =>
                                                     setData('insured', {
                                                         ...data.insured,
                                                         home_city:
-                                                            e.target.value,
+                                                            event.target.value,
                                                     })
                                                 }
                                                 disabled={data.is_insure_holder}
@@ -762,8 +763,11 @@ export default function PolicyForm({
                                         id="policy_no"
                                         label="No. Polis"
                                         value={data.policy_no}
-                                        onChange={(e) =>
-                                            setData('policy_no', e.target.value)
+                                        onChange={(event) =>
+                                            setData(
+                                                'policy_no',
+                                                event.target.value,
+                                            )
                                         }
                                         row
                                     />
@@ -811,10 +815,12 @@ export default function PolicyForm({
                                                 type="number"
                                                 className="form-control"
                                                 value={data.premium}
-                                                onChange={(e) =>
+                                                onChange={(event) =>
                                                     setData(
                                                         'premium',
-                                                        Number(e.target.value),
+                                                        Number(
+                                                            event.target.value,
+                                                        ),
                                                     )
                                                 }
                                             />
@@ -824,10 +830,12 @@ export default function PolicyForm({
                                                 className="form-control"
                                                 style={{ maxWidth: '100px' }}
                                                 value={data.curr_rate}
-                                                onChange={(e) =>
+                                                onChange={(event) =>
                                                     setData(
                                                         'curr_rate',
-                                                        Number(e.target.value),
+                                                        Number(
+                                                            event.target.value,
+                                                        ),
                                                     )
                                                 }
                                             />
@@ -856,10 +864,10 @@ export default function PolicyForm({
                                         label="U.P. Dasar"
                                         type="number"
                                         value={data.base_insure}
-                                        onChange={(e) =>
+                                        onChange={(event) =>
                                             setData(
                                                 'base_insure',
-                                                Number(e.target.value),
+                                                Number(event.target.value),
                                             )
                                         }
                                         row
@@ -1244,10 +1252,10 @@ export default function PolicyForm({
                                         id="description"
                                         label="Keterangan"
                                         value={data.description}
-                                        onChange={(e) =>
+                                        onChange={(event) =>
                                             setData(
                                                 'description',
-                                                e.target.value,
+                                                event.target.value,
                                             )
                                         }
                                         row

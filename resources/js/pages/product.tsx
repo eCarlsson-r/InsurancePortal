@@ -1,7 +1,7 @@
-import Pagination from '@/components/pagination';
 import SelectInput from '@/components/form/select-input';
 import SubmitButton from '@/components/form/submit-button';
 import TextInput from '@/components/form/text-input';
+import Pagination from '@/components/pagination';
 import TableFormPage from '@/layouts/TableFormPage';
 import { productCommissionSchema, productSchema } from '@/schemas/models';
 import { router, useForm } from '@inertiajs/react';
@@ -56,7 +56,7 @@ export default function Product({ products, filters }: ProductProps) {
         name: '',
         type: '1',
         commissions: [],
-        credits: []
+        credits: [],
     });
 
     const isEdit = !!data.id;
@@ -195,7 +195,7 @@ export default function Product({ products, filters }: ProductProps) {
                         id="product-type"
                         label="Jenis Produk"
                         value={data.type}
-                        onChange={(e) => setData('type', e.target.value)}
+                        onChange={(value) => setData('type', value.toString())}
                         options={[
                             { value: '1', label: 'Term' },
                             { value: '2', label: 'Whole Life' },
@@ -259,11 +259,17 @@ export default function Product({ products, filters }: ProductProps) {
                                                     <input
                                                         type="number"
                                                         className="form-control form-control-sm"
-                                                        value={comm.commission_rate}
+                                                        value={
+                                                            comm.commission_rate
+                                                        }
                                                         onChange={(e) =>
                                                             handleCommissionChange(
-                                                                idx, 'commission_rate',
-                                                                parseFloat(e.target.value)
+                                                                idx,
+                                                                'commission_rate',
+                                                                parseFloat(
+                                                                    e.target
+                                                                        .value,
+                                                                ),
                                                             )
                                                         }
                                                     />
@@ -289,7 +295,10 @@ export default function Product({ products, filters }: ProductProps) {
                     </div>
 
                     <div className="text-end">
-                        <SubmitButton processing={processing} onClick={handleSubmit}>
+                        <SubmitButton
+                            processing={processing}
+                            onClick={handleSubmit}
+                        >
                             {isEdit ? 'Perbarui' : 'Simpan'}
                         </SubmitButton>
                     </div>

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class File extends Model
 {
@@ -41,6 +42,10 @@ class File extends Model
 
     public function getPathAttribute()
     {
-        return route('sales.policy.file', ['id' => $this->id]);
+        try {
+            return Storage::disk('local')->url('documents/' . $this->name . '.' . $this->extension);
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 }

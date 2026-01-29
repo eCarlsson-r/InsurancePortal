@@ -145,7 +145,7 @@ export default function AgentForm({
                                         </Accordion.Header>
                                         <Accordion.Body>
                                             <iframe
-                                                src={`/file/${file.id}#toolbar=0&navpanes=0`}
+                                                src={`${file.path}#toolbar=0&navpanes=0`}
                                                 width="100%"
                                                 height="600px"
                                                 style={{ border: 'none' }}

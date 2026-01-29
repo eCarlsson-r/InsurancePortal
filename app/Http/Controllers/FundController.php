@@ -85,10 +85,4 @@ class FundController extends Controller
 
         return redirect()->back();
     }
-
-    public function viewFile($id)
-    {
-        $file = File::findOrFail($id);
-        return Storage::disk('local')->response('documents/' . $file->name . '.' . $file->extension);
-    }
 }
