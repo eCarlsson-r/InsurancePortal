@@ -48,7 +48,7 @@ class Policy extends Model
 
     public function files()
     {
-        return $this->hasMany(File::class, 'document_id', 'id');
+        return $this->hasMany(File::class, 'document_id', 'id')->where('purpose', 'case');
     }
 
     public function holder()

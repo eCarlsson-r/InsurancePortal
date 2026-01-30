@@ -54,4 +54,9 @@ class Agent extends Model
     {
         return $this->hasMany(AgentProgram::class);
     }
+
+    public function files()
+    {
+        return $this->hasMany(File::class, 'document_id', 'id')->where('purpose', 'agent');
+    }
 }
