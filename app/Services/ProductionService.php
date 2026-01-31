@@ -485,7 +485,7 @@ class ProductionService
                 DB::raw('ntbonus.reward as `next_level`'),
                 DB::raw("COALESCE(IF(ntbonus.minimum_premium > target.current_fyp, ntbonus.minimum_premium - target.current_fyp, 0), 0) as `fyp_gap`")
             ])
-            ->groupBy(['target.agent_id', 'target.agent_name', 'target.current_fyp'])
+            ->groupBy(['target.agent_id', 'target.agent_name', 'target.current_fyp', 'stbonus.reward', 'ntbonus.reward', 'ntbonus.minimum_premium'])
             ->orderBy('target.current_fyp', 'DESC')
             ->get();
     }
@@ -533,7 +533,6 @@ class ProductionService
         $producerQuery = DB::table('agents as ag')
             ->join('agent_programs as ap', 'ag.id', '=', 'ap.agent_id')
             ->joinSub($prodSub, 'prod', 'ag.id', '=', 'prod.agent_id')
-            ->join()
             ->where('ap.position', 'FC')
             ->where('ag.agency_id', $agencyId)
             ->select([
