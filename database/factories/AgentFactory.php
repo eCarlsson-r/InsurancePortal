@@ -16,7 +16,7 @@ class AgentFactory extends Factory
             'official_number' => $this->faker->unique()->numberBetween(100000, 999999),
             'apply_date' => $this->faker->date(),
             'apply_place' => $this->faker->city,
-            'agency_id' => Agency::factory(),
+            'agency_id' => 1,
             'name' => $this->faker->name,
             'gender' => $this->faker->randomElement([1, 2]),
             'birth_place' => $this->faker->city,
@@ -38,7 +38,7 @@ class AgentFactory extends Factory
             'dependents' => $this->faker->numberBetween(0, 5),
             'license' => $this->faker->word,
             'due_date' => $this->faker->date(),
-            'recruiter_id' => Agent::factory(),
+            'recruiter_id' => 1,
             'notes' => $this->faker->sentence,
         ];
     }
