@@ -183,7 +183,7 @@ export default function TemplateLayout({ children }: PropsWithChildren) {
                 <div className="copyright">
                     <p>
                         Copyright © Designed &amp; Developed by{' '}
-                        <a href="http://carlssonstudio.com/" target="_blank">
+                        <a href="//carlssonstudio.com/" target="_blank">
                             Carlsson Studio
                         </a>{' '}
                         2022
