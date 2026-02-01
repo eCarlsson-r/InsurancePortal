@@ -1,7 +1,7 @@
-import Pagination from '@/components/pagination';
 import SelectInput from '@/components/form/select-input';
 import SubmitButton from '@/components/form/submit-button';
 import TextInput from '@/components/form/text-input';
+import Pagination from '@/components/pagination';
 import TableFormPage from '@/layouts/TableFormPage';
 import { agencySchema, agentSchema } from '@/schemas/models';
 import { router, useForm } from '@inertiajs/react';
@@ -24,7 +24,11 @@ interface AgencyProps {
     };
 }
 
-export default function Agency({ agencies, agents = [], filters }: AgencyProps) {
+export default function Agency({
+    agencies,
+    agents = [],
+    filters,
+}: AgencyProps) {
     const [searchQuery, setSearchQuery] = useState(filters.search || '');
 
     const handleSearch = useCallback(() => {
@@ -99,7 +103,7 @@ export default function Agency({ agencies, agents = [], filters }: AgencyProps) 
             }
             pagination={<Pagination links={agencies.links} />}
             tableContent={
-                <Table hover striped bordered>
+                <Table hover striped bordered responsive>
                     <thead>
                         <tr>
                             <th className="col-8" data-i18n="agency-name">
@@ -171,7 +175,9 @@ export default function Agency({ agencies, agents = [], filters }: AgencyProps) 
                         id="director"
                         label="Direktur Agency"
                         value={data.director}
-                        onChange={(e) => setData('director', e.target.value)}
+                        onChange={(value) =>
+                            setData('director', value.toString())
+                        }
                         options={agents.map((agent) => ({
                             value: agent.id || '',
                             label: agent.name,
@@ -183,7 +189,9 @@ export default function Agency({ agencies, agents = [], filters }: AgencyProps) 
                         id="leader"
                         label="Agency Atasan"
                         value={data.leader || ''}
-                        onChange={(e) => setData('leader', e.target.value)}
+                        onChange={(value) =>
+                            setData('leader', value.toString())
+                        }
                         options={agencies.data.map((agency) => ({
                             value: agency.id || '',
                             label: agency.name,
@@ -191,7 +199,10 @@ export default function Agency({ agencies, agents = [], filters }: AgencyProps) 
                         row
                     />
                     <div className="text-end">
-                        <SubmitButton processing={processing} onClick={handleSubmit}>
+                        <SubmitButton
+                            processing={processing}
+                            onClick={handleSubmit}
+                        >
                             {isEdit ? 'Perbarui' : 'Simpan'}
                         </SubmitButton>
                     </div>

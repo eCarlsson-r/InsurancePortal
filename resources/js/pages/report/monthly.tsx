@@ -1,23 +1,29 @@
 import MonthInput from '@/components/form/month-input';
 import TablePage from '@/layouts/TablePage';
-import { router } from '@inertiajs/react';
-import { Table } from 'react-bootstrap';
 import { exportTableToExcel } from '@/utils/exportToExcel';
+import { router } from '@inertiajs/react';
 import { useState } from 'react';
+import { Table } from 'react-bootstrap';
 
 type MonthlyData = {
-    id: string,
-    official_number: string,
-    name: string,
-    allowance: number,
-    commission: number,
-    production_bonus: number,
-    recruit_bonus: number,
-    overriding: number,
-    total_amount: number
+    id: string;
+    official_number: string;
+    name: string;
+    allowance: number;
+    commission: number;
+    production_bonus: number;
+    recruit_bonus: number;
+    overriding: number;
+    total_amount: number;
 };
 
-export default function Monthly({ data, report_month }: { data: MonthlyData[]; report_month: string }) {
+export default function Monthly({
+    data,
+    report_month,
+}: {
+    data: MonthlyData[];
+    report_month: string;
+}) {
     const [month, setMonth] = useState(report_month);
     const formatCurrency = (value: number) => {
         return new Intl.NumberFormat('id-ID', {
@@ -35,15 +41,15 @@ export default function Monthly({ data, report_month }: { data: MonthlyData[]; r
     };
 
     const exportToExcel = () => {
-        const exportData = data.map(item => ({
+        const exportData = data.map((item) => ({
             'Kode Agen': item.official_number,
             'Nama Agen': item.name,
-            'Komisi': item.commission,
+            Komisi: item.commission,
             'Production Bonus': item.production_bonus,
-            'Overriding': item.overriding,
+            Overriding: item.overriding,
             'Bonus Rekrut': item.recruit_bonus,
-            'Allowance': item.allowance,
-            'Total Komisi': item.total_amount
+            Allowance: item.allowance,
+            'Total Komisi': item.total_amount,
         }));
 
         exportTableToExcel(exportData, {
@@ -59,15 +65,26 @@ export default function Monthly({ data, report_month }: { data: MonthlyData[]; r
             title="Income List Bulanan"
             i18nTitle="monthly-report"
             breadcrumbs={[
-                { label: 'Laporan', href: 'javascript:void(0)', i18n: 'report' },
-                { label: 'Income List Bulanan', active: true, i18n: 'monthly-report' },
+                {
+                    label: 'Laporan',
+                    href: 'javascript:void(0)',
+                    i18n: 'report',
+                },
+                {
+                    label: 'Income List Bulanan',
+                    active: true,
+                    i18n: 'monthly-report',
+                },
             ]}
             toolbar={
-                <div className="d-flex align-items-center justify-content-between w-100">
-                    <h4 className="card-title mb-0" data-i18n="customer-religion-report">
-                        Income List per Bulan
+                <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 w-100">
+                    <h4
+                        className="card-title mb-0"
+                        data-i18n="agent-monthly-report"
+                    >
+                        Laporan Bulanan Agen
                     </h4>
-                    <div className="d-flex align-items-center gap-2">
+                    <div className="d-flex flex-wrap align-items-center gap-2">
                         <MonthInput
                             id="monthly-month"
                             label="Year"
@@ -86,7 +103,7 @@ export default function Monthly({ data, report_month }: { data: MonthlyData[]; r
                 </div>
             }
         >
-            <Table hover striped bordered>
+            <Table hover striped bordered responsive>
                 <thead>
                     <tr>
                         <th>Kode Agen</th>
@@ -106,7 +123,9 @@ export default function Monthly({ data, report_month }: { data: MonthlyData[]; r
                                 <td>{record.official_number}</td>
                                 <td>{record.name}</td>
                                 <td>{formatCurrency(record.commission)}</td>
-                                <td>{formatCurrency(record.production_bonus)}</td>
+                                <td>
+                                    {formatCurrency(record.production_bonus)}
+                                </td>
                                 <td>{formatCurrency(record.overriding)}</td>
                                 <td>{formatCurrency(record.recruit_bonus)}</td>
                                 <td>{formatCurrency(record.allowance)}</td>
@@ -115,7 +134,10 @@ export default function Monthly({ data, report_month }: { data: MonthlyData[]; r
                         ))
                     ) : (
                         <tr>
-                            <td colSpan={8} className="text-center text-muted py-4">
+                            <td
+                                colSpan={8}
+                                className="text-center text-muted py-4"
+                            >
                                 No agent found.
                             </td>
                         </tr>

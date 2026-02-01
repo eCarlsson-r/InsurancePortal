@@ -1,11 +1,11 @@
 import SelectInput from '@/components/form/select-input';
 import TablePage from '@/layouts/TablePage';
 import { agencySchema } from '@/schemas/models';
-import { Table } from 'react-bootstrap';
-import { useState } from 'react';
-import { z } from 'zod';
-import { router } from '@inertiajs/react';
 import { exportTableToExcel } from '@/utils/exportToExcel';
+import { router } from '@inertiajs/react';
+import { useState } from 'react';
+import { Table } from 'react-bootstrap';
+import { z } from 'zod';
 
 type ReportData = {
     agent_name: string;
@@ -15,12 +15,22 @@ type ReportData = {
     fyp_gap: number;
 };
 
-export default function MDRTReport({data, agencies, prod_agency, prod_year}: {data: ReportData[], agencies: z.infer<typeof agencySchema>[], prod_agency: string, prod_year: string}) {
+export default function MDRTReport({
+    data,
+    agencies,
+    prod_agency,
+    prod_year,
+}: {
+    data: ReportData[];
+    agencies: z.infer<typeof agencySchema>[];
+    prod_agency: string;
+    prod_year: string;
+}) {
     const [year, setYear] = useState(prod_year || '');
     const [agency, setAgency] = useState(prod_agency || '');
 
     const exportToExcel = () => {
-        const exportData = data.map(item => ({
+        const exportData = data.map((item) => ({
             'Nama Agen': item.agent_name,
             'FYP terkumpul': item.current_fyp,
             'Level tercapai': item.current_level,
@@ -41,27 +51,44 @@ export default function MDRTReport({data, agencies, prod_agency, prod_year}: {da
             title="Laporan MDRT Internasional"
             i18nTitle="mdrt-report"
             breadcrumbs={[
-                { label: 'Laporan', href: 'javascript:void(0)', i18n: 'report' },
-                { label: 'Laporan MDRT Internasional', active: true, i18n: 'mdrt-report' },
+                {
+                    label: 'Laporan',
+                    href: 'javascript:void(0)',
+                    i18n: 'report',
+                },
+                {
+                    label: 'Laporan MDRT Internasional',
+                    active: true,
+                    i18n: 'mdrt-report',
+                },
             ]}
             toolbar={
-                <div className="d-flex align-items-center justify-content-between w-100">
-                    <h4 className="card-title mb-0" data-i18n="mdrt-international-report">
-                        Laporan Pencapaian MDRT Internasional
+                <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 w-100">
+                    <h4
+                        className="card-title mb-0"
+                        data-i18n="agent-mdrt-report"
+                    >
+                        Laporan MDRT Agen
                     </h4>
-                    <div className="d-flex align-items-center gap-3">
+                    <div className="d-flex flex-wrap align-items-center gap-2">
                         <div className="d-flex align-items-center gap-2">
                             <SelectInput
                                 id="mdrt-year"
                                 label="Year"
                                 style={{ width: '100px' }}
                                 value={year}
-                                onChange={(value) => {setYear(value.toString())}}
+                                onChange={(value) => {
+                                    setYear(value.toString());
+                                }}
                                 options={[
                                     { value: '', label: 'Pilih Tahun' },
                                     ...Array.from({ length: 10 }, (_, i) => ({
-                                        value: (new Date().getFullYear() - i).toString(),
-                                        label: (new Date().getFullYear() - i).toString(),
+                                        value: (
+                                            new Date().getFullYear() - i
+                                        ).toString(),
+                                        label: (
+                                            new Date().getFullYear() - i
+                                        ).toString(),
                                     })),
                                 ]}
                             />
@@ -79,13 +106,18 @@ export default function MDRTReport({data, agencies, prod_agency, prod_year}: {da
                                     })),
                                 ]}
                                 value={agency}
-                                onChange={(value) => {setAgency(value.toString())}}
+                                onChange={(value) => {
+                                    setAgency(value.toString());
+                                }}
                             />
                         </div>
                         <button
                             className="btn btn-primary"
                             onClick={() => {
-                                if (year && agency) router.visit(`/reports/mdrt?year=${year}&agency=${agency}`);
+                                if (year && agency)
+                                    router.visit(
+                                        `/reports/mdrt?year=${year}&agency=${agency}`,
+                                    );
                             }}
                         >
                             Cari
@@ -101,7 +133,7 @@ export default function MDRTReport({data, agencies, prod_agency, prod_year}: {da
                 </div>
             }
         >
-            <Table hover striped bordered>
+            <Table hover striped bordered responsive>
                 <thead>
                     <tr>
                         <th>Nama Agen</th>
@@ -112,33 +144,39 @@ export default function MDRTReport({data, agencies, prod_agency, prod_year}: {da
                     </tr>
                 </thead>
                 <tbody>
-                    {
-                        (data.length > 0) ? data?.map((item, index) => (
+                    {data.length > 0 ? (
+                        data?.map((item, index) => (
                             <tr key={index}>
                                 <td>{item.agent_name}</td>
-                                <td>{Number(item.current_fyp).toLocaleString(
-                                    'id-ID',
-                                    {
-                                        style: 'currency',
-                                        currency: 'IDR',
-                                    }
-                                )}</td>
+                                <td>
+                                    {Number(item.current_fyp).toLocaleString(
+                                        'id-ID',
+                                        {
+                                            style: 'currency',
+                                            currency: 'IDR',
+                                        },
+                                    )}
+                                </td>
                                 <td>{item.current_level}</td>
                                 <td>{item.next_level}</td>
-                                <td>{Number(item.fyp_gap).toLocaleString(
-                                    'id-ID',
-                                    {
-                                        style: 'currency',
-                                        currency: 'IDR',
-                                    }
-                                )}</td>
+                                <td>
+                                    {Number(item.fyp_gap).toLocaleString(
+                                        'id-ID',
+                                        {
+                                            style: 'currency',
+                                            currency: 'IDR',
+                                        },
+                                    )}
+                                </td>
                             </tr>
-                        )) : (
-                            <tr>
-                                <td colSpan={5} className="text-center">Tidak ada data</td>
-                            </tr>
-                        )
-                    }
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan={5} className="text-center">
+                                Tidak ada data
+                            </td>
+                        </tr>
+                    )}
                 </tbody>
             </Table>
         </TablePage>

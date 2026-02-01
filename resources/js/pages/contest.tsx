@@ -1,8 +1,8 @@
-import Pagination from '@/components/pagination';
-import SelectInput from '@/components/form/select-input';
-import TextInput from '@/components/form/text-input';
-import SubmitButton from '@/components/form/submit-button';
 import DateInput from '@/components/form/date-input';
+import SelectInput from '@/components/form/select-input';
+import SubmitButton from '@/components/form/submit-button';
+import TextInput from '@/components/form/text-input';
+import Pagination from '@/components/pagination';
 import TableFormPage from '@/layouts/TableFormPage';
 import { contestSchema } from '@/schemas/models';
 import { router, useForm } from '@inertiajs/react';
@@ -56,7 +56,9 @@ export default function Contest({ contests, filters }: ContestProps) {
     };
 
     // Initial form state with safe defaults
-    const { data, setData, post, put, processing } = useForm<z.infer<typeof contestSchema>>({
+    const { data, setData, post, put, processing } = useForm<
+        z.infer<typeof contestSchema>
+    >({
         id: undefined,
         name: '',
         type: 'annual',
@@ -105,7 +107,7 @@ export default function Contest({ contests, filters }: ContestProps) {
             }
             pagination={<Pagination links={contests.links} />}
             tableContent={
-                <Table hover striped bordered>
+                <Table hover striped bordered responsive>
                     <thead>
                         <tr>
                             <th data-field="contest-name">Nama Kontes</th>
@@ -124,10 +126,14 @@ export default function Contest({ contests, filters }: ContestProps) {
                                 >
                                     <td>{contestItem.name}</td>
                                     <td>
-                                        {new Date(contestItem.start).toDateString()}
+                                        {new Date(
+                                            contestItem.start,
+                                        ).toDateString()}
                                     </td>
                                     <td>
-                                        {new Date(contestItem.end).toDateString()}
+                                        {new Date(
+                                            contestItem.end,
+                                        ).toDateString()}
                                     </td>
                                     <td>
                                         {contestItem.minimum_premium.toLocaleString(
@@ -154,7 +160,11 @@ export default function Contest({ contests, filters }: ContestProps) {
                             ))
                         ) : (
                             <tr>
-                                <td colSpan={5} className="text-center" data-i18n="no-contest">
+                                <td
+                                    colSpan={5}
+                                    className="text-center"
+                                    data-i18n="no-contest"
+                                >
                                     Tidak ada kontes
                                 </td>
                             </tr>
@@ -180,14 +190,34 @@ export default function Contest({ contests, filters }: ContestProps) {
                         id="type"
                         label="Jenis Kontes"
                         value={data.type}
-                        onChange={(e) => setData('type', e.target.value)}
+                        onChange={(value) => setData('type', value.toString())}
                         options={[
-                            { value: 'annual', label: 'Annual Bonus', i18n: 'annual-bonus' },
-                            { value: 'quarter', label: 'Quarterly Bonus', i18n: 'quarter-bonus' },
-                            { value: 'bonanza', label: 'Bonanza', i18n: 'bonanza' },
-                            { value: 'contest', label: 'Contest', i18n: 'contest' },
+                            {
+                                value: 'annual',
+                                label: 'Annual Bonus',
+                                i18n: 'annual-bonus',
+                            },
+                            {
+                                value: 'quarter',
+                                label: 'Quarterly Bonus',
+                                i18n: 'quarter-bonus',
+                            },
+                            {
+                                value: 'bonanza',
+                                label: 'Bonanza',
+                                i18n: 'bonanza',
+                            },
+                            {
+                                value: 'contest',
+                                label: 'Contest',
+                                i18n: 'contest',
+                            },
                             { value: 'MDRT', label: 'MDRT', i18n: 'mdrt' },
-                            { value: 'empire', label: 'Empire Club', i18n: 'empire-club' },
+                            {
+                                value: 'empire',
+                                label: 'Empire Club',
+                                i18n: 'empire-club',
+                            },
                         ]}
                         row
                     />
@@ -210,7 +240,12 @@ export default function Contest({ contests, filters }: ContestProps) {
                         label="Minimal Premi"
                         type="number"
                         value={data.minimum_premium}
-                        onChange={(e) => setData('minimum_premium', parseInt(e.target.value) || 0)}
+                        onChange={(e) =>
+                            setData(
+                                'minimum_premium',
+                                parseInt(e.target.value) || 0,
+                            )
+                        }
                         row
                     />
                     <TextInput
@@ -218,7 +253,12 @@ export default function Contest({ contests, filters }: ContestProps) {
                         label="Bonus %"
                         type="number"
                         value={data.bonus_percent}
-                        onChange={(e) => setData('bonus_percent', parseInt(e.target.value) || 0)}
+                        onChange={(e) =>
+                            setData(
+                                'bonus_percent',
+                                parseInt(e.target.value) || 0,
+                            )
+                        }
                         row
                     />
                     <TextInput
@@ -229,7 +269,10 @@ export default function Contest({ contests, filters }: ContestProps) {
                         row
                     />
                     <div className="text-end">
-                        <SubmitButton processing={processing} onClick={handleSubmit}>
+                        <SubmitButton
+                            processing={processing}
+                            onClick={handleSubmit}
+                        >
                             {isEdit ? 'Perbarui' : 'Simpan'}
                         </SubmitButton>
                     </div>

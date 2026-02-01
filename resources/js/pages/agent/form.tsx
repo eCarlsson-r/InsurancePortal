@@ -571,7 +571,10 @@ export default function AgentForm({
                                     </div>
                                     <div className="col-12">
                                         <div className="table-responsive">
-                                            <Table className="table-sm table-bordered">
+                                            <Table
+                                                responsive
+                                                className="table-sm table-bordered"
+                                            >
                                                 <thead>
                                                     <tr>
                                                         <th

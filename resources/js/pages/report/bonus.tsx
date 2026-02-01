@@ -8,19 +8,24 @@ import { Table } from 'react-bootstrap';
 import { z } from 'zod';
 
 type BonusData = {
-    name: string,
-    mtd_ape: number,
-    mtd_bonus: number,
-    mtd_gap: number,
-    std_ape: number,
-    std_bonus: number,
-    std_gap: number,
-    ytd_ape: number,
-    ytd_bonus: number,
-    ytd_gap: number
+    name: string;
+    mtd_ape: number;
+    mtd_bonus: number;
+    mtd_gap: number;
+    std_ape: number;
+    std_bonus: number;
+    std_gap: number;
+    ytd_ape: number;
+    ytd_bonus: number;
+    ytd_gap: number;
 };
 
-export default function BonusGap(props:{data: BonusData[], agencies: z.infer<typeof agencySchema>[], month:string, agency:string}) {
+export default function BonusGap(props: {
+    data: BonusData[];
+    agencies: z.infer<typeof agencySchema>[];
+    month: string;
+    agency: string;
+}) {
     const [month, setMonth] = useState(props.month);
     const [agency, setAgency] = useState(props.agency);
     return (
@@ -29,15 +34,26 @@ export default function BonusGap(props:{data: BonusData[], agencies: z.infer<typ
             title="Laporan Bonus"
             i18nTitle="bonus-gap-report"
             breadcrumbs={[
-                { label: 'Laporan', href: 'javascript:void(0)', i18n: 'report' },
-                { label: 'Laporan Bonus', active: true, i18n: 'bonus-gap-report' },
+                {
+                    label: 'Laporan',
+                    href: 'javascript:void(0)',
+                    i18n: 'report',
+                },
+                {
+                    label: 'Laporan Bonus',
+                    active: true,
+                    i18n: 'bonus-gap-report',
+                },
             ]}
             toolbar={
-                <div className="d-flex align-items-center justify-content-between w-100">
-                    <h4 className="card-title mb-0" data-i18n="agent-bonusgap-report">
-                        Laporan Pencapaian Bonus Agen
+                <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 w-100">
+                    <h4
+                        className="card-title mb-0"
+                        data-i18n="agent-bonus-report"
+                    >
+                        Laporan Bonus Agen
                     </h4>
-                    <div className="d-flex align-items-center gap-3">
+                    <div className="d-flex flex-wrap align-items-center gap-2">
                         <div className="d-flex align-items-center gap-2">
                             <MonthInput
                                 id="bonusgap-month"
@@ -61,13 +77,18 @@ export default function BonusGap(props:{data: BonusData[], agencies: z.infer<typ
                                     })),
                                 ]}
                                 value={agency}
-                                onChange={(value) => {setAgency(value.toString())}}
+                                onChange={(value) => {
+                                    setAgency(value.toString());
+                                }}
                             />
                         </div>
                         <button
                             className="btn btn-primary"
                             onClick={() => {
-                                if (month && agency) router.visit(`/reports/bonusgap?month=${month}&agency=${agency}`);
+                                if (month && agency)
+                                    router.visit(
+                                        `/reports/bonusgap?month=${month}&agency=${agency}`,
+                                    );
                             }}
                         >
                             Cari
@@ -76,10 +97,12 @@ export default function BonusGap(props:{data: BonusData[], agencies: z.infer<typ
                 </div>
             }
         >
-            <Table hover striped bordered>
+            <Table hover striped bordered responsive>
                 <thead>
                     <tr>
-                        <th className="col-3" rowSpan={2}>Nama Agen</th>
+                        <th className="col-3" rowSpan={2}>
+                            Nama Agen
+                        </th>
                         <th colSpan={3}>Production Bonus</th>
                         <th colSpan={3}>Half Year Bonus</th>
                         <th colSpan={3}>Year End Bonus</th>
@@ -97,58 +120,76 @@ export default function BonusGap(props:{data: BonusData[], agencies: z.infer<typ
                     </tr>
                 </thead>
                 <tbody>
-                    {
-                        (props.data.length > 0) ? (props.data.map((item, index) => (
+                    {props.data.length > 0 ? (
+                        props.data.map((item, index) => (
                             <tr key={index}>
                                 <td>{item.name}</td>
-                                <td>{Number(item.mtd_ape).toLocaleString(
-                                    'id-ID',
-                                    {
-                                        style: 'currency',
-                                        currency: 'IDR',
-                                    }
-                                )}</td>
+                                <td>
+                                    {Number(item.mtd_ape).toLocaleString(
+                                        'id-ID',
+                                        {
+                                            style: 'currency',
+                                            currency: 'IDR',
+                                        },
+                                    )}
+                                </td>
                                 <td>{item.mtd_bonus}%</td>
-                                <td>{Number(item.mtd_gap).toLocaleString(
-                                    'id-ID',
-                                    {
-                                        style: 'currency',
-                                        currency: 'IDR',
-                                    }
-                                )}</td>
-                                <td>{Number(item.std_ape).toLocaleString(
-                                    'id-ID',
-                                    {
-                                        style: 'currency',
-                                        currency: 'IDR',
-                                    },
-                                )}</td>
+                                <td>
+                                    {Number(item.mtd_gap).toLocaleString(
+                                        'id-ID',
+                                        {
+                                            style: 'currency',
+                                            currency: 'IDR',
+                                        },
+                                    )}
+                                </td>
+                                <td>
+                                    {Number(item.std_ape).toLocaleString(
+                                        'id-ID',
+                                        {
+                                            style: 'currency',
+                                            currency: 'IDR',
+                                        },
+                                    )}
+                                </td>
                                 <td>{item.std_bonus}%</td>
-                                <td>{Number(item.std_gap).toLocaleString(
-                                    'id-ID',
-                                    {
-                                        style: 'currency',
-                                        currency: 'IDR',
-                                    }
-                                )}</td>
-                                <td>{Number(item.ytd_ape).toLocaleString(
-                                    'id-ID',
-                                    {
-                                        style: 'currency',
-                                        currency: 'IDR',
-                                    },
-                                )}</td>
+                                <td>
+                                    {Number(item.std_gap).toLocaleString(
+                                        'id-ID',
+                                        {
+                                            style: 'currency',
+                                            currency: 'IDR',
+                                        },
+                                    )}
+                                </td>
+                                <td>
+                                    {Number(item.ytd_ape).toLocaleString(
+                                        'id-ID',
+                                        {
+                                            style: 'currency',
+                                            currency: 'IDR',
+                                        },
+                                    )}
+                                </td>
                                 <td>{item.ytd_bonus}%</td>
-                                <td>{Number(item.ytd_gap).toLocaleString(
-                                    'id-ID',
-                                    {
-                                        style: 'currency',
-                                        currency: 'IDR',
-                                    }
-                                )}</td>
+                                <td>
+                                    {Number(item.ytd_gap).toLocaleString(
+                                        'id-ID',
+                                        {
+                                            style: 'currency',
+                                            currency: 'IDR',
+                                        },
+                                    )}
+                                </td>
                             </tr>
-                        ))) : (<tr><td colSpan={10} className="text-center">Tidak ada data</td></tr>)
-                    }
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan={10} className="text-center">
+                                Tidak ada data
+                            </td>
+                        </tr>
+                    )}
                 </tbody>
             </Table>
         </TablePage>

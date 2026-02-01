@@ -1,9 +1,9 @@
-import Pagination from '@/components/pagination';
+import DateInput from '@/components/form/date-input';
 import SelectInput from '@/components/form/select-input';
 import SubmitButton from '@/components/form/submit-button';
 import TextInput from '@/components/form/text-input';
 import TextareaInput from '@/components/form/textarea-input';
-import DateInput from '@/components/form/date-input';
+import Pagination from '@/components/pagination';
 import TableFormPage from '@/layouts/TableFormPage';
 import {
     agentSchema,
@@ -38,7 +38,7 @@ export default function Receipt({
     customers = [],
     products = [],
     agents = [],
-    filters
+    filters,
 }: ReceiptProps) {
     const [searchQuery, setSearchQuery] = useState(filters.search || '');
 
@@ -71,15 +71,15 @@ export default function Receipt({
         pay_date: '',
         paid_date: '',
         premium: 0,
-        paid_amount : 0,
+        paid_amount: 0,
         currency_rate: 1,
         pay_method: '1',
         description: '',
         policy: {
             agent_id: '',
             product_id: '',
-            holder_id: ''
-        }
+            holder_id: '',
+        },
     });
 
     const isEdit = !!data.id;
@@ -129,7 +129,7 @@ export default function Receipt({
             }
             pagination={<Pagination links={receipts.links} />}
             tableContent={
-                <Table hover striped bordered>
+                <Table hover striped bordered responsive>
                     <thead>
                         <tr>
                             <th data-i18n="pay-date">Tgl. Bayar</th>
@@ -146,8 +146,16 @@ export default function Receipt({
                                     key={receipt.id}
                                     onClick={() => setData(receipt)}
                                 >
-                                    <td>{new Date(receipt.pay_date).toDateString()}</td>
-                                    <td>{new Date(receipt.paid_date).toDateString()}</td>
+                                    <td>
+                                        {new Date(
+                                            receipt.pay_date,
+                                        ).toDateString()}
+                                    </td>
+                                    <td>
+                                        {new Date(
+                                            receipt.paid_date,
+                                        ).toDateString()}
+                                    </td>
                                     <td>{receipt.policy?.policy_no}</td>
                                     <td className="text-end">
                                         {formatCurrency(receipt.premium)}
@@ -187,10 +195,12 @@ export default function Receipt({
                         id="policy_code"
                         label="No. SP / Polis"
                         value={data.policy?.policy_no}
-                        onChange={(e) => setData('policy', {
-                            ...data.policy,
-                            policy_no: e.target.value,
-                        })}
+                        onChange={(e) =>
+                            setData('policy', {
+                                ...data.policy,
+                                policy_no: e.target.value,
+                            })
+                        }
                         row
                     />
                     <SelectInput
@@ -248,7 +258,9 @@ export default function Receipt({
                     <DateInput
                         id="paid_date"
                         label="Tanggal Bayar"
-                        value={data.paid_date ? data.paid_date.split('T')[0] : ''}
+                        value={
+                            data.paid_date ? data.paid_date.split('T')[0] : ''
+                        }
                         onChange={(e) => setData('paid_date', e.target.value)}
                         row
                     />
@@ -276,13 +288,15 @@ export default function Receipt({
                         id="pay_method"
                         label="Metode Bayar"
                         value={data.pay_method}
-                        onChange={(value) => setData('pay_method', value.toString())}
+                        onChange={(value) =>
+                            setData('pay_method', value.toString())
+                        }
                         options={[
                             { value: '1', label: 'Tahunan' },
                             { value: '2', label: 'Semesteran' },
                             { value: '4', label: 'Tiga Bulanan' },
                             { value: '12', label: 'Bulanan' },
-                            { value: '0', label: 'Sekaligus' }
+                            { value: '0', label: 'Sekaligus' },
                         ]}
                         row
                     />

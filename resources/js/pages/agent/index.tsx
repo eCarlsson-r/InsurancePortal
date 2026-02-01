@@ -110,7 +110,13 @@ export default function Agent({ agents, filters }: AgentProps) {
             }
             pagination={<Pagination links={agents.links} />}
         >
-            <Table hover striped bordered className="vertical-middle">
+            <Table
+                hover
+                striped
+                bordered
+                responsive
+                className="vertical-middle"
+            >
                 <thead>
                     <tr>
                         <th style={{ width: '120px' }} data-i18n="agent-number">

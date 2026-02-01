@@ -19,7 +19,12 @@ type ReceiptData = {
     customer_address: string;
 };
 
-export default function DueDate(props:{data: ReceiptData[], agents: z.infer<typeof agentSchema>[], month: string, agent: string}) {
+export default function DueDate(props: {
+    data: ReceiptData[];
+    agents: z.infer<typeof agentSchema>[];
+    month: string;
+    agent: string;
+}) {
     const [month, setMonth] = useState(props.month);
     const [agent, setAgent] = useState(props.agent);
     return (
@@ -28,14 +33,28 @@ export default function DueDate(props:{data: ReceiptData[], agents: z.infer<type
             title="Laporan Jatuh Tempo"
             i18nTitle="due-report"
             breadcrumbs={[
-                { label: 'Laporan', href: 'javascript:void(0)', i18n: 'report' },
-                { label: 'Laporan Jatuh Tempo', active: true, i18n: 'due-report' },
+                {
+                    label: 'Laporan',
+                    href: 'javascript:void(0)',
+                    i18n: 'report',
+                },
+                {
+                    label: 'Laporan Jatuh Tempo',
+                    active: true,
+                    i18n: 'due-report',
+                },
             ]}
             toolbar={
-                <div className="d-flex align-items-center justify-content-between w-100">
+                <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 w-100">
                     <div className="card-title mb-0">
-                        <h4 className="mb-1" data-i18n="due-report">Laporan Jatuh Tempo</h4>
-                        <h6 className="mb-0"><span data-i18n="due-report-desc">Laporan Polis Nasabah yang Jatuh Tempo.</span></h6>
+                        <h4 className="mb-1" data-i18n="due-report">
+                            Laporan Jatuh Tempo
+                        </h4>
+                        <h6 className="mb-0">
+                            <span data-i18n="due-report-desc">
+                                Laporan Polis Nasabah yang Jatuh Tempo.
+                            </span>
+                        </h6>
                     </div>
                     <div className="d-flex align-items-center gap-3">
                         <div className="d-flex align-items-center gap-2">
@@ -44,7 +63,9 @@ export default function DueDate(props:{data: ReceiptData[], agents: z.infer<type
                                 label="Month"
                                 style={{ width: '150px' }}
                                 value={month}
-                                onChange={(e) => { setMonth(e.target.value); }}
+                                onChange={(e) => {
+                                    setMonth(e.target.value);
+                                }}
                             />
                         </div>
                         <div className="d-flex align-items-center gap-2">
@@ -53,14 +74,22 @@ export default function DueDate(props:{data: ReceiptData[], agents: z.infer<type
                                 label="Agent"
                                 style={{ width: '200px' }}
                                 value={agent}
-                                options={props.agents.map((agent) => ({ value: agent.id || '', label: agent.name }))}
-                                onChange={(value) => { setAgent(value.toString()); }}
+                                options={props.agents.map((agent) => ({
+                                    value: agent.id || '',
+                                    label: agent.name,
+                                }))}
+                                onChange={(value) => {
+                                    setAgent(value.toString());
+                                }}
                             />
                         </div>
                         <button
                             className="btn btn-primary"
                             onClick={() => {
-                                if (month && agent) router.visit(`/reports/duedate?month=${month}&agent=${agent}`);
+                                if (month && agent)
+                                    router.visit(
+                                        `/reports/duedate?month=${month}&agent=${agent}`,
+                                    );
                             }}
                         >
                             Cari
@@ -69,7 +98,7 @@ export default function DueDate(props:{data: ReceiptData[], agents: z.infer<type
                 </div>
             }
         >
-            <Table hover striped bordered>
+            <Table hover striped bordered responsive>
                 <thead>
                     <tr>
                         <th>No. Polis</th>
@@ -84,25 +113,47 @@ export default function DueDate(props:{data: ReceiptData[], agents: z.infer<type
                     </tr>
                 </thead>
                 <tbody>
-                    {
-                        (props.data.length > 0) ? (props.data.map((item, index) => (
+                    {props.data.length > 0 ? (
+                        props.data.map((item, index) => (
                             <tr key={index}>
                                 <td>{item.receipt_policy}</td>
                                 <td>{item.customer_name}</td>
                                 <td>{item.insured_name}</td>
-                                <td>{new Date(item.insured_birthdate).toDateString()}</td>
+                                <td>
+                                    {new Date(
+                                        item.insured_birthdate,
+                                    ).toDateString()}
+                                </td>
                                 <td>{item.case_product}</td>
-                                <td>{new Date(item.receipt_pay_date).toDateString()}</td>
+                                <td>
+                                    {new Date(
+                                        item.receipt_pay_date,
+                                    ).toDateString()}
+                                </td>
                                 <td>{item.receipt_premium}</td>
-                                <td>{item.receipt_pay_method === '1' ? 'Tahunan' :
-                                         item.receipt_pay_method === '2' ? 'Enam Bulanan' :
-                                         item.receipt_pay_method === '4' ? 'Tiga Bulanan' :
-                                         item.receipt_pay_method === '12' ? 'Bulanan' :
-                                         item.receipt_pay_method === '0' ? 'Sekaligus' : item.receipt_pay_method}</td>
+                                <td>
+                                    {item.receipt_pay_method === '1'
+                                        ? 'Tahunan'
+                                        : item.receipt_pay_method === '2'
+                                          ? 'Enam Bulanan'
+                                          : item.receipt_pay_method === '4'
+                                            ? 'Tiga Bulanan'
+                                            : item.receipt_pay_method === '12'
+                                              ? 'Bulanan'
+                                              : item.receipt_pay_method === '0'
+                                                ? 'Sekaligus'
+                                                : item.receipt_pay_method}
+                                </td>
                                 <td>{item.customer_address}</td>
                             </tr>
-                        ))) : (<tr><td colSpan={9} className="text-center">Tidak ada data</td></tr>)
-                    }
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan={9} className="text-center">
+                                Tidak ada data
+                            </td>
+                        </tr>
+                    )}
                 </tbody>
             </Table>
         </TablePage>

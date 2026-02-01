@@ -18,12 +18,39 @@ export default function TemplateLayout({ children }: PropsWithChildren) {
         const toggleBtn = document.querySelector('.nav-control');
         const handleToggle = () => {
             mainWrapperRef.current?.classList.toggle('menu-toggle');
+            toggleBtn
+                ?.querySelector('.hamburger')
+                ?.classList.toggle('is-active');
         };
 
         toggleBtn?.addEventListener('click', handleToggle);
 
+        // Resize logic
+        const handleResize = () => {
+            if (window.innerWidth <= 1024) {
+                mainWrapperRef.current?.setAttribute('data-layout', 'vertical');
+                mainWrapperRef.current?.setAttribute(
+                    'data-sidebar-style',
+                    'overlay',
+                );
+            } else {
+                mainWrapperRef.current?.setAttribute(
+                    'data-layout',
+                    'horizontal',
+                );
+                mainWrapperRef.current?.setAttribute(
+                    'data-sidebar-style',
+                    'full',
+                );
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+        handleResize(); // Initial check
+
         return () => {
             toggleBtn?.removeEventListener('click', handleToggle);
+            window.removeEventListener('resize', handleResize);
             if (mm && typeof mm.dispose === 'function') {
                 mm.dispose();
             }

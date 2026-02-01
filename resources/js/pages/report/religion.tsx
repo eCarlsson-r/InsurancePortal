@@ -12,7 +12,13 @@ interface Customer {
     address: string;
 }
 
-export default function Religion({ religion, customers }: { religion: string; customers: Customer[] }) {
+export default function Religion({
+    religion,
+    customers,
+}: {
+    religion: string;
+    customers: Customer[];
+}) {
     const handleChange = (value: string | number) => {
         router.get('/reports/religion', {
             religion: value,
@@ -25,16 +31,31 @@ export default function Religion({ religion, customers }: { religion: string; cu
             title="Agama Pemegang Polis"
             i18nTitle="religion-report"
             breadcrumbs={[
-                { label: 'Laporan', href: 'javascript:void(0)', i18n: 'report' },
-                { label: 'Agama Pemegang Polis', active: true, i18n: 'religion-report' },
+                {
+                    label: 'Laporan',
+                    href: 'javascript:void(0)',
+                    i18n: 'report',
+                },
+                {
+                    label: 'Agama Pemegang Polis',
+                    active: true,
+                    i18n: 'religion-report',
+                },
             ]}
             toolbar={
-                <div className="d-flex align-items-center justify-content-between w-100">
-                    <h4 className="card-title mb-0" data-i18n="customer-religion-report">
-                        Daftar Pemegang Polis berdasarkan Agama
+                <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 w-100">
+                    <h4
+                        className="card-title mb-0"
+                        data-i18n="customer-religion-report"
+                    >
+                        Daftar Agama Nasabah
                     </h4>
-                    <div className="d-flex align-items-center gap-2">
-                        <label htmlFor="religion" className="mb-0" data-i18n="customer-religion">
+                    <div className="d-flex flex-wrap align-items-center gap-2">
+                        <label
+                            htmlFor="religion"
+                            className="mb-0"
+                            data-i18n="customer-religion"
+                        >
                             Agama
                         </label>
                         <div style={{ width: '150px' }}>
@@ -54,7 +75,7 @@ export default function Religion({ religion, customers }: { religion: string; cu
                 </div>
             }
         >
-            <Table hover striped bordered>
+            <Table hover striped bordered responsive>
                 <thead>
                     <tr>
                         <th data-i18n="name">Nama</th>
@@ -68,14 +89,21 @@ export default function Religion({ religion, customers }: { religion: string; cu
                         customers.map((customer) => (
                             <tr key={customer.id}>
                                 <td>{customer.name}</td>
-                                <td>{new Date(customer.birth_date).toDateString()}</td>
+                                <td>
+                                    {new Date(
+                                        customer.birth_date,
+                                    ).toDateString()}
+                                </td>
                                 <td>{customer.age}</td>
                                 <td>{customer.address}</td>
                             </tr>
                         ))
                     ) : (
                         <tr>
-                            <td colSpan={5} className="text-center text-muted py-4">
+                            <td
+                                colSpan={5}
+                                className="text-center text-muted py-4"
+                            >
                                 No customer found.
                             </td>
                         </tr>

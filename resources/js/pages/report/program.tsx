@@ -2,11 +2,11 @@ import MonthInput from '@/components/form/month-input';
 import SelectInput from '@/components/form/select-input';
 import TablePage from '@/layouts/TablePage';
 import { agencySchema } from '@/schemas/models';
+import { exportTableToExcel } from '@/utils/exportToExcel';
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
 import { Table } from 'react-bootstrap';
 import { z } from 'zod';
-import { exportTableToExcel } from '@/utils/exportToExcel';
 
 type ProgramData = {
     name: string;
@@ -20,7 +20,12 @@ type ProgramData = {
     ytd_achieved: number;
     ytd_gap: number;
 };
-export default function Program({data, agencies, report_month, report_agency}: {
+export default function Program({
+    data,
+    agencies,
+    report_month,
+    report_agency,
+}: {
     data: ProgramData[];
     agencies: z.infer<typeof agencySchema>[];
     report_month: string | null;
@@ -30,10 +35,10 @@ export default function Program({data, agencies, report_month, report_agency}: {
     const [agency, setAgency] = useState(report_agency || '');
 
     const exportToExcel = () => {
-        const exportData = data.map(item => ({
+        const exportData = data.map((item) => ({
             'Nama Agen': item.name,
             'Starting Month': item.start_month,
-            'Program': item.program,
+            Program: item.program,
             'Month Period': item.month,
             'Target MTD': item.mtd_target,
             'Pencapaian MTD': item.mtd_achieved,
@@ -56,15 +61,26 @@ export default function Program({data, agencies, report_month, report_agency}: {
             title="Laporan Program Financing"
             i18nTitle="program-report"
             breadcrumbs={[
-                { label: 'Laporan', href: 'javascript:void(0)', i18n: 'report' },
-                { label: 'Laporan Program Financing', active: true, i18n: 'program-report' },
+                {
+                    label: 'Laporan',
+                    href: 'javascript:void(0)',
+                    i18n: 'report',
+                },
+                {
+                    label: 'Laporan Program Financing',
+                    active: true,
+                    i18n: 'program-report',
+                },
             ]}
             toolbar={
-                <div className="d-flex align-items-center justify-content-between w-100">
-                    <h4 className="card-title mb-0" data-i18n="agent-program-report">
+                <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 w-100">
+                    <h4
+                        className="card-title mb-0"
+                        data-i18n="agent-program-report"
+                    >
                         Laporan Program Agen
                     </h4>
-                    <div className="d-flex align-items-center gap-3">
+                    <div className="d-flex flex-wrap align-items-center gap-2">
                         <div className="d-flex align-items-center gap-2">
                             <MonthInput
                                 id="program-month"
@@ -80,7 +96,9 @@ export default function Program({data, agencies, report_month, report_agency}: {
                                 label="Agency"
                                 style={{ width: '300px' }}
                                 value={agency}
-                                onChange={(value) => setAgency(value.toString())}
+                                onChange={(value) =>
+                                    setAgency(value.toString())
+                                }
                                 options={agencies.map((agency) => ({
                                     value: agency.id?.toString() || '',
                                     label: agency.name,
@@ -90,7 +108,10 @@ export default function Program({data, agencies, report_month, report_agency}: {
                         <button
                             className="btn btn-primary"
                             onClick={() => {
-                                if (month && agency) router.visit(`/reports/financing?report_month=${month}&report_agency=${agency}`);
+                                if (month && agency)
+                                    router.visit(
+                                        `/reports/financing?report_month=${month}&report_agency=${agency}`,
+                                    );
                             }}
                         >
                             Cari
@@ -106,38 +127,102 @@ export default function Program({data, agencies, report_month, report_agency}: {
                 </div>
             }
         >
-            <Table hover striped bordered>
+            <Table hover striped bordered responsive>
                 <thead>
                     <tr>
                         <th data-field="agent-name">Nama Agen</th>
                         <th data-field="start-month">Starting Month</th>
                         <th data-field="program">Program</th>
                         <th data-field="month">Month Period</th>
-                        <th data-field="mtd-target" data-formatter="programIDRFormatter">Target MTD</th>
-                        <th data-field="mtd-achieved" data-formatter="programIDRFormatter">Pencapaian MTD</th>
-                        <th data-field="mtd-gap" data-formatter="programIDRFormatter">Kurang MTD</th>
-                        <th data-field="ytd-target" data-formatter="programIDRFormatter">Target YTD</th>
-                        <th data-field="ytd-achieved" data-formatter="programIDRFormatter">Pencapaian YTD</th>
-                        <th data-field="ytd-gap" data-formatter="programIDRFormatter">Kurang YTD</th>
+                        <th
+                            data-field="mtd-target"
+                            data-formatter="programIDRFormatter"
+                        >
+                            Target MTD
+                        </th>
+                        <th
+                            data-field="mtd-achieved"
+                            data-formatter="programIDRFormatter"
+                        >
+                            Pencapaian MTD
+                        </th>
+                        <th
+                            data-field="mtd-gap"
+                            data-formatter="programIDRFormatter"
+                        >
+                            Kurang MTD
+                        </th>
+                        <th
+                            data-field="ytd-target"
+                            data-formatter="programIDRFormatter"
+                        >
+                            Target YTD
+                        </th>
+                        <th
+                            data-field="ytd-achieved"
+                            data-formatter="programIDRFormatter"
+                        >
+                            Pencapaian YTD
+                        </th>
+                        <th
+                            data-field="ytd-gap"
+                            data-formatter="programIDRFormatter"
+                        >
+                            Kurang YTD
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
-                    {(data.length > 0)?(data.map((item, index) => (
-                        <tr key={index}>
-                            <td>{item.name}</td>
-                            <td>{item.start_month}</td>
-                            <td>{item.program}</td>
-                            <td>{item.month}</td>
-                            <td>{Number(item.mtd_target).toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</td>
-                            <td>{Number(item.mtd_achieved).toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</td>
-                            <td>{Number(item.mtd_gap).toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</td>
-                            <td>{Number(item.ytd_target).toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</td>
-                            <td>{Number(item.ytd_achieved).toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</td>
-                            <td>{Number(item.ytd_gap).toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</td>
-                        </tr>
-                    ))):(
+                    {data.length > 0 ? (
+                        data.map((item, index) => (
+                            <tr key={index}>
+                                <td>{item.name}</td>
+                                <td>{item.start_month}</td>
+                                <td>{item.program}</td>
+                                <td>{item.month}</td>
+                                <td>
+                                    {Number(item.mtd_target).toLocaleString(
+                                        'id-ID',
+                                        { style: 'currency', currency: 'IDR' },
+                                    )}
+                                </td>
+                                <td>
+                                    {Number(item.mtd_achieved).toLocaleString(
+                                        'id-ID',
+                                        { style: 'currency', currency: 'IDR' },
+                                    )}
+                                </td>
+                                <td>
+                                    {Number(item.mtd_gap).toLocaleString(
+                                        'id-ID',
+                                        { style: 'currency', currency: 'IDR' },
+                                    )}
+                                </td>
+                                <td>
+                                    {Number(item.ytd_target).toLocaleString(
+                                        'id-ID',
+                                        { style: 'currency', currency: 'IDR' },
+                                    )}
+                                </td>
+                                <td>
+                                    {Number(item.ytd_achieved).toLocaleString(
+                                        'id-ID',
+                                        { style: 'currency', currency: 'IDR' },
+                                    )}
+                                </td>
+                                <td>
+                                    {Number(item.ytd_gap).toLocaleString(
+                                        'id-ID',
+                                        { style: 'currency', currency: 'IDR' },
+                                    )}
+                                </td>
+                            </tr>
+                        ))
+                    ) : (
                         <tr>
-                            <td colSpan={10} className="text-center">No data available</td>
+                            <td colSpan={10} className="text-center">
+                                No data available
+                            </td>
                         </tr>
                     )}
                 </tbody>

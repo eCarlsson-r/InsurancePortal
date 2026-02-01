@@ -122,7 +122,7 @@ export default function Product({ products, filters }: ProductProps) {
             }
             pagination={<Pagination links={products.links} />}
             tableContent={
-                <Table hover striped bordered>
+                <Table hover striped bordered responsive>
                     <thead>
                         <tr>
                             <th className="col-8" data-i18n="product-name">

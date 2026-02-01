@@ -186,7 +186,11 @@ export default function PolicyForm({
                     {/* PDF Preview Sidebar (Sticky) */}
                     <div className="col-lg-6 d-none d-lg-block">
                         {data.files && data.files.length > 0 && (
-                            <Accordion>
+                            <Accordion
+                                defaultActiveKey={
+                                    data.files[0].id?.toString() || ''
+                                }
+                            >
                                 {data.files?.map((file) => (
                                     <Accordion.Item
                                         eventKey={file.id?.toString() || ''}
@@ -885,7 +889,7 @@ export default function PolicyForm({
                                                 Tambah
                                             </button>
                                         </div>
-                                        <Table bordered>
+                                        <Table bordered responsive>
                                             <thead>
                                                 <tr>
                                                     <th>Jenis Investasi</th>

@@ -56,7 +56,10 @@ export default function Program({ programs, filters }: ProgramProps) {
     };
 
     const handleDelete = (programId: number | undefined) => {
-        if (programId && confirm('Are you sure you want to delete this program?')) {
+        if (
+            programId &&
+            confirm('Are you sure you want to delete this program?')
+        ) {
             router.delete(`/master/program/${programId}`);
         }
     };
@@ -97,7 +100,11 @@ export default function Program({ programs, filters }: ProgramProps) {
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 onKeyPress={handleKeyPress}
                             />
-                            <button className="btn btn-primary" type="button" onClick={handleSearch}>
+                            <button
+                                className="btn btn-primary"
+                                type="button"
+                                onClick={handleSearch}
+                            >
                                 <i className="fa fa-search"></i>
                             </button>
                         </InputGroup>
@@ -107,30 +114,56 @@ export default function Program({ programs, filters }: ProgramProps) {
             pagination={<Pagination links={programs.links} />}
         >
             <div className="table-responsive">
-                <Table hover striped bordered className="vertical-middle">
+                <Table
+                    hover
+                    striped
+                    bordered
+                    responsive
+                    className="vertical-middle"
+                >
                     <thead>
                         <tr>
                             <th data-i18n="program-name">Nama Program</th>
-                            <th style={{ width: '200px' }} data-i18n="agent-level">Jabatan Agen</th>
-                            <th style={{ width: '200px' }} data-i18n="min-allowance">Allowance Minimal</th>
-                            <th style={{ width: '200px' }} data-i18n="max-allowance">Allowance Maksimal</th>
+                            <th
+                                style={{ width: '200px' }}
+                                data-i18n="agent-level"
+                            >
+                                Jabatan Agen
+                            </th>
+                            <th
+                                style={{ width: '200px' }}
+                                data-i18n="min-allowance"
+                            >
+                                Allowance Minimal
+                            </th>
+                            <th
+                                style={{ width: '200px' }}
+                                data-i18n="max-allowance"
+                            >
+                                Allowance Maksimal
+                            </th>
                             <th></th>
                         </tr>
                     </thead>
                     <tbody>
                         {programs.data.length > 0 ? (
                             programs.data.map((program) => (
-                                <tr 
-                                    key={program.id} 
+                                <tr
+                                    key={program.id}
                                     onClick={() => handleRowClick(program.id)}
                                     className="cursor-pointer"
                                 >
                                     <td>{program.name}</td>
                                     <td>
-                                        {program.position === 'FC' ? 'Financial Consultant' : 
-                                         program.position === 'BP*' ? 'Business Partner *' :
-                                         program.position === 'BP**' ? 'Business Partner **' :
-                                         program.position === 'BP***' ? 'Business Partner ***' : program.position}
+                                        {program.position === 'FC'
+                                            ? 'Financial Consultant'
+                                            : program.position === 'BP*'
+                                              ? 'Business Partner *'
+                                              : program.position === 'BP**'
+                                                ? 'Business Partner **'
+                                                : program.position === 'BP***'
+                                                  ? 'Business Partner ***'
+                                                  : program.position}
                                     </td>
                                     <td className="text-end">
                                         {formatCurrency(program.min_allowance)}
@@ -154,7 +187,10 @@ export default function Program({ programs, filters }: ProgramProps) {
                             ))
                         ) : (
                             <tr>
-                                <td colSpan={5} className="text-center text-muted py-4">
+                                <td
+                                    colSpan={5}
+                                    className="text-center text-muted py-4"
+                                >
                                     No programs found.
                                 </td>
                             </tr>

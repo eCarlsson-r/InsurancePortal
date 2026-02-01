@@ -115,13 +115,20 @@ class ProductionService
                 $join->on('p.product_id', '=', 'c.product_id')
                     ->on('p.pay_method', '=', 'c.payment_method')
                     ->on('p.pay_period', '=', DB::raw("COALESCE(c.payment_period, p.pay_period)"))
-                    ->on('p.currency_id', '=', 'c.currency');
+                    ->on('p.currency_id', '=', 'c.currency')
+                    ->where('c.year', 1);
             })
             ->leftJoin('riders as rd', function ($join) {
                 $join->on('p.id', '=', 'rd.case_id')
                     ->where('rd.product_id', 11);
             })
-            ->leftJoin('product_commissions as tc', 'rd.product_id', '=', 'tc.product_id')
+            ->leftJoin('product_commissions as tc', function ($join) {
+                $join->on('rd.product_id', '=', 'tc.product_id')
+                    ->on('p.pay_method', '=', 'tc.payment_method')
+                    ->on('p.pay_period', '=', DB::raw("COALESCE(tc.payment_period, p.pay_period)"))
+                    ->on('p.currency_id', '=', 'tc.currency')
+                    ->where('tc.year', 1);
+            })
             ->leftJoin('products as rp', 'rd.product_id', '=', 'rp.id')
             ->leftJoin('product_credits as rpc', function ($join) {
                 $join->on('rp.id', '=', 'rpc.product_id')
@@ -417,12 +424,12 @@ class ProductionService
             ->join('agents as ag', 'prod.agent_id', '=', 'ag.id')
             ->join('agent_programs as ap', 'prod.agent_id', '=', 'ap.agent_id')
             ->join('agent_programs as ap2', 'ap.agent_leader_id', '=', 'ap2.agent_id')
-            ->leftJoin('agent_programs as ap3', 'ap2.agent_leader_id', '=', 'ap3.agent_id')
+            ->join('agent_programs as ap3', 'ap2.agent_leader_id', '=', 'ap3.agent_id')
             ->where(function ($q) use ($agentId) {
                 $q->where('prod.agent_id', $agentId)
-                    ->orWhere('ap.agent_leader_id', $agentId)
-                    ->orWhere('ap2.agent_leader_id', $agentId)
-                    ->orWhere('ap3.agent_leader_id', $agentId);
+                ->orWhere('ap.agent_leader_id', $agentId)
+                ->orWhere('ap2.agent_leader_id', $agentId)
+                ->orWhere('ap3.agent_leader_id', $agentId);
             })
             ->select([
                 'prod.case_id as id',

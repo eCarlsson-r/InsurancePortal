@@ -5,18 +5,24 @@ import { router } from '@inertiajs/react';
 import { Table } from 'react-bootstrap';
 
 type AnnualData = {
-    id: string,
-    official_number: string,
-    name: string,
-    allowance: number,
-    commission: number,
-    recruit_bonus: number,
-    overriding: number,
-    annual_bonus: number,
-    total_amount: number
+    id: string;
+    official_number: string;
+    name: string;
+    allowance: number;
+    commission: number;
+    recruit_bonus: number;
+    overriding: number;
+    annual_bonus: number;
+    total_amount: number;
 };
 
-export default function Annual({ data, year }: { data: AnnualData[]; year: string }) {
+export default function Annual({
+    data,
+    year,
+}: {
+    data: AnnualData[];
+    year: string;
+}) {
     const formatCurrency = (value: number) => {
         return new Intl.NumberFormat('id-ID', {
             style: 'currency',
@@ -32,15 +38,15 @@ export default function Annual({ data, year }: { data: AnnualData[]; year: strin
     };
 
     const exportToExcel = () => {
-        const exportData = data.map(item => ({
+        const exportData = data.map((item) => ({
             'Kode Agen': item.official_number,
             'Nama Agen': item.name,
-            'Komisi': item.commission,
+            Komisi: item.commission,
             'Bonus Tahunan': item.annual_bonus,
-            'Overriding': item.overriding,
+            Overriding: item.overriding,
             'Bonus Rekrut': item.recruit_bonus,
-            'Allowance': item.allowance,
-            'Total Komisi': item.total_amount
+            Allowance: item.allowance,
+            'Total Komisi': item.total_amount,
         }));
 
         exportTableToExcel(exportData, {
@@ -56,15 +62,26 @@ export default function Annual({ data, year }: { data: AnnualData[]; year: strin
             title="Income List Tahunan"
             i18nTitle="annual-report"
             breadcrumbs={[
-                { label: 'Laporan', href: 'javascript:void(0)', i18n: 'report' },
-                { label: 'Income List Tahunan', active: true, i18n: 'annual-report' },
+                {
+                    label: 'Laporan',
+                    href: 'javascript:void(0)',
+                    i18n: 'report',
+                },
+                {
+                    label: 'Income List Tahunan',
+                    active: true,
+                    i18n: 'annual-report',
+                },
             ]}
             toolbar={
-                <div className="d-flex align-items-center justify-content-between w-100">
-                    <h4 className="card-title mb-0" data-i18n="customer-religion-report">
-                        Income List Tahunan
+                <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 w-100">
+                    <h4
+                        className="card-title mb-0"
+                        data-i18n="agent-annual-report"
+                    >
+                        Laporan Tahunan Agen
                     </h4>
-                    <div className="d-flex align-items-center gap-2">
+                    <div className="d-flex flex-wrap align-items-center gap-2">
                         <SelectInput
                             id="annual-year"
                             label="Year"
@@ -74,8 +91,12 @@ export default function Annual({ data, year }: { data: AnnualData[]; year: strin
                             onChange={handleChange}
                             options={[
                                 ...Array.from({ length: 10 }, (_, i) => ({
-                                    value: (new Date().getFullYear() - i).toString(),
-                                    label: (new Date().getFullYear() - i).toString(),
+                                    value: (
+                                        new Date().getFullYear() - i
+                                    ).toString(),
+                                    label: (
+                                        new Date().getFullYear() - i
+                                    ).toString(),
                                 })),
                             ]}
                         />
@@ -90,7 +111,7 @@ export default function Annual({ data, year }: { data: AnnualData[]; year: strin
                 </div>
             }
         >
-            <Table hover striped bordered>
+            <Table hover striped bordered responsive>
                 <thead>
                     <tr>
                         <th>Kode Agen</th>
@@ -119,7 +140,10 @@ export default function Annual({ data, year }: { data: AnnualData[]; year: strin
                         ))
                     ) : (
                         <tr>
-                            <td colSpan={8} className="text-center text-muted py-4">
+                            <td
+                                colSpan={8}
+                                className="text-center text-muted py-4"
+                            >
                                 No agent found.
                             </td>
                         </tr>

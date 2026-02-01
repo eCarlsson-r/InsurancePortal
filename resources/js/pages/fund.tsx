@@ -1,7 +1,7 @@
-import Pagination from '@/components/pagination';
 import SelectInput from '@/components/form/select-input';
 import SubmitButton from '@/components/form/submit-button';
 import TextInput from '@/components/form/text-input';
+import Pagination from '@/components/pagination';
 import TableFormPage from '@/layouts/TableFormPage';
 import { fundSchema } from '@/schemas/models';
 import { router, useForm } from '@inertiajs/react';
@@ -96,7 +96,7 @@ export default function Fund({ funds, filters }: FundProps) {
             }
             pagination={<Pagination links={funds.links} />}
             tableContent={
-                <Table hover striped bordered>
+                <Table hover striped bordered responsive>
                     <thead>
                         <tr>
                             <th className="col-8" data-i18n="fund-name">
@@ -160,7 +160,7 @@ export default function Fund({ funds, filters }: FundProps) {
                         id="fund-currency"
                         label="Mata Uang"
                         value={data.currency}
-                        onChange={(e) => setData('currency', Number(e.target.value))}
+                        onChange={(value) => setData('currency', Number(value))}
                         options={[
                             { value: '1', label: 'Rupiah' },
                             { value: '2', label: 'Dollar' },

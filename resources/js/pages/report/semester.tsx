@@ -112,14 +112,14 @@ export default function Semester({
                 },
             ]}
             toolbar={
-                <div className="d-flex align-items-center justify-content-between w-100">
+                <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 w-100">
                     <h4
                         className="card-title mb-0"
-                        data-i18n="customer-religion-report"
+                        data-i18n="agent-semester-report"
                     >
-                        Income List per Semester
+                        Laporan Semester Agen
                     </h4>
-                    <div className="d-flex align-items-center gap-2">
+                    <div className="d-flex flex-wrap align-items-center gap-2">
                         <SelectInput
                             id="semester-year"
                             label="Year"

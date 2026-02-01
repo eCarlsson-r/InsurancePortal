@@ -138,7 +138,7 @@ export default function Policy({ policies, filters }: PolicyProps) {
             }
             pagination={<Pagination links={policies.links} />}
         >
-            <Table hover striped bordered>
+            <Table hover striped bordered responsive>
                 <thead>
                     <tr>
                         <th className="col-1"></th>

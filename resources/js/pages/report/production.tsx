@@ -54,6 +54,22 @@ export default function Production({
         });
     };
 
+    const totalFYP = data.reduce((sum, item) => sum + Number(item.fyp), 0);
+    const totalTopup = data.reduce((sum, item) => sum + Number(item.topup), 0);
+    const totalAPE = data.reduce((sum, item) => sum + Number(item.ape), 0);
+    const totalContestAPE = data.reduce(
+        (sum, item) => sum + Number(item.contest_ape),
+        0,
+    );
+    const totalCommission = data.reduce(
+        (sum, item) => sum + Number(item.total_commission),
+        0,
+    );
+    const newCases = data.reduce(
+        (sum, item) => (Number(item.total_commission) > 0 ? sum + 1 : sum),
+        0,
+    );
+
     return (
         <TablePage
             headTitle="Production Report"
@@ -72,14 +88,14 @@ export default function Production({
                 },
             ]}
             toolbar={
-                <div className="d-flex align-items-center justify-content-between w-100">
+                <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 w-100">
                     <h4
                         className="card-title mb-0"
                         data-i18n="agent-production-report"
                     >
                         Laporan Produksi Agen
                     </h4>
-                    <div className="d-flex align-items-center gap-3">
+                    <div className="d-flex flex-wrap align-items-center gap-3">
                         <div className="d-flex align-items-center gap-2">
                             <SelectInput
                                 id="prod-agent"
@@ -212,6 +228,41 @@ export default function Production({
                         </tr>
                     )}
                 </tbody>
+                <tfoot>
+                    <tr>
+                        <th colSpan={4}>Total ({newCases} cases)</th>
+                        <th>
+                            {totalFYP.toLocaleString('id-ID', {
+                                style: 'currency',
+                                currency: 'IDR',
+                            })}
+                        </th>
+                        <th>
+                            {totalTopup.toLocaleString('id-ID', {
+                                style: 'currency',
+                                currency: 'IDR',
+                            })}
+                        </th>
+                        <th>
+                            {totalAPE.toLocaleString('id-ID', {
+                                style: 'currency',
+                                currency: 'IDR',
+                            })}
+                        </th>
+                        <th>
+                            {totalContestAPE.toLocaleString('id-ID', {
+                                style: 'currency',
+                                currency: 'IDR',
+                            })}
+                        </th>
+                        <th>
+                            {totalCommission.toLocaleString('id-ID', {
+                                style: 'currency',
+                                currency: 'IDR',
+                            })}
+                        </th>
+                    </tr>
+                </tfoot>
             </Table>
         </TablePage>
     );

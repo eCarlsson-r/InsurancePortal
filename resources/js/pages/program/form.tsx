@@ -1,7 +1,7 @@
-import SelectInput from '@/components/form/select-input';
-import TextInput from '@/components/form/text-input';
 import FormField from '@/components/form/form-field';
+import SelectInput from '@/components/form/select-input';
 import SubmitButton from '@/components/form/submit-button';
+import TextInput from '@/components/form/text-input';
 import FormPage from '@/layouts/FormPage';
 import { programSchema } from '@/schemas/models';
 import { router, useForm } from '@inertiajs/react';
@@ -16,9 +16,14 @@ export default function ProgramForm({
     const isEdit = !!program;
 
     // Initial form state with safe defaults
-    const { data, setData, post, put, delete: destroy, processing } = useForm<
-        z.infer<typeof programSchema>
-    >(
+    const {
+        data,
+        setData,
+        post,
+        put,
+        delete: destroy,
+        processing,
+    } = useForm<z.infer<typeof programSchema>>(
         isEdit && program
             ? program
             : {
@@ -61,16 +66,21 @@ export default function ProgramForm({
                 destroy(`/master/target/${data.targets[index].id}`, {
                     onSuccess: () => {
                         // Redirects back to the current page, triggering a re-fetch of props
-                        router.visit(window.location.href, { preserveState: false });
+                        router.visit(window.location.href, {
+                            preserveState: false,
+                        });
                         // Or simply: router.get(window.location.href);
                     },
                     onError: (errors) => {
-                        console.log("Error deleting item:", errors);
+                        console.log('Error deleting item:', errors);
                     },
                 });
             }
         } else {
-            setData('targets', data.targets.filter((_, i) => i !== index));
+            setData(
+                'targets',
+                data.targets.filter((_, i) => i !== index),
+            );
         }
     };
 
@@ -84,10 +94,7 @@ export default function ProgramForm({
                 { label: 'Program', active: true, i18n: 'program' },
             ]}
             headerActions={
-                <SubmitButton
-                    processing={processing}
-                    onClick={handleSubmit}
-                >
+                <SubmitButton processing={processing} onClick={handleSubmit}>
                     {isEdit ? 'Perbarui' : 'Simpan'}
                 </SubmitButton>
             }
@@ -96,15 +103,15 @@ export default function ProgramForm({
                 <div className="col-md-6">
                     <Accordion defaultActiveKey="0" className="mb-4">
                         <Accordion.Item eventKey="0">
-                            <Accordion.Header>
-                                Data Program
-                            </Accordion.Header>
+                            <Accordion.Header>Data Program</Accordion.Header>
                             <Accordion.Body>
                                 <TextInput
                                     id="name"
                                     label="Nama Program"
                                     value={data.name}
-                                    onChange={(e) => setData('name', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('name', e.target.value)
+                                    }
                                     row
                                 />
 
@@ -112,12 +119,26 @@ export default function ProgramForm({
                                     id="position"
                                     label="Jabatan"
                                     value={data.position}
-                                    onChange={(value) => setData('position', value.toString())}
+                                    onChange={(value) =>
+                                        setData('position', value.toString())
+                                    }
                                     options={[
-                                        { value: 'FC', label: 'Financial Consultant' },
-                                        { value: 'BP*', label: 'Business Partner *' },
-                                        { value: 'BP**', label: 'Business Partner **' },
-                                        { value: 'BP***', label: 'Business Partner ***' },
+                                        {
+                                            value: 'FC',
+                                            label: 'Financial Consultant',
+                                        },
+                                        {
+                                            value: 'BP*',
+                                            label: 'Business Partner *',
+                                        },
+                                        {
+                                            value: 'BP**',
+                                            label: 'Business Partner **',
+                                        },
+                                        {
+                                            value: 'BP***',
+                                            label: 'Business Partner ***',
+                                        },
                                     ]}
                                     row
                                 />
@@ -133,7 +154,12 @@ export default function ProgramForm({
                                             type="number"
                                             className="form-control"
                                             value={data.min_allowance}
-                                            onChange={(e) => setData('min_allowance', parseFloat(e.target.value))}
+                                            onChange={(e) =>
+                                                setData(
+                                                    'min_allowance',
+                                                    parseFloat(e.target.value),
+                                                )
+                                            }
                                             placeholder="Minimal"
                                         />
                                         <span className="text-muted">s/d</span>
@@ -141,7 +167,12 @@ export default function ProgramForm({
                                             type="number"
                                             className="form-control"
                                             value={data.max_allowance}
-                                            onChange={(e) => setData('max_allowance', parseFloat(e.target.value))}
+                                            onChange={(e) =>
+                                                setData(
+                                                    'max_allowance',
+                                                    parseFloat(e.target.value),
+                                                )
+                                            }
                                             placeholder="Maksimal"
                                         />
                                     </div>
@@ -152,7 +183,12 @@ export default function ProgramForm({
                                     label="Durasi (Bulan)"
                                     type="number"
                                     value={data.duration}
-                                    onChange={(e) => setData('duration', parseInt(e.target.value))}
+                                    onChange={(e) =>
+                                        setData(
+                                            'duration',
+                                            parseInt(e.target.value),
+                                        )
+                                    }
                                     row
                                 />
                             </Accordion.Body>
@@ -163,9 +199,7 @@ export default function ProgramForm({
                 <div className="col-md-6">
                     <Accordion defaultActiveKey="0">
                         <Accordion.Item eventKey="0">
-                            <Accordion.Header>
-                                Target Program
-                            </Accordion.Header>
+                            <Accordion.Header>Target Program</Accordion.Header>
                             <Accordion.Body>
                                 <div className="d-flex justify-content-between align-items-center mb-2">
                                     <h6 className="mb-0">Daftar Target</h6>
@@ -179,91 +213,175 @@ export default function ProgramForm({
                                     </button>
                                 </div>
                                 <div className="table-responsive">
-                                    <Table bordered>
+                                    <Table bordered responsive>
                                         <thead>
                                             <tr>
-                                                <th style={{ width: '80px' }}>Bulan</th>
+                                                <th style={{ width: '80px' }}>
+                                                    Bulan
+                                                </th>
                                                 <th>FYP</th>
-                                                <th style={{ width: '80px' }}>Case</th>
+                                                <th style={{ width: '80px' }}>
+                                                    Case
+                                                </th>
                                                 <th>Allowance</th>
-                                                <th style={{ width: '40px' }}></th>
+                                                <th
+                                                    style={{ width: '40px' }}
+                                                ></th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {data.targets && data.targets.length > 0 ? (
-                                                data.targets.map((target, index) => (
-                                                    <tr key={index}>
-                                                        <td>
-                                                            <TextInput
-                                                                id={`target-month-${index}`}
-                                                                type="number"
-                                                                parentClassName="mb-1 mt-1"
-                                                                className="form-control-sm text-center"
-                                                                value={target.month}
-                                                                onChange={(e) => {
-                                                                    const newTargets = [...data.targets];
-                                                                    newTargets[index].month = parseInt(e.target.value);
-                                                                    setData('targets', newTargets);
-                                                                }}
-                                                            />
-                                                        </td>
-                                                        <td>
-                                                            <TextInput
-                                                                id={`target-fyp-${index}`}
-                                                                type="number"
-                                                                className="form-control-sm"
-                                                                parentClassName="mb-1 mt-1"
-                                                                value={target.fyp_month}
-                                                                onChange={(e) => {
-                                                                    const newTargets = [...data.targets];
-                                                                    newTargets[index].fyp_month = parseFloat(e.target.value);
-                                                                    setData('targets', newTargets);
-                                                                }}
-                                                            />
-                                                        </td>
-                                                        <td>
-                                                            <TextInput
-                                                                id={`target-case-${index}`}
-                                                                type="number"
-                                                                parentClassName="mb-1 mt-1"
-                                                                className="form-control-sm text-center"
-                                                                value={target.case_month}
-                                                                onChange={(e) => {
-                                                                    const newTargets = [...data.targets];
-                                                                    newTargets[index].case_month = parseInt(e.target.value);
-                                                                    setData('targets', newTargets);
-                                                                }}
-                                                            />
-                                                        </td>
-                                                        <td>
-                                                            <TextInput
-                                                                id={`target-allowance-${index}`}
-                                                                type="number"
-                                                                className="form-control-sm"
-                                                                parentClassName="mb-1 mt-1"
-                                                                value={target.allowance}
-                                                                onChange={(e) => {
-                                                                    const newTargets = [...data.targets];
-                                                                    newTargets[index].allowance = parseFloat(e.target.value);
-                                                                    setData('targets', newTargets);
-                                                                }}
-                                                            />
-                                                        </td>
-                                                        <td className="text-center">
-                                                            <button
-                                                                onClick={() => removeTarget(index)}
-                                                                className="btn btn-link btn-sm text-danger p-0"
-                                                                type="button"
-                                                                title="Delete"
-                                                            >
-                                                                <i className="fa fa-trash"></i>
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                ))
+                                            {data.targets &&
+                                            data.targets.length > 0 ? (
+                                                data.targets.map(
+                                                    (target, index) => (
+                                                        <tr key={index}>
+                                                            <td>
+                                                                <TextInput
+                                                                    id={`target-month-${index}`}
+                                                                    type="number"
+                                                                    parentClassName="mb-1 mt-1"
+                                                                    className="form-control-sm text-center"
+                                                                    value={
+                                                                        target.month
+                                                                    }
+                                                                    onChange={(
+                                                                        e,
+                                                                    ) => {
+                                                                        const newTargets =
+                                                                            [
+                                                                                ...data.targets,
+                                                                            ];
+                                                                        newTargets[
+                                                                            index
+                                                                        ].month =
+                                                                            parseInt(
+                                                                                e
+                                                                                    .target
+                                                                                    .value,
+                                                                            );
+                                                                        setData(
+                                                                            'targets',
+                                                                            newTargets,
+                                                                        );
+                                                                    }}
+                                                                />
+                                                            </td>
+                                                            <td>
+                                                                <TextInput
+                                                                    id={`target-fyp-${index}`}
+                                                                    type="number"
+                                                                    className="form-control-sm"
+                                                                    parentClassName="mb-1 mt-1"
+                                                                    value={
+                                                                        target.fyp_month
+                                                                    }
+                                                                    onChange={(
+                                                                        e,
+                                                                    ) => {
+                                                                        const newTargets =
+                                                                            [
+                                                                                ...data.targets,
+                                                                            ];
+                                                                        newTargets[
+                                                                            index
+                                                                        ].fyp_month =
+                                                                            parseFloat(
+                                                                                e
+                                                                                    .target
+                                                                                    .value,
+                                                                            );
+                                                                        setData(
+                                                                            'targets',
+                                                                            newTargets,
+                                                                        );
+                                                                    }}
+                                                                />
+                                                            </td>
+                                                            <td>
+                                                                <TextInput
+                                                                    id={`target-case-${index}`}
+                                                                    type="number"
+                                                                    parentClassName="mb-1 mt-1"
+                                                                    className="form-control-sm text-center"
+                                                                    value={
+                                                                        target.case_month
+                                                                    }
+                                                                    onChange={(
+                                                                        e,
+                                                                    ) => {
+                                                                        const newTargets =
+                                                                            [
+                                                                                ...data.targets,
+                                                                            ];
+                                                                        newTargets[
+                                                                            index
+                                                                        ].case_month =
+                                                                            parseInt(
+                                                                                e
+                                                                                    .target
+                                                                                    .value,
+                                                                            );
+                                                                        setData(
+                                                                            'targets',
+                                                                            newTargets,
+                                                                        );
+                                                                    }}
+                                                                />
+                                                            </td>
+                                                            <td>
+                                                                <TextInput
+                                                                    id={`target-allowance-${index}`}
+                                                                    type="number"
+                                                                    className="form-control-sm"
+                                                                    parentClassName="mb-1 mt-1"
+                                                                    value={
+                                                                        target.allowance
+                                                                    }
+                                                                    onChange={(
+                                                                        e,
+                                                                    ) => {
+                                                                        const newTargets =
+                                                                            [
+                                                                                ...data.targets,
+                                                                            ];
+                                                                        newTargets[
+                                                                            index
+                                                                        ].allowance =
+                                                                            parseFloat(
+                                                                                e
+                                                                                    .target
+                                                                                    .value,
+                                                                            );
+                                                                        setData(
+                                                                            'targets',
+                                                                            newTargets,
+                                                                        );
+                                                                    }}
+                                                                />
+                                                            </td>
+                                                            <td className="text-center">
+                                                                <button
+                                                                    onClick={() =>
+                                                                        removeTarget(
+                                                                            index,
+                                                                        )
+                                                                    }
+                                                                    className="btn btn-link btn-sm text-danger p-0"
+                                                                    type="button"
+                                                                    title="Delete"
+                                                                >
+                                                                    <i className="fa fa-trash"></i>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ),
+                                                )
                                             ) : (
                                                 <tr>
-                                                    <td colSpan={5} className="text-center text-muted py-2">
+                                                    <td
+                                                        colSpan={5}
+                                                        className="text-center text-muted py-2"
+                                                    >
                                                         Belum ada target.
                                                     </td>
                                                 </tr>
