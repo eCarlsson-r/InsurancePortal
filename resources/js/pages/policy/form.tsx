@@ -51,7 +51,7 @@ export default function PolicyForm({
                   insure_period: 1,
                   pay_period: 1,
                   currency_id: 1,
-                  curr_rate: 1.0,
+                  currency_rate: 1.0,
                   start_date: new Date(),
                   base_insure: 0,
                   premium: 0,
@@ -181,10 +181,7 @@ export default function PolicyForm({
                 { label: isEdit ? 'Sunting' : 'Input', active: true },
             ]}
         >
-            <form
-                id="case-form"
-                onSubmit={handleSubmit}
-            >
+            <form id="case-form" onSubmit={handleSubmit}>
                 <div className="row">
                     {/* PDF Preview Sidebar (Sticky) */}
                     <div className="col-lg-6 d-none d-lg-block">
@@ -829,10 +826,10 @@ export default function PolicyForm({
                                                 type="number"
                                                 className="form-control"
                                                 style={{ maxWidth: '100px' }}
-                                                value={data.curr_rate}
+                                                value={data.currency_rate}
                                                 onChange={(event) =>
                                                     setData(
-                                                        'curr_rate',
+                                                        'currency_rate',
                                                         Number(
                                                             event.target.value,
                                                         ),

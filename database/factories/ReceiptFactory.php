@@ -21,7 +21,7 @@ class ReceiptFactory extends Factory
             'policy_no' => $this->faker->bothify('P#######'),
             'agent_id' => Agent::factory(),
             'premium' => $this->faker->numberBetween(100000, 10000000),
-            'curr_rate' => $this->faker->randomFloat(4, 1, 1),
+            'currency_rate' => $this->faker->randomFloat(4, 1, 1),
             'pay_method' => $this->faker->numberBetween(1, 4),
             'pay_date' => $this->faker->date(),
             'paid_date' => $this->faker->date(),

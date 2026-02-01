@@ -56,7 +56,7 @@ class PolicyTest extends TestCase
             'insure_period' => 20,
             'pay_period' => 10,
             'currency_id' => 1,
-            'curr_rate' => 1.0,
+            'currency_rate' => 1.0,
             'start_date' => now()->format('Y-m-d'),
             'base_insure' => 50000000,
             'premium' => 1000000,

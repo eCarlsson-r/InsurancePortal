@@ -37,7 +37,7 @@ class ProductionService
                 'status_polis',
                 'pay_method',
                 'currency_id',
-                'curr_rate',
+                'currency_rate',
                 'product_id',
                 'production_credit',
                 'contest_credit',
@@ -46,9 +46,9 @@ class ProductionService
                 'case_premium',
                 'topup_premium',
                 'commission',
-                DB::raw("ROUND(((COALESCE(production_credit, 0) / 100) * (case_premium * curr_rate)) + ((COALESCE(topup_production_credit, 0) / 100) * (topup_premium * curr_rate))) AS evaluation"),
-                DB::raw("ROUND((case_premium * curr_rate) + ((6 / 100) * (topup_premium * curr_rate))) AS mdrt"),
-                DB::raw("IF(status_polis LIKE 'PL%', 0, ROUND(pay_method * ((IF(COALESCE(ct.bonus_percent, 0) > 0, (COALESCE(ct.bonus_percent, 0) + COALESCE(sc.bonus_percent, 0)) / 100, (100 + COALESCE(sc.bonus_percent, 0)) / 100) * (((contest_credit / 100) * (case_premium * curr_rate)) + ((COALESCE(topup_contest_credit, 0) / 100) * (topup_premium * curr_rate))))))) AS ot_contest")
+                DB::raw("ROUND(((COALESCE(production_credit, 0) / 100) * (case_premium * currency_rate)) + ((COALESCE(topup_production_credit, 0) / 100) * (topup_premium * currency_rate))) AS evaluation"),
+                DB::raw("ROUND((case_premium * currency_rate) + ((6 / 100) * (topup_premium * currency_rate))) AS mdrt"),
+                DB::raw("IF(status_polis LIKE 'PL%', 0, ROUND(pay_method * ((IF(COALESCE(ct.bonus_percent, 0) > 0, (COALESCE(ct.bonus_percent, 0) + COALESCE(sc.bonus_percent, 0)) / 100, (100 + COALESCE(sc.bonus_percent, 0)) / 100) * (((contest_credit / 100) * (case_premium * currency_rate)) + ((COALESCE(topup_contest_credit, 0) / 100) * (topup_premium * currency_rate))))))) AS ot_contest")
             ])
             ->leftJoinSub($pyQuery, 'py', 'py.agent_id', '=', 'prod.agent_id')
             ->leftJoin('contests as sc', function ($join) {
@@ -84,7 +84,7 @@ class ProductionService
                 'status_polis',
                 'pay_method',
                 'currency_id',
-                'curr_rate',
+                'currency_rate',
                 'product_id',
                 'production_credit',
                 'contest_credit',
@@ -138,7 +138,7 @@ class ProductionService
                 DB::raw("'PP' AS status_polis"),
                 'p.pay_method',
                 'p.currency_id',
-                'p.curr_rate',
+                'p.currency_rate',
                 'p.product_id',
                 'pcr.production_credit',
                 'pcr.contest_credit',
@@ -146,7 +146,7 @@ class ProductionService
                 DB::raw("rpc.contest_credit AS topup_contest_credit"),
                 DB::raw("COALESCE(ROUND(p.premium), 0) AS case_premium"),
                 DB::raw("COALESCE(ROUND(rd.premium), 0) AS topup_premium"),
-                DB::raw("COALESCE(ROUND(((c.commission_rate + COALESCE(c.extra_commission, 0)) / 100) * (p.premium * p.curr_rate)), 0) + COALESCE(ROUND((tc.commission_rate / 100) * rd.premium), 0) AS commission")
+                DB::raw("COALESCE(ROUND(((c.commission_rate + COALESCE(c.extra_commission, 0)) / 100) * (p.premium * p.currency_rate)), 0) + COALESCE(ROUND((tc.commission_rate / 100) * rd.premium), 0) AS commission")
             ]);
 
         // 2. TUS Riders
@@ -177,7 +177,7 @@ class ProductionService
                 DB::raw("'PP' AS status_polis"),
                 'p.pay_method',
                 'p.currency_id',
-                'p.curr_rate',
+                'p.currency_rate',
                 'p.product_id',
                 'pcr.production_credit',
                 'pcr.contest_credit',
@@ -185,7 +185,7 @@ class ProductionService
                 'rpc.contest_credit as topup_contest_credit',
                 DB::raw("0 AS case_premium"),
                 DB::raw("COALESCE(ROUND(rd.premium), 0) AS topup_premium"),
-                DB::raw("COALESCE(ROUND((c.commission_rate / 100) * (rd.premium * p.curr_rate)), 0) AS commission")
+                DB::raw("COALESCE(ROUND((c.commission_rate / 100) * (rd.premium * p.currency_rate)), 0) AS commission")
             ]);
 
         // 3. Cancelled Cases (BTL)
@@ -218,7 +218,7 @@ class ProductionService
                 DB::raw("'BTL' AS status_polis"),
                 'p.pay_method',
                 'p.currency_id',
-                'p.curr_rate',
+                'p.currency_rate',
                 'p.product_id',
                 DB::raw("pcr.production_credit * -1 AS production_credit"),
                 DB::raw("pcr.contest_credit * -1 AS contest_credit"),
@@ -266,7 +266,7 @@ class ProductionService
                 DB::raw("IF(TIMESTAMPDIFF(MONTH, p.start_date, r.pay_date) < 12, 'PLTP', 'PL') AS status_polis"),
                 'p.pay_method',
                 'p.currency_id',
-                'r.currency_rate as curr_rate',
+                'r.currency_rate as currency_rate',
                 'p.product_id',
                 'pcr.production_credit',
                 'pcr.contest_credit',
@@ -274,7 +274,7 @@ class ProductionService
                 'rpc.contest_credit as topup_contest_credit',
                 DB::raw("COALESCE(IF(TIMESTAMPDIFF(MONTH, p.start_date, r.pay_date) < 12, ROUND(IF(p.premium = r.premium, r.premium, IF(rd.premium = r.premium, 0, p.premium))), 0), 0) AS case_premium"),
                 DB::raw("COALESCE(IF(rd.premium = r.premium OR (p.premium + rd.premium) = r.premium, ROUND((p.pay_method / r.pay_method) * rd.premium), IF(r.paid_amount <> r.premium, r.paid_amount, 0)), 0) AS topup_premium"),
-                DB::raw("IF(p.premium < r.premium, IF(TIMESTAMPDIFF(MONTH, p.start_date, r.pay_date) < 12, COALESCE(ROUND((c.commission_rate / 100) * (p.premium * p.curr_rate)), 0), 0) + COALESCE(ROUND((tc.commission_rate / 100) * rd.premium), 0), COALESCE(ROUND((c.commission_rate / 100) * r.premium), 0)) AS commission")
+                DB::raw("IF(p.premium < r.premium, IF(TIMESTAMPDIFF(MONTH, p.start_date, r.pay_date) < 12, COALESCE(ROUND((c.commission_rate / 100) * (p.premium * p.currency_rate)), 0), 0) + COALESCE(ROUND((tc.commission_rate / 100) * rd.premium), 0), COALESCE(ROUND((c.commission_rate / 100) * r.premium), 0)) AS commission")
             ]);
 
         return $pp->union($tus)->union($btl)->union($receipts);
@@ -784,13 +784,13 @@ class ProductionService
                 DB::raw("'PP' AS status_polis"),
                 'p.pay_method as case_pay_method',
                 'p.currency_id as case_currency',
-                'p.curr_rate as case_curr_rate',
+                'p.currency_rate as case_currency_rate',
                 'p.product_id as case_product',
                 'pcr.production_credit',
                 'pcr.contest_credit',
                 DB::raw("COALESCE(ROUND(p.premium), 0) AS case_premium"),
                 DB::raw("COALESCE(ROUND(rd.premium), 0) AS topup_premium"),
-                DB::raw("COALESCE(ROUND((c.commission_rate / 100) * (p.premium * p.curr_rate)), 0) + COALESCE(ROUND((tc.commission_rate / 100) * rd.premium), 0) AS commission")
+                DB::raw("COALESCE(ROUND((c.commission_rate / 100) * (p.premium * p.currency_rate)), 0) + COALESCE(ROUND((tc.commission_rate / 100) * rd.premium), 0) AS commission")
             ]);
 
         $singleTopUpQuery = DB::table('cases as p')
@@ -815,13 +815,13 @@ class ProductionService
                 DB::raw("'PP' AS status_polis"),
                 'p.pay_method as case_pay_method',
                 'p.currency_id as case_currency',
-                'p.curr_rate as case_curr_rate',
+                'p.currency_rate as case_currency_rate',
                 'p.product_id as case_product',
                 'pcr.production_credit',
                 'pcr.contest_credit',
                 DB::raw("0 AS case_premium"),
                 DB::raw("COALESCE(ROUND(rd.premium), 0) AS topup_premium"),
-                DB::raw("COALESCE(ROUND((c.commission_rate / 100) * (rd.premium * p.curr_rate)), 0) AS commission")
+                DB::raw("COALESCE(ROUND((c.commission_rate / 100) * (rd.premium * p.currency_rate)), 0) AS commission")
             ]);
 
         $firstYearRecurringQuery = DB::table('receipts as r')
@@ -856,13 +856,13 @@ class ProductionService
                 DB::raw("'PLTP' AS status_polis"),
                 DB::raw("IF(r.pay_method <> p.pay_method, r.pay_method, p.pay_method) AS case_pay_method"),
                 'p.currency_id as case_currency',
-                'r.currency_rate as case_curr_rate',
+                'r.currency_rate as case_currency_rate',
                 'p.product_id as case_product',
                 'pcr.production_credit',
                 'pcr.contest_credit',
                 DB::raw("COALESCE(ROUND(IF(p.premium = r.premium, p.premium, r.premium)), 0) AS case_premium"),
                 DB::raw("COALESCE(IF(p.premium = r.premium, ROUND(rd.premium), 0), 0) AS topup_premium"),
-                DB::raw("IF(p.premium < r.premium, COALESCE(ROUND((c.commission_rate / 100) * (p.premium * p.curr_rate)), 0) + COALESCE(ROUND((tc.commission_rate / 100) * rd.premium), 0), COALESCE(ROUND((c.commission_rate / 100) * r.premium), 0)) AS commission")
+                DB::raw("IF(p.premium < r.premium, COALESCE(ROUND((c.commission_rate / 100) * (p.premium * p.currency_rate)), 0) + COALESCE(ROUND((tc.commission_rate / 100) * rd.premium), 0), COALESCE(ROUND((c.commission_rate / 100) * r.premium), 0)) AS commission")
             ]);
 
         // Build the union of all three queries
@@ -939,8 +939,8 @@ class ProductionService
     private function buildEvaluationExpression($creditType = 'contest_credit'): string
     {
         $credit = "`$creditType`";
-        return "ROUND(((COALESCE($credit,0)/100)*(`case_premium`*`curr_rate`)+"
-            . "((COALESCE(`topup_$creditType`,0)/100)*(`topup_premium`*`curr_rate`))))";
+        return "ROUND(((COALESCE($credit,0)/100)*(`case_premium`*`currency_rate`)+"
+            . "((COALESCE(`topup_$creditType`,0)/100)*(`topup_premium`*`currency_rate`))))";
     }
 
     /**
@@ -953,7 +953,7 @@ class ProductionService
             ->join('agent_programs as ap', 'prod.agent_id', '=', 'ap.agent_id')
             ->select([
                 'ap.agent_leader_id as agent_id',
-                DB::raw("ROUND(SUM((COALESCE(contest_credit,0)/100)*((case_premium*curr_rate)+((COALESCE(topup_contest_credit,0)/100)*(topup_premium*curr_rate))))) AS achieved_fyp"),
+                DB::raw("ROUND(SUM((COALESCE(contest_credit,0)/100)*((case_premium*currency_rate)+((COALESCE(topup_contest_credit,0)/100)*(topup_premium*currency_rate))))) AS achieved_fyp"),
                 DB::raw("0 AS achieved_cases")
             ])
             ->groupBy('ap.agent_leader_id');
@@ -1064,7 +1064,7 @@ class ProductionService
             ->select([
                 'prod.policy_no', 'prod.agent_id', 'ap.agent_leader_id',
                 'prod.holder_name as customer_name', 'prod.start_date', 'prod.case_month', 'prod.status_polis',
-                'prod.pay_method', 'prod.currency_id', 'prod.curr_rate', 'prod.product_id',
+                'prod.pay_method', 'prod.currency_id', 'prod.currency_rate', 'prod.product_id',
                 'prod.production_credit', 'prod.contest_credit', 'prod.topup_production_credit', 'prod.topup_contest_credit',
                 'prod.case_premium', 'prod.topup_premium', 'prod.commission',
                 DB::raw('prod.case_premium * prod.pay_method AS ape'),
@@ -1152,7 +1152,7 @@ class ProductionService
                 'prod.status_polis',
                 'prod.pay_method as case_pay_method',
                 'prod.currency_id as case_currency',
-                'prod.curr_rate as case_curr_rate',
+                'prod.currency_rate as case_currency_rate',
                 'prod.product_id as case_product',
                 'prod.production_credit',
                 'prod.contest_credit',

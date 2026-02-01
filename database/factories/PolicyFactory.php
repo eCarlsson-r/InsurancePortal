@@ -27,7 +27,7 @@ class PolicyFactory extends Factory
             'insure_period' => 20,
             'pay_period' => 10,
             'currency_id' => 1,
-            'curr_rate' => 1.0,
+            'currency_rate' => 1.0,
             'start_date' => $this->faker->date(),
             'base_insure' => $this->faker->numberBetween(10000000, 100000000),
             'premium' => $this->faker->numberBetween(500000, 5000000),

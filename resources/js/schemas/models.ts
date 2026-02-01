@@ -63,7 +63,7 @@ export const agentSchema = z.object({
     recruiter_id: z.number().int(),
     notes: z.string(),
     programs: z.array(agentProgramSchema),
-    files: z.array(fileSchema).optional()
+    files: z.array(fileSchema).optional(),
 });
 
 export const contestSchema = z.object({
@@ -115,7 +115,6 @@ export const investmentSchema = z.object({
     fund_id: z.number().int(),
     allocation: z.number(),
 });
-
 
 export const productCommissionSchema = z.object({
     id: z.number().int().optional(),
@@ -173,7 +172,7 @@ export const policySchema = z
         insure_period: z.number().int(),
         pay_period: z.number().int(),
         currency_id: z.number().int(),
-        curr_rate: z.number(),
+        currency_rate: z.number(),
         start_date: z.coerce.date(),
         base_insure: z.number(),
         premium: z.number().int(),
@@ -185,7 +184,7 @@ export const policySchema = z
         riders: z.array(riderSchema),
         customer: customerSchema.optional(),
         product: productSchema.optional(),
-        files: z.array(fileSchema).optional()
+        files: z.array(fileSchema).optional(),
     })
     .superRefine((values, ctx) => {
         // If they are NOT the same person, make insured fields mandatory
@@ -209,8 +208,7 @@ export const policySchema = z
                 });
             }
         }
-    }
-);
+    });
 
 export const programSchema = z.object({
     id: z.number().int().optional(),
@@ -238,13 +236,13 @@ export const receiptSchema = z.object({
     case_id: z.string(),
     agent_id: z.string().optional(),
     premium: z.number(),
-    currency_rate: z.number(),  
+    currency_rate: z.number(),
     pay_method: z.string(),
     pay_date: z.string(),
     paid_date: z.string(),
     paid_amount: z.number(),
     description: z.string(),
-    policy: policySchema.partial().optional()
+    policy: policySchema.partial().optional(),
 });
 
 export type Agency = z.infer<typeof agencySchema>;

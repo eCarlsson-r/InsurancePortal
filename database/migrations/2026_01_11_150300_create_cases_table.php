@@ -16,13 +16,14 @@ return new class extends Migration
             $table->foreignId('agent_id')->constrained('agents')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('holder_insured_relationship', 50)->default('');
             $table->date('entry_date');
+            $table->string('status', 20);
             $table->unsignedInteger('bill_at');
             $table->boolean('is_insure_holder');
             $table->foreignId('product_id')->constrained('products')->cascadeOnUpdate()->cascadeOnDelete();
             $table->unsignedInteger('insure_period');
             $table->unsignedInteger('pay_period');
             $table->unsignedInteger('currency_id');
-            $table->decimal('curr_rate', 11, 4);
+            $table->decimal('currency_rate', 11, 4);
             $table->date('start_date');
             $table->unsignedBigInteger('base_insure');
             $table->unsignedInteger('premium');

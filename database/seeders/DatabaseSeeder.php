@@ -44,7 +44,7 @@ class DatabaseSeeder extends Seeder
         // 3. Agents
         // We'll create some top-level agents (no recruiter)
         $topAgents = Agent::factory(5)->create([
-            'recruiter_id' => null,
+            'recruiter_id' => 1,
             'agency_id' => fn() => $agencies->random()->id,
         ]);
 

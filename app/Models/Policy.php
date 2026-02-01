@@ -31,7 +31,7 @@ class Policy extends Model
         'insure_period',
         'pay_period',
         'currency_id',
-        'curr_rate',
+        'currency_rate',
         'start_date',
         'base_insure',
         'premium',
@@ -43,7 +43,7 @@ class Policy extends Model
 
     protected $casts = [
         'is_insure_holder' => 'boolean',
-        'curr_rate' => 'decimal:4',
+        'currency_rate' => 'decimal:4',
     ];
 
     public function files()

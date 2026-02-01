@@ -130,7 +130,7 @@ class CustomerController extends Controller
                 'PP' as status_polis,
                 cases.pay_method as case_pay_method,
                 cases.currency_id as case_currency,
-                cases.curr_rate as case_curr_rate,
+                cases.currency_rate as case_currency_rate,
                 cases.product_id as case_product,
                 cases.base_insure as case_base_insure,
                 pcr.production_credit,
@@ -140,7 +140,7 @@ class CustomerController extends Controller
                 COALESCE(ROUND(cases.premium), 0) as case_premium,
                 COALESCE(ROUND(rd.premium), 0) as topup_premium,
                 (
-                    COALESCE(ROUND(((pc.commission_rate + pc.extra_commission) / 100) * (cases.premium * cases.curr_rate)), 0) +
+                    COALESCE(ROUND(((pc.commission_rate + pc.extra_commission) / 100) * (cases.premium * cases.currency_rate)), 0) +
                     COALESCE(ROUND((tc.commission_rate / 100) * rd.premium), 0)
                 ) as commision
             ")

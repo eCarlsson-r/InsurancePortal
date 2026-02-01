@@ -10,10 +10,10 @@ return new class extends Migration
     {
         Schema::create('receipts', function (Blueprint $table) {
             $table->id();
-            $table->string('policy_no', 20);
+            $table->foreignId('case_id')->constrained('cases')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('agent_id')->constrained('agents')->cascadeOnUpdate()->cascadeOnDelete();
             $table->unsignedInteger('premium');
-            $table->decimal('curr_rate', 11, 4);
+            $table->decimal('currency_rate', 11, 4);
             $table->unsignedInteger('pay_method');
             $table->date('pay_date');
             $table->date('paid_date');
