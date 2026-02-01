@@ -14,6 +14,11 @@ return [
     |
     */
 
+    'groq' => [
+        'key' => env('GROQ_API_KEY'),
+        'url' => env('GROQ_BASE_URL'),
+        'model' => env('GROQ_MODEL'),
+    ],
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),
     ],

@@ -214,20 +214,31 @@ class PolicyExtractionService {
         // 1. Shorten the text to only the first 3000 characters if it's a huge PDF
         $truncatedText = mb_substr($text, 0, 3000);
 
-        $response = Http::timeout(360)->post("http://localhost:11434/api/generate", [
-            'model' => 'llama3.2:1b',
-            'prompt' => "Context: {$truncatedText}\n\nTask: Extract {$fields} as JSON.",
-            'stream' => false,
-            'format' => 'json',
-            'options' => [
-                'num_ctx' => 2048, // Lower context = faster processing on weak CPUs
-                'temperature' => 0,
-                'num_thread' => 4,  // Adjust this based on your CPU cores
-            ]
+        $apiKey = config('services.groq.key');
+        $baseUrl = config('services.groq.url');
+        $model = config('services.groq.model');
+
+        $response = Http::withToken($apiKey)
+        ->timeout(30) // Groq is fast! 30s is more than enough.
+        ->post("{$baseUrl}/chat/completions", [
+            'model' => $model,
+            'messages' => [
+                [
+                    'role' => 'system',
+                    'content' => "You are a precise data extraction engine. Extract the fields exactly as requested."
+                ],
+                [
+                    'role' => 'user',
+                    'content' => "Context: {$truncatedText}\n\nTask: Extract {$fields} as JSON."
+                ]
+            ],
+            'response_format' => ['type' => 'json_object'],
+            'temperature' => 0
         ]);
 
         if ($response->successful()) {
-            return json_decode($response->json('response'), true) ?? [];
+            $data = $response->json();
+            return json_decode($data['choices'][0]['message']['content'], true);
         }
 
         return [];

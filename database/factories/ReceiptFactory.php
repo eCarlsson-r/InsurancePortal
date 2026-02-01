@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Agent;
+use App\Models\Policy;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,7 +19,7 @@ class ReceiptFactory extends Factory
     public function definition(): array
     {
         return [
-            'policy_no' => $this->faker->bothify('P#######'),
+            'case_id' => Policy::factory(),
             'agent_id' => Agent::factory(),
             'premium' => $this->faker->numberBetween(100000, 10000000),
             'currency_rate' => $this->faker->randomFloat(4, 1, 1),
