@@ -472,27 +472,36 @@ class ProductionService
             ->groupBy(['production.agent_id', 'ag.name', 'ap.agent_leader_id', 'ap.position']);
 
         return DB::query()->fromSub($agentProd, 'target')
-            ->leftJoin('contests as stbonus', function ($join) use ($year) {
-                $join->on('stbonus.type', '=', DB::raw("'mdrt'"))
-                    ->on('stbonus.level', '=', 'target.position')
-                    ->whereRaw("stbonus.minimum_premium <= target.current_fyp")
-                    ->whereRaw("'$year' BETWEEN YEAR(stbonus.start) AND YEAR(stbonus.end)");
-            })
-            ->leftJoin('contests as ntbonus', function ($join) use ($year) {
-                $join->on('ntbonus.type', '=', DB::raw("'mdrt'"))
-                    ->on('ntbonus.level', '=', 'target.position')
-                    ->whereRaw("ntbonus.minimum_premium > target.current_fyp")
-                    ->whereRaw("'$year' BETWEEN YEAR(ntbonus.start) AND YEAR(ntbonus.end)");
-            })
+            ->leftJoinLateral(
+                DB::table('contests')
+                    ->select('reward as current_level', 'minimum_premium as current_min')
+                    ->where('type', 'mdrt')
+                    ->whereColumn('level', 'target.position')
+                    ->whereColumn('minimum_premium', '<=', 'target.current_fyp')
+                    ->whereRaw("? BETWEEN YEAR(start) AND YEAR(end)", [$year])
+                    ->orderBy('minimum_premium', 'DESC')
+                    ->limit(1),
+                'stbonus'
+            )
+            ->leftJoinLateral(
+                DB::table('contests')
+                    ->select('reward as next_level', 'minimum_premium as next_min')
+                    ->where('type', 'mdrt')
+                    ->whereColumn('level', 'target.position')
+                    ->whereColumn('minimum_premium', '>', 'target.current_fyp')
+                    ->whereRaw("? BETWEEN YEAR(start) AND YEAR(end)", [$year])
+                    ->orderBy('minimum_premium', 'ASC')
+                    ->limit(1),
+                'ntbonus'
+            )
             ->select([
                 'target.agent_id',
                 'target.agent_name',
                 'target.current_fyp',
-                DB::raw('stbonus.reward as `current_level`'),
-                DB::raw('ntbonus.reward as `next_level`'),
-                DB::raw("COALESCE(IF(ntbonus.minimum_premium > target.current_fyp, ntbonus.minimum_premium - target.current_fyp, 0), 0) as `fyp_gap`")
+                'stbonus.current_level',
+                'ntbonus.next_level',
+                DB::raw("COALESCE(ntbonus.next_min - target.current_fyp, 0) as fyp_gap")
             ])
-            ->groupBy(['target.agent_id', 'target.agent_name', 'target.current_fyp', 'stbonus.reward', 'ntbonus.reward', 'ntbonus.minimum_premium'])
             ->orderBy('target.current_fyp', 'DESC')
             ->get();
     }
