@@ -25,6 +25,8 @@ class Receipt extends Model
         'pay_date' => 'date',
         'paid_date' => 'date',
         'currency_rate' => 'decimal:4',
+        'premium' => 'integer',
+        'paid_amount' => 'integer'
     ];
 
     protected $guarded = ['id'];

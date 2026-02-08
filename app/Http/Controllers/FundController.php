@@ -71,7 +71,7 @@ class FundController extends Controller
         }
 
         $path = $file->storeAs('documents', $file->getClientOriginalName());
-        $fullPath = Storage::disk('local')->path($path);
+        $fullPath = Storage::disk('public')->path($path);
 
         File::create([
             'name' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),

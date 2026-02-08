@@ -34,12 +34,20 @@ class Customer extends Model
     protected $guarded = ['id'];
 
     protected $casts = [
-        'birth_date' => 'date',
+        'gender' => 'integer',
+        'religion' => 'integer',
+        'marital' => 'integer'
     ];
 
     public function getAgeAttribute()
     {
-        return $this->birth_date ? $this->birth_date->age : null;
+        $dateOfBirth = $this->attributes['birth_date'];
+
+        if ($dateOfBirth) {
+            return Carbon::parse($dateOfBirth)->age;
+        }
+
+        return null;
     }
 
     public function getAddressAttribute()

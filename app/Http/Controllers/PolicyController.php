@@ -103,19 +103,21 @@ class PolicyController extends Controller
                 $permanentPath = 'case/' . $cachedOcr['file_name'] . '.' . $extension;
 
                 if (Storage::disk('local')->exists($tempPath)) {
-                    // Move file physically
-                    Storage::disk('local')->move($tempPath, $permanentPath);
+                    $fileContents = Storage::disk('local')->get($tempPath);
+                    Storage::disk('public')->put($permanentPath, $fileContents);
 
                     // 4. Record the file in your Database
                     File::create([
                         'name' => $cachedOcr['file_name'],
-                        'type' => Storage::disk('local')->mimeType($permanentPath),
+                        'type' => Storage::disk('public')->mimeType($permanentPath),
                         'extension' => $extension,
-                        'size' => Storage::disk('local')->size($permanentPath),
+                        'size' => Storage::disk('public')->size($permanentPath),
                         'upload_date' => now(),
                         'purpose' => 'case',
                         'document_id' => $policy->id, // Link to the new policy
                     ]);
+
+                    Storage::disk('local')->delete($tempPath);
                 }
             }
         }

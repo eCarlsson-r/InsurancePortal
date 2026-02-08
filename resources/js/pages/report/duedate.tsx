@@ -130,7 +130,14 @@ export default function DueDate(props: {
                                         item.receipt_pay_date,
                                     ).toDateString()}
                                 </td>
-                                <td>{item.receipt_premium}</td>
+                                <td>
+                                    {Number(
+                                        item.receipt_premium,
+                                    ).toLocaleString('id-ID', {
+                                        style: 'currency',
+                                        currency: 'IDR',
+                                    })}
+                                </td>
                                 <td>
                                     {item.receipt_pay_method === '1'
                                         ? 'Tahunan'

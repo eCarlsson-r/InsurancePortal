@@ -27,6 +27,11 @@ class Contest extends Model
     protected $casts = [
         'start' => 'date',
         'end' => 'date',
+        'minimum_commision' => 'integer',
+        'minimum_premium' => 'integer',
+        'minimum_policy' => 'integer',
+        'bonus_percent' => 'decimal:2',
+        'bonus_amount' => 'integer',
     ];
 
     protected $guarded = ['id'];

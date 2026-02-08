@@ -614,15 +614,38 @@ class ProductionService
 
         // Final aggregation and contest joins
         return DB::query()->fromSub($achievement, 'target')
-            // Note: The original logic join contests for gaps. I'll omit the contest gaps for now
-            // to keep it focused on the hierarchy unless specifically requested.
-            // But I will keep the ordering as in the original.
+            ->leftJoinLateral(
+                DB::table('contests')
+                    ->select('reward as current_trip', 'minimum_premium', 'minimum_policy')
+                    ->where('type', 'empire')
+                    ->whereColumn('level', 'target.position')
+                    ->whereColumn('minimum_premium', '<=', 'target.ape')
+                    ->whereRaw("? BETWEEN YEAR(start) AND YEAR(end)", [$year])
+                    ->orderBy('minimum_premium', 'DESC')
+                    ->limit(1),
+                'stbonus'
+            )
+            ->leftJoinLateral(
+                DB::table('contests')
+                    ->select('reward as next_trip', 'minimum_premium', 'minimum_policy')
+                    ->where('type', 'empire')
+                    ->whereColumn('level', 'target.position')
+                    ->whereColumn('minimum_premium', '>', 'target.ape')
+                    ->whereRaw("? BETWEEN YEAR(start) AND YEAR(end)", [$year])
+                    ->orderBy('minimum_premium', 'ASC')
+                    ->limit(1),
+                'ntbonus'
+            )
             ->select([
                 'target.name',
                 'target.agent_leader_id',
                 'target.position',
                 'target.ape as current_ape',
                 'target.cases as current_cases',
+                'stbonus.current_trip',
+                'ntbonus.next_trip',
+                DB::raw("COALESCE(ntbonus.minimum_premium - target.ape, 0) as ape_gap"),
+                DB::raw("COALESCE(IF(ntbonus.minimum_policy - target.cases < 0,0,ntbonus.minimum_policy - target.cases), 0) as cases_gap"),
             ])
             ->orderByRaw("FIELD(position, 'FC', 'BP*', 'BP**', 'BP***')")
             ->orderBy('target.ape', 'DESC')
