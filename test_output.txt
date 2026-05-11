@@ -1,0 +1,58 @@
+PHPUnit 11.5.50 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.4.16
+Configuration: /Users/carlsson/Documents/InsurancePortal/phpunit.xml
+
+"" // tests/Feature/AgentTest.php:25
+."" // tests/Feature/AgentTest.php:25
+E"" // tests/Feature/AgentTest.php:25
+."" // tests/Feature/AgentTest.php:25
+.                                                                4 / 4 (100%)
+
+Time: 00:01.940, Memory: 46.50 MB
+
+There was 1 error:
+
+1) Tests\Feature\AgentTest::test_agent_can_be_created
+Illuminate\Database\QueryException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`insurance_test`.`agencies`, CONSTRAINT `agencies_director_foreign` FOREIGN KEY (`director`) REFERENCES `agents` (`id`) ON DELETE CASCADE ON UPDATE CASCADE) (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: insurance_test, SQL: insert into `agencies` (`name`, `city`, `director`, `leader`) values (Test Agency, Test City, 1, 1))
+
+/Users/carlsson/Documents/InsurancePortal/vendor/laravel/framework/src/Illuminate/Database/Connection.php:838
+/Users/carlsson/Documents/InsurancePortal/vendor/laravel/framework/src/Illuminate/Database/Connection.php:794
+/Users/carlsson/Documents/InsurancePortal/vendor/laravel/framework/src/Illuminate/Database/MySqlConnection.php:42
+/Users/carlsson/Documents/InsurancePortal/vendor/laravel/framework/src/Illuminate/Database/Query/Processors/MySqlProcessor.php:35
+/Users/carlsson/Documents/InsurancePortal/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php:4054
+/Users/carlsson/Documents/InsurancePortal/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:2235
+/Users/carlsson/Documents/InsurancePortal/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1436
+/Users/carlsson/Documents/InsurancePortal/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1401
+/Users/carlsson/Documents/InsurancePortal/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1240
+/Users/carlsson/Documents/InsurancePortal/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1219
+/Users/carlsson/Documents/InsurancePortal/vendor/laravel/framework/src/Illuminate/Support/helpers.php:390
+/Users/carlsson/Documents/InsurancePortal/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1218
+/Users/carlsson/Documents/InsurancePortal/vendor/laravel/framework/src/Illuminate/Support/Traits/ForwardsCalls.php:23
+/Users/carlsson/Documents/InsurancePortal/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2540
+/Users/carlsson/Documents/InsurancePortal/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2556
+/Users/carlsson/Documents/InsurancePortal/tests/Feature/AgentTest.php:38
+
+Caused by
+PDOException: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`insurance_test`.`agencies`, CONSTRAINT `agencies_director_foreign` FOREIGN KEY (`director`) REFERENCES `agents` (`id`) ON DELETE CASCADE ON UPDATE CASCADE)
+
+/Users/carlsson/Documents/InsurancePortal/vendor/laravel/framework/src/Illuminate/Database/MySqlConnection.php:53
+/Users/carlsson/Documents/InsurancePortal/vendor/laravel/framework/src/Illuminate/Database/Connection.php:827
+/Users/carlsson/Documents/InsurancePortal/vendor/laravel/framework/src/Illuminate/Database/Connection.php:794
+/Users/carlsson/Documents/InsurancePortal/vendor/laravel/framework/src/Illuminate/Database/MySqlConnection.php:42
+/Users/carlsson/Documents/InsurancePortal/vendor/laravel/framework/src/Illuminate/Database/Query/Processors/MySqlProcessor.php:35
+/Users/carlsson/Documents/InsurancePortal/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php:4054
+/Users/carlsson/Documents/InsurancePortal/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:2235
+/Users/carlsson/Documents/InsurancePortal/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1436
+/Users/carlsson/Documents/InsurancePortal/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1401
+/Users/carlsson/Documents/InsurancePortal/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:1240
+/Users/carlsson/Documents/InsurancePortal/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1219
+/Users/carlsson/Documents/InsurancePortal/vendor/laravel/framework/src/Illuminate/Support/helpers.php:390
+/Users/carlsson/Documents/InsurancePortal/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:1218
+/Users/carlsson/Documents/InsurancePortal/vendor/laravel/framework/src/Illuminate/Support/Traits/ForwardsCalls.php:23
+/Users/carlsson/Documents/InsurancePortal/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2540
+/Users/carlsson/Documents/InsurancePortal/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Model.php:2556
+/Users/carlsson/Documents/InsurancePortal/tests/Feature/AgentTest.php:38
+
+ERRORS!
+Tests: 4, Assertions: 6, Errors: 1.

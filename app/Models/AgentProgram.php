@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class AgentProgram extends Pivot
 {
+    use HasFactory;
     protected $table = 'agent_programs';
     protected $primaryKey = 'id';
     public $incrementing = true;

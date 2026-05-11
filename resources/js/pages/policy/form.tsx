@@ -184,7 +184,7 @@ export default function PolicyForm({
             <form id="case-form" onSubmit={handleSubmit}>
                 <div className="row">
                     {/* PDF Preview Sidebar (Sticky) */}
-                    <div className="col-lg-6 d-none d-lg-block">
+                    <div className="col-lg-6">
                         {data.files && data.files.length > 0 && (
                             <Accordion
                                 defaultActiveKey={

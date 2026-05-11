@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ProgramTarget extends Model
 {
+    use HasFactory;
     protected $table = 'program_targets';
 
     protected $fillable = [

@@ -102,36 +102,17 @@ export default function TemplateLayout({ children }: PropsWithChildren) {
                             <div className="header-left"></div>
                             <ul className="navbar-nav header-right">
                                 <li className="nav-item dropdown header-profile">
-                                    <a
-                                        className="nav-link"
-                                        href="#"
-                                        role="button"
-                                        data-toggle="dropdown"
+                                    <Link
+                                        href="/logout"
+                                        method="post"
+                                        as="button"
+                                        className="btn btn-danger"
                                     >
-                                        <i className="mdi mdi-account"></i>
-                                    </a>
-                                    <div className="dropdown-menu dropdown-menu-right">
-                                        <Link
-                                            href="/profile"
-                                            className="dropdown-item"
-                                        >
-                                            <i className="icon-user"></i>
-                                            <span className="ml-2">
-                                                Profile{' '}
-                                            </span>
-                                        </Link>
-                                        <Link
-                                            href="/logout"
-                                            method="post"
-                                            as="button"
-                                            className="dropdown-item"
-                                        >
-                                            <i className="icon-key"></i>
-                                            <span className="ml-2">
-                                                Logout{' '}
-                                            </span>
-                                        </Link>
-                                    </div>
+                                        <i className="icon-key"></i>
+                                        <span className="ml-2">
+                                            Logout{' '}
+                                        </span>
+                                    </Link>
                                 </li>
                             </ul>
                         </div>

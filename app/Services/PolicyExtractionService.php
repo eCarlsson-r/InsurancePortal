@@ -4,7 +4,8 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use HelgeSverre\Extractor\Facades\Text;
+use Laravel\Ai\Ai;
+use function Laravel\Ai\agent;
 use Smalot\PdfParser\Parser;
 use App\Services\Traits\PolicySanitizer;
 use App\Models\Agent;
@@ -176,7 +177,7 @@ class PolicyExtractionService {
             }
 
             // Pass the specific source text for this group
-            $result = $this->askOllamaForFields($config['source'], $config['fields']);
+            $result = $this->askAiForFields($config['source'], $config['fields']);
 
             // Map the descriptive AI names back to your DB keys
             $mappedResult = $this->mapAiResponseToDatabase($result);
@@ -209,39 +210,20 @@ class PolicyExtractionService {
         return $finalData;
     }
 
-    private function askOllamaForFields(string $text, string $fields): array
+    private function askAiForFields(string $text, string $fields): array
     {
         // 1. Shorten the text to only the first 3000 characters if it's a huge PDF
         $truncatedText = mb_substr($text, 0, 3000);
 
-        $apiKey = config('services.groq.key');
-        $baseUrl = config('services.groq.url');
-        $model = config('services.groq.model');
+        try {
+            $response = agent("You are a precise data extraction engine. Extract the fields exactly as requested.")
+                ->prompt("Context: {$truncatedText}\n\nTask: Extract {$fields} as JSON.");
 
-        $response = Http::withToken($apiKey)
-        ->timeout(30) // Groq is fast! 30s is more than enough.
-        ->post("{$baseUrl}/chat/completions", [
-            'model' => $model,
-            'messages' => [
-                [
-                    'role' => 'system',
-                    'content' => "You are a precise data extraction engine. Extract the fields exactly as requested."
-                ],
-                [
-                    'role' => 'user',
-                    'content' => "Context: {$truncatedText}\n\nTask: Extract {$fields} as JSON."
-                ]
-            ],
-            'response_format' => ['type' => 'json_object'],
-            'temperature' => 0
-        ]);
-
-        if ($response->successful()) {
-            $data = $response->json();
-            return json_decode($data['choices'][0]['message']['content'], true);
+            return json_decode($response->text, true) ?? [];
+        } catch (\Exception $e) {
+            Log::error("AI Extraction Error: " . $e->getMessage());
+            return [];
         }
-
-        return [];
     }
 
     public function getSectionsForAi($rawText)

@@ -16,6 +16,9 @@ use App\Models\Program;
 use App\Models\ProgramTarget;
 use App\Models\Rider;
 use App\Models\User;
+use App\Models\Investment;
+use App\Models\Receipt;
+use App\Models\File;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -93,8 +96,7 @@ class DatabaseSeeder extends Seeder
 
             // Receipts
             Receipt::factory(rand(1, 5))->create([
-                'agent_id' => $policy->agent_id,
-                'policy_no' => $policy->policy_no,
+                'case_id' => $policy->id,
                 'premium' => $policy->premium,
             ]);
         }
@@ -102,10 +104,12 @@ class DatabaseSeeder extends Seeder
         // 8. Programs
         $programs = Program::factory(3)->create();
         foreach ($programs as $program) {
-            ProgramTarget::factory(12)->create([
-                'program_id' => $program->id,
-                'month' => fn($attributes, $model) => ($model->id % 12) + 1,
-            ]);
+            for ($i = 1; $i <= 12; $i++) {
+                ProgramTarget::factory()->create([
+                    'program_id' => $program->id,
+                    'month' => $i,
+                ]);
+            }
         }
 
         // Agent Programs

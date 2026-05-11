@@ -10,13 +10,14 @@ return new class extends Migration
     {
         Schema::create('cases', function (Blueprint $table) {
             $table->id();
+            $table->string('case_code', 20)->nullable();
             $table->string('policy_no', 20);
             $table->foreignId('holder_id')->constrained('customers')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('insured_id')->constrained('customers')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreignId('agent_id')->constrained('agents')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('holder_insured_relationship', 50)->default('');
             $table->date('entry_date');
-            $table->string('status', 20);
+            $table->string('status', 20)->default('active');
             $table->unsignedInteger('bill_at');
             $table->boolean('is_insure_holder');
             $table->foreignId('product_id')->constrained('products')->cascadeOnUpdate()->cascadeOnDelete();

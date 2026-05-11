@@ -29,10 +29,12 @@ class AgentTest extends TestCase
 
     public function test_agent_can_be_created()
     {
+        \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=0');
         $agency = Agency::factory()->create([
-            'director' => 1, // Avoid recursion for now
+            'director' => 1,
             'leader' => 1
         ]);
+        \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=1');
         
         $recruiter = Agent::factory()->create([
             'agency_id' => $agency->id,
