@@ -100,6 +100,7 @@ export default function AgentForm({
 
     // Helper to add program row
     const addProgram = () => {
+        console.info(data.programs);
         setData('programs', [
             ...data.programs,
             {
@@ -163,18 +164,17 @@ export default function AgentForm({
                     <Accordion defaultActiveKey="0">
                         <Accordion.Item eventKey="0">
                             <Accordion.Header as="h4">
-                                {t('agent.personalData')}
+                                {t('agent.personal_data')}
                             </Accordion.Header>
 
                             <Accordion.Body>
                                 <TextInput
                                     id="name"
-                                    label={t('agent.nameAsID')}
+                                    label={t('agent.name_as_id')}
                                     value={data.name}
                                     onChange={(e) =>
                                         setData('name', e.target.value)
                                     }
-                                    data-i18n="name-as-id"
                                     row
                                 />
 
@@ -185,7 +185,6 @@ export default function AgentForm({
                                     onChange={(value) =>
                                         setData('gender', Number(value))
                                     }
-                                    data-i18n="gender"
                                     row
                                     options={[
                                         {
@@ -204,14 +203,13 @@ export default function AgentForm({
                                 <div className="row form-group mb-3">
                                     <label
                                         className="col-sm-3 col-form-label"
-                                        data-i18n="place_date_birth"
                                     >
-                                        {t('customer.birthPlaceDate')}
+                                        {t('customer.place_date_birth')}
                                     </label>
                                     <div className="col-sm-9 d-flex gap-2">
                                         <input
                                             type="text"
-                                            className="form-control flex-grow-1"
+                                            className="form-control grow"
                                             value={data.birth_place}
                                             onChange={(e) =>
                                                 setData(
@@ -242,7 +240,6 @@ export default function AgentForm({
                                     onChange={(e) =>
                                         setData('address', e.target.value)
                                     }
-                                    data-i18n="address"
                                     rows={2}
                                     row
                                 />
@@ -254,13 +251,12 @@ export default function AgentForm({
                                     onChange={(e) =>
                                         setData('religion', e.target.value)
                                     }
-                                    data-i18n="religion"
                                     row
                                 />
 
                                 <TextInput
                                     id="identity_number"
-                                    label={t('agent.idNumber')}
+                                    label={t('agent.id_number')}
                                     value={data.identity_number}
                                     onChange={(e) =>
                                         setData(
@@ -268,86 +264,78 @@ export default function AgentForm({
                                             e.target.value,
                                         )
                                     }
-                                    data-i18n="id-number"
                                     row
                                 />
 
                                 <TextInput
                                     id="tax_number"
-                                    label={t('agent.taxNumber')}
+                                    label={t('agent.tax_number')}
                                     value={data.tax_number}
                                     onChange={(e) =>
                                         setData('tax_number', e.target.value)
                                     }
-                                    data-i18n="tax-number"
                                     row
                                 />
 
                                 <TextInput
                                     id="city"
-                                    label={t('agent.marketingCity')}
+                                    label={t('agent.marketing_city')}
                                     value={data.city}
                                     onChange={(e) =>
                                         setData('city', e.target.value)
                                     }
-                                    data-i18n="marketing-city"
                                     row
                                 />
 
                                 <TextInput
                                     id="province"
-                                    label={t('agent.province')}
+                                    label={t('common.province')}
                                     value={data.province}
                                     onChange={(e) =>
                                         setData('province', e.target.value)
                                     }
-                                    data-i18n="province"
                                     row
                                 />
 
                                 <TextInput
                                     id="postal_code"
-                                    label={t('customer.postalCode')}
+                                    label={t('common.postal_code')}
                                     value={data.postal_code}
                                     onChange={(e) =>
                                         setData('postal_code', e.target.value)
                                     }
-                                    data-i18n="postal-code"
                                     row
                                 />
 
                                 <TextInput
                                     id="education"
-                                    label={t('agent.lastEducation')}
+                                    label={t('agent.last_education')}
                                     value={data.education}
                                     onChange={(e) =>
                                         setData('education', e.target.value)
                                     }
-                                    data-i18n="last-education"
                                     row
                                 />
 
                                 <TextInput
                                     id="phone"
-                                    label={t('agent.phoneNumber')}
+                                    label={t('common.phone_number')}
                                     type="tel"
                                     value={data.phone}
                                     onChange={(e) =>
                                         setData('phone', e.target.value)
                                     }
-                                    data-i18n="phone-number"
                                     row
                                 />
 
                                 <TextInput
                                     id="mobile"
-                                    label={t('customer.mobileNumber')}
+                                    label={t('customer.mobile_number')}
                                     type="tel"
                                     value={data.mobile}
                                     onChange={(e) =>
                                         setData('mobile', e.target.value)
                                     }
-                                    data-i18n="mobile-number"
                                     row
                                 />
 
@@ -359,18 +347,16 @@ export default function AgentForm({
                                     onChange={(e) =>
                                         setData('email', e.target.value)
                                     }
-                                    data-i18n="email-address"
                                     row
                                 />
 
                                 <SelectInput
                                     id="status"
-                                    label={t('customer.maritalStatus')}
+                                    label={t('customer.marital_status')}
                                     value={data.status}
                                     onChange={(value) =>
                                         setData('status', Number(value))
                                     }
-                                    data-i18n="status"
                                     row
                                     options={[
                                         {
@@ -388,33 +374,30 @@ export default function AgentForm({
 
                                 <TextInput
                                     id="spouse"
-                                    label={t('agent.spouseName')}
+                                    label={t('agent.spouse_name')}
                                     value={data.spouse}
                                     onChange={(e) =>
                                         setData('spouse', e.target.value)
                                     }
                                     placeholder={t('agent.fillIfMarried')}
-                                    data-i18n="spouse-name"
                                     row
                                 />
 
                                 <TextInput
                                     id="occupation"
-                                    label={t('customer.profession')}
+                                    label={t('customer.occupation')}
                                     value={data.occupation}
                                     onChange={(e) =>
                                         setData('occupation', e.target.value)
                                     }
-                                    data-i18n="occupation"
                                     row
                                 />
 
                                 <div className="row form-group mb-3">
                                     <label
                                         className="col-sm-3 col-form-label"
-                                        data-i18n="number-dependents"
                                     >
-                                        {t('agent.numberOfDependents')}
+                                        {t('agent.dependents_count')}
                                     </label>
                                     <div className="col-sm-9">
                                         <InputGroup>
@@ -449,7 +432,6 @@ export default function AgentForm({
                                     onChange={(e) =>
                                         setData('notes', e.target.value)
                                     }
-                                    data-i18n="notes"
                                     rows={2}
                                     row
                                 />
@@ -458,39 +440,36 @@ export default function AgentForm({
 
                         <Accordion.Item eventKey="1">
                             <Accordion.Header as="h4">
-                                {t('agent.agentStatus')}
+                                {t('agent.agent_status')}
                             </Accordion.Header>
                             <Accordion.Body>
                                 <DateInput
                                     id="apply_date"
-                                    label={t('agent.applyDate')}
+                                    label={t('agent.apply_date')}
                                     value={data.apply_date}
                                     onChange={(e) =>
                                         setData('apply_date', e.target.value)
                                     }
-                                    data-i18n="apply-date"
                                     row
                                 />
 
                                 <TextInput
                                     id="apply_place"
-                                    label={t('agent.applyPlace')}
+                                    label={t('agent.apply_place')}
                                     value={data.apply_place}
                                     onChange={(e) =>
                                         setData('apply_place', e.target.value)
                                     }
-                                    data-i18n="apply-place"
                                     row
                                 />
 
                                 <SelectInput
                                     id="agency_id"
-                                    label={t('agent.agency')}
+                                    label={t('agency.title')}
                                     value={data.agency_id}
                                     onChange={(value) =>
                                         setData('agency_id', Number(value))
                                     }
-                                    data-i18n="apply-agency"
                                     row
                                     options={[
                                         ...agencies.map((agency) => ({
@@ -510,30 +489,27 @@ export default function AgentForm({
                                             e.target.value,
                                         )
                                     }
-                                    data-i18n="official_number"
                                     placeholder={t('agent.agentCode')}
                                     row
                                 />
 
                                 <TextInput
                                     id="license"
-                                    label={t('agent.licenseNumber')}
+                                    label={t('agent.license_number')}
                                     value={data.license}
                                     onChange={(e) =>
                                         setData('license', e.target.value)
                                     }
-                                    data-i18n="license"
                                     row
                                 />
 
                                 <DateInput
                                     id="due_date"
-                                    label={t('agent.dueDate')}
+                                    label={t('agent.due_date')}
                                     value={data.due_date}
                                     onChange={(e) =>
                                         setData('due_date', e.target.value)
                                     }
-                                    data-i18n="payable-date"
                                     row
                                 />
 
@@ -544,7 +520,6 @@ export default function AgentForm({
                                     onChange={(value) =>
                                         setData('recruiter_id', Number(value))
                                     }
-                                    data-i18n="recruiter"
                                     row
                                     options={[
                                         ...agents.map((recruiter) => ({
@@ -555,12 +530,7 @@ export default function AgentForm({
                                 />
                                 <div className="row form-group mt-4">
                                     <div className="col-12 d-flex justify-content-between align-items-center mb-2">
-                                        <h6
-                                            className="mb-0"
-                                            data-i18n="agent_level"
-                                        >
-                                            {t('agent.programAllowance')}
-                                        </h6>
+                                        <h6 className="mb-0">{t('agent.program_allowance')}</h6>
                                         <button
                                             id="program-launcher"
                                             className="btn btn-sm btn-primary"
@@ -583,7 +553,6 @@ export default function AgentForm({
                                                             style={{
                                                                 width: '130px',
                                                             }}
-                                                            data-i18n="program-start"
                                                         >
                                                             {t('agent.start')}
                                                         </th>
@@ -591,23 +560,17 @@ export default function AgentForm({
                                                             style={{
                                                                 width: '150px',
                                                             }}
-                                                            data-i18n="position"
                                                         >
                                                             {t('agent.position')}
                                                         </th>
-                                                        <th data-i18n="leader">
-                                                            {t('agent.directLeader')}
-                                                        </th>
-                                                        <th data-i18n="program">
-                                                            {t('agent.program')}
-                                                        </th>
+                                                        <th>{t('agent.direct_leader')}</th>
+                                                        <th>{t('agent.program')}</th>
                                                         <th
                                                             style={{
                                                                 width: '120px',
                                                             }}
-                                                            data-i18n="allowance"
                                                         >
-                                                            {t('agent.allowance')}
+                                                            {t('agent.program_allowance')}
                                                         </th>
                                                         <th
                                                             style={{
@@ -861,7 +824,7 @@ export default function AgentForm({
                                                                                 )
                                                                             }
                                                                             className="btn btn-link btn-sm text-danger p-0"
-                                                                            title="Delete"
+                                                                            title={t('common.delete')}
                                                                         >
                                                                             <i className="fa fa-trash"></i>
                                                                         </button>

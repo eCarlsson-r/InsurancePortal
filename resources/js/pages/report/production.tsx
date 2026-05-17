@@ -4,6 +4,7 @@ import { agentSchema } from '@/schemas/models';
 import { exportTableToExcel } from '@/utils/exportToExcel';
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Table } from 'react-bootstrap';
 import { z } from 'zod';
 
@@ -31,6 +32,7 @@ export default function Production({
     prod_agent: string;
     prod_year: string;
 }) {
+    const { t } = useTranslation();
     const [year, setYear] = useState(prod_year || '');
     const [agent, setAgent] = useState(prod_agent || '');
 
@@ -72,36 +74,33 @@ export default function Production({
 
     return (
         <TablePage
-            headTitle="Production Report"
-            title="Laporan Produksi"
+            headTitle={t('report.production-report')}
+            title={t('report.production-report')}
             i18nTitle="production-report"
             breadcrumbs={[
                 {
-                    label: 'Laporan',
+                    label: t('common.reports'),
                     href: 'javascript:void(0)',
                     i18n: 'report',
                 },
                 {
-                    label: 'Laporan Produksi',
+                    label: t('report.production-report'),
                     active: true,
                     i18n: 'production-report',
                 },
             ]}
             toolbar={
                 <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 w-100">
-                    <h4
-                        className="card-title mb-0"
-                        data-i18n="agent-production-report"
-                    >
-                        Laporan Produksi Agen
+                    <h4 className="card-title mb-0">
+                        {t('report.agent-production-report')}
                     </h4>
                     <div className="d-flex flex-wrap align-items-center gap-3">
                         <div className="d-flex align-items-center gap-2">
                             <SelectInput
                                 id="prod-agent"
-                                label="Agen"
+                                label={t('common.agent')}
                                 style={{ width: '200px' }}
-                                placeholder="Pilih agen"
+                                placeholder={t('agent.select_agent')}
                                 options={[
                                     ...agents.map((agent) => ({
                                         value: agent.id || 0,
@@ -117,13 +116,13 @@ export default function Production({
                         <div className="d-flex align-items-center gap-2">
                             <SelectInput
                                 id="prod-year"
-                                label="Tahun"
+                                label={t('common.year')}
                                 style={{ width: '200px' }}
                                 value={year}
                                 onChange={(value) => {
                                     setYear(value.toString());
                                 }}
-                                placeholder="Pilih tahun"
+                                placeholder={t('common.select_year')}
                                 options={[
                                     ...Array.from({ length: 10 }, (_, i) => ({
                                         value: (
@@ -145,14 +144,14 @@ export default function Production({
                                     );
                             }}
                         >
-                            Cari
+                            {t('common.search')}
                         </button>
                         <button
                             className="btn btn-success"
                             onClick={exportToExcel}
                             disabled={data.length === 0}
                         >
-                            Ekspor ke Excel
+                            {t('common.export_excel')}
                         </button>
                     </div>
                 </div>
@@ -161,15 +160,15 @@ export default function Production({
             <Table hover striped bordered responsive>
                 <thead>
                     <tr>
-                        <th>Nomor Polis</th>
-                        <th>Nama Agen</th>
-                        <th>Nama Pemegang Polis</th>
-                        <th>Nama Tertanggung</th>
-                        <th>FYP</th>
-                        <th>Topup</th>
-                        <th>APE</th>
-                        <th>Contest</th>
-                        <th>Komisi</th>
+                        <th>{t('policy.policy_number')}</th>
+                        <th>{t('agent.agent_name')}</th>
+                        <th>{t('policy.policyholder_name')}</th>
+                        <th>{t('policy.insured_name')}</th>
+                        <th>{t('dashboard.fyp')}</th>
+                        <th>{t('policy.topup_premium')}</th>
+                        <th>{t('dashboard.wape')}</th>
+                        <th>{t('contest.title')}</th>
+                        <th>{t('report.commission')}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -223,7 +222,7 @@ export default function Production({
                     ) : (
                         <tr>
                             <td colSpan={9} className="text-center">
-                                Data Tidak Ditemukan
+                                {t('common.no_data')}
                             </td>
                         </tr>
                     )}

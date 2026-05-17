@@ -52,7 +52,7 @@ export default function Contest({ contests, filters }: ContestProps) {
     }, [searchQuery, filters.search, handleSearch]);
 
     const handleDelete = (contestId: number | undefined) => {
-        if (confirm(t('contest.confirmDelete'))) {
+        if (confirm(t('contest.confirm_delete'))) {
             router.delete(`/master/contest/${contestId}`);
         }
     };
@@ -88,20 +88,18 @@ export default function Contest({ contests, filters }: ContestProps) {
 
     return (
         <TableFormPage
-            headTitle="Contest"
-            title="Kontes"
-            i18nTitle="contest"
+            headTitle={t('contest.title')}
+            title={t('contest.title')}
             breadcrumbs={[
-                { label: 'Master', href: 'javascript:void(0)', i18n: 'master' },
-                { label: 'Kontes', active: true, i18n: 'contest' },
+                { label: t('common.master'), href: 'javascript:void(0)', i18n: 'master' },
+                { label: t('contest.title'), active: true, i18n: 'contest' },
             ]}
-            tableTitle={t('contest.contestList')}
-            tableI18nTitle="contest-list"
+            tableTitle={t('contest.list_title')}
             tableToolbar={
                 <input
                     type="text"
                     className="form-control form-control-sm float-end"
-                    placeholder={t('contest.searchPlaceholder')}
+                    placeholder={t('contest.search_placeholder')}
                     style={{ width: '200px' }}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -112,10 +110,10 @@ export default function Contest({ contests, filters }: ContestProps) {
                 <Table hover striped bordered responsive>
                     <thead>
                         <tr>
-                            <th data-field="contest-name">{t('contest.contestName')}</th>
-                            <th data-field="contest-start">{t('contest.contestStart')}</th>
-                            <th data-field="contest-end">{t('contest.contestEnd')}</th>
-                            <th data-field="minimum-premium">{t('contest.minimumPremium')}</th>
+                            <th data-field="contest-name">{t('contest.contest_name')}</th>
+                            <th data-field="contest-start">{t('contest.contest_start')}</th>
+                            <th data-field="contest-end">{t('contest.contest_end')}</th>
+                            <th data-field="minimum-premium">{t('contest.minimum_premium')}</th>
                             <th className="col-1"></th>
                         </tr>
                     </thead>
@@ -153,7 +151,7 @@ export default function Contest({ contests, filters }: ContestProps) {
                                                 e.stopPropagation();
                                                 handleDelete(contestItem.id);
                                             }}
-                                            title="Delete"
+                                            title={t('common.delete')}
                                         >
                                             <i className="fa fa-trash"></i>
                                         </button>
@@ -165,32 +163,29 @@ export default function Contest({ contests, filters }: ContestProps) {
                                 <td
                                     colSpan={5}
                                     className="text-center"
-                                    data-i18n="no-contest"
                                 >
-                                    {t('contest.noContests')}
+                                    {t('contest.no_contests')}
                                 </td>
                             </tr>
                         )}
                     </tbody>
                 </Table>
             }
-            formTitle={isEdit ? t('contest.editContest') : t('contest.createContest')}
-            formI18nTitle="edit-contest"
-            formSubtitle={t('contest.formSubtitle')}
-            formI18nSubtitle="edit-contest-inst"
+            formTitle={isEdit ? t('contest.edit_title') : t('contest.create_title')}
+            formSubtitle={t('contest.form_subtitle')}
             formOnSubmit={handleSubmit}
             formContent={
                 <>
                     <TextInput
                         id="name"
-                        label={t('contest.contestName')}
+                        label={t('contest.contest_name')}
                         value={data.name}
                         onChange={(e) => setData('name', e.target.value)}
                         row
                     />
                     <SelectInput
                         id="type"
-                        label={t('contest.contestType')}
+                        label={t('contest.contest_type')}
                         value={data.type}
                         onChange={(value) => setData('type', value.toString())}
                         options={[
@@ -225,21 +220,21 @@ export default function Contest({ contests, filters }: ContestProps) {
                     />
                     <DateInput
                         id="start"
-                        label={t('contest.contestStart')}
+                        label={t('contest.contest_start')}
                         value={data.start ? data.start.split('T')[0] : ''}
                         onChange={(e) => setData('start', e.target.value)}
                         row
                     />
                     <DateInput
                         id="end"
-                        label={t('contest.contestEnd')}
+                        label={t('contest.contest_end')}
                         value={data.end ? data.end.split('T')[0] : ''}
                         onChange={(e) => setData('end', e.target.value)}
                         row
                     />
                     <TextInput
                         id="minimum_premium"
-                        label={t('contest.minimumPremium')}
+                        label={t('contest.minimum_premium')}
                         type="number"
                         value={data.minimum_premium}
                         onChange={(e) =>
@@ -252,7 +247,7 @@ export default function Contest({ contests, filters }: ContestProps) {
                     />
                     <TextInput
                         id="bonus_percent"
-                        label={t('contest.bonusPercent')}
+                        label={t('contest.bonus_percent')}
                         type="number"
                         value={data.bonus_percent}
                         onChange={(e) =>

@@ -62,7 +62,7 @@ export default function Fund({ funds, filters }: FundProps) {
     const isEdit = !!data.id;
 
     const handleDelete = (fundCode: number | undefined) => {
-        if (confirm('Are you sure you want to delete this fund?')) {
+        if (confirm(t('fund.confirm_delete'))) {
             router.delete(`/master/fund/${fundCode}`);
         }
     };
@@ -79,13 +79,11 @@ export default function Fund({ funds, filters }: FundProps) {
         <TableFormPage
             headTitle={t('fund.title')}
             title={t('fund.title')}
-            i18nTitle="fund"
             breadcrumbs={[
                 { label: 'Master', href: 'javascript:void(0)', i18n: 'master' },
                 { label: t('fund.title'), active: true, i18n: 'fund' },
             ]}
             tableTitle={t('fund.list_title')}
-            tableI18nTitle="fund-list"
             tableToolbar={
                 <input
                     type="text"
@@ -101,12 +99,8 @@ export default function Fund({ funds, filters }: FundProps) {
                 <Table hover striped bordered responsive>
                     <thead>
                         <tr>
-                            <th className="col-8" data-i18n="fund-name">
-                                {t('fund.fund_name')}
-                            </th>
-                            <th className="col-3" data-i18n="fund-currency">
-                                {t('fund.currency')}
-                            </th>
+                            <th className="col-8">{t('fund.fund_name')}</th>
+                            <th className="col-3">{t('fund.currency')}</th>
                             <th className="col-1"></th>
                         </tr>
                     </thead>
@@ -117,8 +111,8 @@ export default function Fund({ funds, filters }: FundProps) {
                                     <td>{fund.name}</td>
                                     <td>
                                         {fund.currency === 1
-                                            ? 'Rupiah'
-                                            : 'Dollar'}
+                                            ? t('fund.rupiah')
+                                            : t('fund.dollar')}
                                     </td>
                                     <td>
                                         <button
@@ -127,7 +121,7 @@ export default function Fund({ funds, filters }: FundProps) {
                                                 e.stopPropagation();
                                                 handleDelete(fund.id);
                                             }}
-                                            title="Delete"
+                                            title={t('common.delete')}
                                         >
                                             <i className="fa fa-trash"></i>
                                         </button>
@@ -137,7 +131,7 @@ export default function Fund({ funds, filters }: FundProps) {
                         ) : (
                             <tr>
                                 <td colSpan={3} className="text-center">
-                                    No data available
+                                    {t('fund.no_data')}
                                 </td>
                             </tr>
                         )}
@@ -145,9 +139,7 @@ export default function Fund({ funds, filters }: FundProps) {
                 </Table>
             }
             formTitle={isEdit ? t('fund.edit_title') : t('fund.create_title')}
-            formI18nTitle="edit-fund"
             formSubtitle={t('fund.form_subtitle')}
-            formI18nSubtitle="edit-fund-inst"
             formOnSubmit={handleSubmit}
             formContent={
                 <>
@@ -164,8 +156,8 @@ export default function Fund({ funds, filters }: FundProps) {
                         value={data.currency}
                         onChange={(value) => setData('currency', Number(value))}
                         options={[
-                            { value: '1', label: 'Rupiah' },
-                            { value: '2', label: 'Dollar' },
+                            { value: '1', label: t('fund.rupiah') },
+                            { value: '2', label: t('fund.dollar') },
                         ]}
                         row
                     />

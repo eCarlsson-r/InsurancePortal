@@ -87,7 +87,7 @@ export default function Receipt({
     const isEdit = !!data.id;
 
     const handleDelete = (receiptId: number | undefined) => {
-        if (confirm(t('receipt.confirmDelete'))) {
+        if (confirm(t('receipt.confirm_delete'))) {
             router.delete(`/master/receipt/${receiptId}`);
         }
     };
@@ -110,20 +110,18 @@ export default function Receipt({
 
     return (
         <TableFormPage
-            headTitle="Receipt"
-            title="Kwitansi"
-            i18nTitle="receipt"
+            headTitle={t('receipt.title')}
+            title={t('receipt.title')}
             breadcrumbs={[
-                { label: 'Master', href: 'javascript:void(0)', i18n: 'master' },
-                { label: 'Kwitansi', active: true, i18n: 'receipt' },
+                { label: t('common.master'), href: 'javascript:void(0)', i18n: 'master' },
+                { label: t('receipt.title'), active: true, i18n: 'receipt' },
             ]}
-            tableTitle={t('receipt.receiptList')}
-            tableI18nTitle="receipt-list"
+            tableTitle={t('receipt.list_title')}
             tableToolbar={
                 <input
                     type="text"
                     className="form-control form-control-sm float-end"
-                    placeholder={t('receipt.searchPlaceholder')}
+                    placeholder={t('receipt.search_placeholder')}
                     style={{ width: '200px' }}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -134,10 +132,10 @@ export default function Receipt({
                 <Table hover striped bordered responsive>
                     <thead>
                         <tr>
-                            <th data-i18n="pay-date">{t('receipt.payDate')}</th>
-                            <th data-i18n="paid-date">{t('receipt.paidDate')}</th>
-                            <th data-i18n="policy-no">{t('receipt.policyNumber')}</th>
-                            <th data-i18n="premium">{t('policy.premium')}</th>
+                            <th>{t('receipt.pay_date')}</th>
+                            <th>{t('receipt.paid_date')}</th>
+                            <th>{t('receipt.policy_number')}</th>
+                            <th>{t('policy.premium')}</th>
                             <th className="col-1"></th>
                         </tr>
                     </thead>
@@ -169,7 +167,7 @@ export default function Receipt({
                                                 e.stopPropagation();
                                                 handleDelete(receipt.id);
                                             }}
-                                            title="Delete"
+                                            title={t('common.delete')}
                                         >
                                             <i className="fa fa-trash"></i>
                                         </button>
@@ -179,23 +177,21 @@ export default function Receipt({
                         ) : (
                             <tr>
                                 <td colSpan={5} className="text-center">
-                                    {t('receipt.noReceiptsFound')}
+                                    {t('receipt.no_receipts_found')}
                                 </td>
                             </tr>
                         )}
                     </tbody>
                 </Table>
             }
-            formTitle={isEdit ? t('receipt.editReceipt') : t('receipt.createReceipt')}
-            formI18nTitle="edit-receipt"
-            formSubtitle={t('receipt.formSubtitle')}
-            formI18nSubtitle="edit-receipt-inst"
+            formTitle={isEdit ? t('receipt.edit_title') : t('receipt.create_title')}
+            formSubtitle={t('receipt.form_subtitle')}
             formOnSubmit={handleSubmit}
             formContent={
                 <>
                     <TextInput
                         id="policy_code"
-                        label={t('receipt.policyNumber')}
+                        label={t('receipt.policy_number')}
                         value={data.policy?.policy_no}
                         onChange={(e) =>
                             setData('policy', {
@@ -252,14 +248,14 @@ export default function Receipt({
                     />
                     <DateInput
                         id="pay_date"
-                        label={t('receipt.dueDate')}
+                        label={t('receipt.due_date')}
                         value={data.pay_date ? data.pay_date.split('T')[0] : ''}
                         onChange={(e) => setData('pay_date', e.target.value)}
                         row
                     />
                     <DateInput
                         id="paid_date"
-                        label={t('receipt.paymentDate')}
+                        label={t('receipt.payment_date')}
                         value={
                             data.paid_date ? data.paid_date.split('T')[0] : ''
                         }
@@ -278,7 +274,7 @@ export default function Receipt({
                     />
                     <TextInput
                         id="currency_rate"
-                        label={t('receipt.exchangeRate')}
+                        label={t('receipt.exchange_rate')}
                         type="number"
                         value={data.currency_rate}
                         onChange={(e) =>

@@ -2,6 +2,7 @@ import SelectInput from '@/components/form/select-input';
 import TablePage from '@/layouts/TablePage';
 import { exportTableToExcel } from '@/utils/exportToExcel';
 import { router } from '@inertiajs/react';
+import { useTranslation } from 'react-i18next';
 import { Table } from 'react-bootstrap';
 
 type SemesterData = {
@@ -33,6 +34,7 @@ export default function Semester({
     data: SemesterData[];
     year: string;
 }) {
+    const { t } = useTranslation();
     const formatCurrency = (value: number) => {
         return new Intl.NumberFormat('id-ID', {
             style: 'currency',
@@ -96,35 +98,32 @@ export default function Semester({
 
     return (
         <TablePage
-            headTitle="Income List Semester"
-            title="Income List Semester"
+            headTitle={t('report.semester-report')}
+            title={t('report.semester-report')}
             i18nTitle="semester-report"
             breadcrumbs={[
                 {
-                    label: 'Laporan',
+                    label: t('common.reports'),
                     href: 'javascript:void(0)',
                     i18n: 'report',
                 },
                 {
-                    label: 'Income List Semester',
+                    label: t('report.semester-report'),
                     active: true,
                     i18n: 'semester-report',
                 },
             ]}
             toolbar={
                 <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 w-100">
-                    <h4
-                        className="card-title mb-0"
-                        data-i18n="agent-semester-report"
-                    >
-                        Laporan Semester Agen
+                    <h4 className="card-title mb-0">
+                        {t('report.agent_semester_report')}
                     </h4>
                     <div className="d-flex flex-wrap align-items-center gap-2">
                         <SelectInput
                             id="semester-year"
-                            label="Year"
+                            label={t('common.year')}
                             style={{ width: '200px' }}
-                            placeholder="Pilih Tahun"
+                            placeholder={t('common.select_year')}
                             value={year}
                             onChange={handleChange}
                             options={[
@@ -144,7 +143,7 @@ export default function Semester({
                         onClick={exportToExcel}
                         disabled={data.length === 0}
                     >
-                        Ekspor ke Excel
+                        {t('common.export_excel')}
                     </button>
                 </div>
             }
@@ -152,24 +151,24 @@ export default function Semester({
             <Table hover striped bordered responsive>
                 <thead>
                     <tr>
-                        <th>Nama Agen</th>
-                        <th>Januari</th>
-                        <th>Februari</th>
-                        <th>Maret</th>
-                        <th>April</th>
-                        <th>Mei</th>
-                        <th>Juni</th>
-                        <th>Total S1</th>
-                        <th>Bonus S1</th>
-                        <th>Juli</th>
-                        <th>Agustus</th>
-                        <th>September</th>
-                        <th>Oktober</th>
-                        <th>November</th>
-                        <th>Desember</th>
-                        <th>Total S2</th>
-                        <th>Bonus S2</th>
-                        <th>Total Bonus</th>
+                        <th>{t('agent.agent_name')}</th>
+                        <th>{t('months.january')}</th>
+                        <th>{t('months.february')}</th>
+                        <th>{t('months.march')}</th>
+                        <th>{t('months.april')}</th>
+                        <th>{t('months.may')}</th>
+                        <th>{t('months.june')}</th>
+                        <th>{t('report.total_s1')}</th>
+                        <th>{t('report.s1_bonus')}</th>
+                        <th>{t('months.july')}</th>
+                        <th>{t('months.august')}</th>
+                        <th>{t('months.september')}</th>
+                        <th>{t('months.october')}</th>
+                        <th>{t('months.november')}</th>
+                        <th>{t('months.december')}</th>
+                        <th>{t('report.total_s2')}</th>
+                        <th>{t('report.s2_bonus')}</th>
+                        <th>{t('report.total_bonus')}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -202,7 +201,7 @@ export default function Semester({
                                 colSpan={18}
                                 className="text-center text-muted py-4"
                             >
-                                No agent found.
+                                {t('agent.noAgentsFound')}
                             </td>
                         </tr>
                     )}

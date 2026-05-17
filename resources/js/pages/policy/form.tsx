@@ -355,7 +355,7 @@ export default function PolicyForm({
 
                                     <div className="mb-3 row form-group">
                                         <label className="col-sm-3 col-form-label">
-                                            {t('customer.birthPlaceDate')}
+                                            {t('customer.place_date_birth')}
                                         </label>
                                         <InputGroup className="col-sm-9">
                                             <TextInput
@@ -386,7 +386,7 @@ export default function PolicyForm({
 
                                     <SelectInput
                                         id="holder_marital"
-                                        label={t('customer.maritalStatus')}
+                                        label={t('customer.marital_status')}
                                         value={data.holder.marital}
                                         onChange={(value) =>
                                             setData('holder', {
@@ -438,7 +438,7 @@ export default function PolicyForm({
 
                                     <TextInput
                                         id="holder_profession"
-                                        label={t('customer.profession')}
+                                        label={t('customer.occupation')}
                                         value={data.holder.profession}
                                         onChange={(event) =>
                                             setData('holder', {
@@ -451,7 +451,7 @@ export default function PolicyForm({
 
                                     <TextInput
                                         id="holder_mobile"
-                                        label={t('customer.mobileNumber')}
+                                        label={t('customer.mobile_number')}
                                         value={data.holder.mobile}
                                         onChange={(event) =>
                                             setData('holder', {
@@ -497,7 +497,7 @@ export default function PolicyForm({
                                         <div className="col-sm-9 d-flex gap-2">
                                             <TextInput
                                                 id="holder_home_postal"
-                                                placeholder={t('customer.postalCode')}
+                                                placeholder={t('common.postal_code')}
                                                 style={{ maxWidth: '100px' }}
                                                 value={data.holder.home_postal}
                                                 onChange={(event) =>
@@ -544,7 +544,7 @@ export default function PolicyForm({
                                         <div className="col-sm-9 d-flex gap-2">
                                             <TextInput
                                                 id="holder_work_postal"
-                                                placeholder={t('customer.postalCode')}
+                                                placeholder={t('common.postal_code')}
                                                 style={{ maxWidth: '100px' }}
                                                 value={data.holder.work_postal}
                                                 onChange={(event) =>
@@ -612,7 +612,7 @@ export default function PolicyForm({
 
                                     <div className="mb-3 row form-group">
                                         <label className="col-sm-3 col-form-label">
-                                            {t('customer.birthPlaceDate')}
+                                            {t('customer.place_date_birth')}
                                         </label>
                                         <div className="col-sm-9 d-flex gap-2">
                                             <TextInput
@@ -645,7 +645,7 @@ export default function PolicyForm({
 
                                     <SelectInput
                                         id="insured_marital"
-                                        label={t('customer.maritalStatus')}
+                                        label={t('customer.marital_status')}
                                         value={data.insured.marital}
                                         onChange={(value) =>
                                             setData('insured', {
@@ -692,7 +692,7 @@ export default function PolicyForm({
 
                                     <TextInput
                                         id="insured_profession"
-                                        label={t('customer.profession')}
+                                        label={t('customer.occupation')}
                                         value={data.insured.profession}
                                         onChange={(event) =>
                                             setData('insured', {
@@ -726,7 +726,7 @@ export default function PolicyForm({
                                         <div className="col-sm-9 d-flex gap-2">
                                             <TextInput
                                                 id="insured_home_postal"
-                                                placeholder={t('customer.postalCode')}
+                                                placeholder={t('common.postal_code')}
                                                 style={{ maxWidth: '100px' }}
                                                 value={data.insured.home_postal}
                                                 onChange={(event) =>

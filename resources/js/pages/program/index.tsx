@@ -60,7 +60,7 @@ export default function Program({ programs, filters }: ProgramProps) {
     const handleDelete = (programId: number | undefined) => {
         if (
             programId &&
-            confirm(t('program.confirmDelete'))
+            confirm(t('program.confirm_delete'))
         ) {
             router.delete(`/master/program/${programId}`);
         }
@@ -76,12 +76,12 @@ export default function Program({ programs, filters }: ProgramProps) {
 
     return (
         <TablePage
-            headTitle="Program"
-            title={t('program.programList')}
+            headTitle={t('program.title')}
+            title={t('program.list_title')}
             i18nTitle="program"
             breadcrumbs={[
-                { label: 'Master', href: 'javascript:void(0)', i18n: 'master' },
-                { label: 'Program', active: true, i18n: 'program' },
+                { label: t('common.master'), href: 'javascript:void(0)', i18n: 'master' },
+                { label: t('program.title'), active: true, i18n: 'program' },
             ]}
             toolbar={
                 <div className="d-flex align-items-center">
@@ -90,14 +90,14 @@ export default function Program({ programs, filters }: ProgramProps) {
                         className="btn btn-primary me-3"
                     >
                         <i className="fa fa-file me-2"></i>
-                        <span data-i18n="new-program">{t('program.newProgram')}</span>
+                        <span>{t('program.new_program')}</span>
                     </Link>
                     <div className="ms-auto d-flex gap-2">
                         <InputGroup>
                             <input
                                 type="text"
                                 className="form-control"
-                                placeholder={t('program.searchPlaceholder')}
+                                placeholder={t('program.search_placeholder')}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 onKeyPress={handleKeyPress}
@@ -125,24 +125,21 @@ export default function Program({ programs, filters }: ProgramProps) {
                 >
                     <thead>
                         <tr>
-                            <th data-i18n="program-name">{t('program.programName')}</th>
+                            <th>{t('program.program_name')}</th>
                             <th
                                 style={{ width: '200px' }}
-                                data-i18n="agent-level"
                             >
                                 {t('agent.position')}
                             </th>
                             <th
                                 style={{ width: '200px' }}
-                                data-i18n="min-allowance"
                             >
-                                {t('program.minAllowance')}
+                                {t('program.min_allowance')}
                             </th>
                             <th
                                 style={{ width: '200px' }}
-                                data-i18n="max-allowance"
                             >
-                                {t('program.maxAllowance')}
+                                {t('program.max_allowance')}
                             </th>
                             <th></th>
                         </tr>
@@ -180,7 +177,7 @@ export default function Program({ programs, filters }: ProgramProps) {
                                                 handleDelete(program.id);
                                             }}
                                             className="btn btn-sm btn-danger"
-                                            title="Delete"
+                                            title={t('common.delete')}
                                         >
                                             <i className="fa fa-trash"></i>
                                         </button>
@@ -193,7 +190,7 @@ export default function Program({ programs, filters }: ProgramProps) {
                                     colSpan={5}
                                     className="text-center text-muted py-4"
                                 >
-                                    {t('program.noProgramsFound')}
+                                    {t('program.no_programs_found')}
                                 </td>
                             </tr>
                         )}

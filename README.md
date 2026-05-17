@@ -2,6 +2,15 @@
 
 Carlsson Insurance Portal is a comprehensive hierarchical sales and commission management system built with **Laravel** and **React**. It is designed to handle complex insurance policy life cycles, agent hierarchies (multi-level), production tracking, and automated reporting for bonuses and allowances.
 
+## 🔄 Latest changes (2026-05-17)
+
+- Added dashboard design and implementation docs (see DASHBOARD_ARCHITECTURE.md and DASHBOARD_IMPLEMENTATION_PLAN.md).
+- Documented PWA setup and verification flows (see PWA_SETUP_GUIDE.md).
+- Internationalization improvements and verification reports (see I18N_SETUP.md and I18N_VERIFICATION_REPORT.md).
+- Integrated notes for WatsonX service usage and extractor configuration (see WATSONX_SERVICE_USAGE.md and config/extractor.php).
+- Various frontend and build updates (Vite, React 19, and new menu/data files under resources/js).
+
+
 ## 🚀 Key Features
 
 ### 🏢 Master Data Management

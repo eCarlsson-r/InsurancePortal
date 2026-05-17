@@ -99,12 +99,12 @@ export default function Policy({ policies, filters }: PolicyProps) {
 
     return (
         <TablePage
-            headTitle="SP / Polis"
-            title="Daftar SP / Polis"
-            i18nTitle="case"
+            headTitle={t('policy.title')}
+            title={t('policy.list_title')}
+            i18nTitle="policy"
             breadcrumbs={[
-                { label: 'Penjualan', i18n: 'sales' },
-                { label: 'SP / Polis', active: true, i18n: 'case' },
+                { label: t('common.sales'), i18n: 'sales' },
+                { label: t('policy.title'), active: true, i18n: 'policy' },
             ]}
             toolbar={
                 <div className="d-flex flex-wrap gap-2 align-items-center w-100">
@@ -115,14 +115,14 @@ export default function Policy({ policies, filters }: PolicyProps) {
                         className="btn btn-primary"
                     >
                         <i className="fa fa-file me-2"></i>
-                        <span data-i18n="new-case">{t('policy.newPolicy')}</span>
+                        <span>{t('policy.new_policy')}</span>
                     </button>
                     <div className="ms-auto d-flex gap-2">
                         <InputGroup>
                             <input
                                 type="text"
                                 className="form-control"
-                                placeholder={t('policy.searchPlaceholder')}
+                                placeholder={t('policy.search_placeholder')}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 onKeyPress={handleKeyPress}
@@ -144,15 +144,15 @@ export default function Policy({ policies, filters }: PolicyProps) {
                 <thead>
                     <tr>
                         <th className="col-1"></th>
-                        <th className="col-1">{t('policy.caseNumber')}</th>
-                        <th className="col-1">{t('policy.policyNumber')}</th>
-                        <th className="col-2">{t('policy.policyHolder')}</th>
-                        <th className="col-2">{t('policy.insuredName')}</th>
+                        <th className="col-1">{t('policy.sp_number')}</th>
+                        <th className="col-1">{t('policy.policy_number')}</th>
+                        <th className="col-2">{t('policy.policyholder')}</th>
+                        <th className="col-2">{t('policy.insured_name')}</th>
                         <th className="col-2">{t('common.product')}</th>
                         <th className="col-1">{t('common.agent')}</th>
-                        <th className="col-1">{t('policy.basePremium')}</th>
-                        <th className="col-1">{t('policy.topupPremium')}</th>
-                        <th className="col-1">{t('policy.baseCoverage')}</th>
+                        <th className="col-1">{t('policy.base_premium')}</th>
+                        <th className="col-1">{t('policy.topup_premium')}</th>
+                        <th className="col-1">{t('policy.base_sum_insured')}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -174,7 +174,7 @@ export default function Policy({ policies, filters }: PolicyProps) {
                                             handleUpload(policy.id);
                                         }}
                                         className="btn btn-sm btn-primary me-1"
-                                        title="Upload"
+                                        title={t('common.upload')}
                                     >
                                         <i className="la la-upload"></i>
                                     </button>
@@ -184,7 +184,7 @@ export default function Policy({ policies, filters }: PolicyProps) {
                                             handleDelete(policy.id);
                                         }}
                                         className="btn btn-sm btn-danger"
-                                        title="Delete"
+                                        title={t('common.delete')}
                                     >
                                         <i className="la la-ban"></i>
                                     </button>

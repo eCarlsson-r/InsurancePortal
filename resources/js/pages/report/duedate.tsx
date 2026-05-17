@@ -4,6 +4,7 @@ import TablePage from '@/layouts/TablePage';
 import { agentSchema } from '@/schemas/models';
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Table } from 'react-bootstrap';
 import { z } from 'zod';
 
@@ -25,21 +26,22 @@ export default function DueDate(props: {
     month: string;
     agent: string;
 }) {
+    const { t } = useTranslation();
     const [month, setMonth] = useState(props.month);
     const [agent, setAgent] = useState(props.agent);
     return (
         <TablePage
-            headTitle="Due Date Report"
-            title="Laporan Jatuh Tempo"
+            headTitle={t('report.due-report')}
+            title={t('report.due-report')}
             i18nTitle="due-report"
             breadcrumbs={[
                 {
-                    label: 'Laporan',
+                    label: t('common.reports'),
                     href: 'javascript:void(0)',
                     i18n: 'report',
                 },
                 {
-                    label: 'Laporan Jatuh Tempo',
+                    label: t('report.due-report'),
                     active: true,
                     i18n: 'due-report',
                 },
@@ -47,20 +49,18 @@ export default function DueDate(props: {
             toolbar={
                 <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 w-100">
                     <div className="card-title mb-0">
-                        <h4 className="mb-1" data-i18n="due-report">
-                            Laporan Jatuh Tempo
+                        <h4 className="mb-1">
+                            {t('report.due-report')}
                         </h4>
                         <h6 className="mb-0">
-                            <span data-i18n="due-report-desc">
-                                Laporan Polis Nasabah yang Jatuh Tempo.
-                            </span>
+                            {t('report.due-report-desc')}
                         </h6>
                     </div>
                     <div className="d-flex align-items-center gap-3">
                         <div className="d-flex align-items-center gap-2">
                             <MonthInput
                                 id="due-month"
-                                label="Month"
+                                label={t('common.month')}
                                 style={{ width: '150px' }}
                                 value={month}
                                 onChange={(e) => {
@@ -71,8 +71,9 @@ export default function DueDate(props: {
                         <div className="d-flex align-items-center gap-2">
                             <SelectInput
                                 id="due-agent"
-                                label="Agent"
+                                label={t('common.agent')}
                                 style={{ width: '200px' }}
+                                placeholder={t('common.select_agent')}
                                 value={agent}
                                 options={props.agents.map((agent) => ({
                                     value: agent.id || '',

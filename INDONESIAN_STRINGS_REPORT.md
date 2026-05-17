@@ -52,7 +52,7 @@ This report documents all hardcoded Indonesian strings found in the Insurance Po
 | 225 | "Alamat Rumah" | Accordion header | `customer.home_address` |
 | 238 | "Kode Pos" | Form label | `common.postal_code` |
 | 247 | "Kota" | Form label | `common.city` |
-| 257 | "Alamat Kantor" | Accordion header | `customer.office_address` |
+| 257 | "Alamat Kantor" | Accordion header | `customer.work_address` |
 
 ### File: `customer/index.tsx`
 
@@ -396,7 +396,7 @@ Key Indonesian strings:
     mobile_number: "Nomor Ponsel",
     email_address: "Alamat e-Mail",
     home_address: "Alamat Rumah",
-    office_address: "Alamat Kantor",
+    work_address: "Alamat Kantor",
     description: "Keterangan",
     no_data: "Tidak ada data",
     reports: "Laporan",

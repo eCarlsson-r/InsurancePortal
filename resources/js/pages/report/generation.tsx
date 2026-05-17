@@ -1,11 +1,14 @@
 import MonthInput from '@/components/form/month-input';
 import TablePage from '@/layouts/TablePage';
+import { useTranslation } from 'react-i18next';
 
 export default function Generation() {
+    const { t } = useTranslation();
+
     return (
         <TablePage
-            headTitle="Generation Report"
-            title="Laporan Generasi"
+            headTitle={t('report.generation-report')}
+            title={t('report.generation-report')}
             i18nTitle="generation-report"
             breadcrumbs={[
                 {
@@ -14,23 +17,20 @@ export default function Generation() {
                     i18n: 'report',
                 },
                 {
-                    label: 'Laporan Generasi',
+                    label: t('report.generation-report'),
                     active: true,
                     i18n: 'generation-report',
                 },
             ]}
             toolbar={
                 <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 w-100">
-                    <h4
-                        className="card-title mb-0"
-                        data-i18n="agent-generation-report"
-                    >
-                        Laporan Generasi Agen
+                    <h4 className="card-title mb-0">
+                        {t('report.agent-generation-report')}
                     </h4>
                     <div className="d-flex flex-wrap align-items-center gap-2">
                         <MonthInput
                             id="generation-month"
-                            label="Month"
+                            label={t('common.month')}
                             className="form-control-sm"
                             style={{ width: '150px' }}
                         />

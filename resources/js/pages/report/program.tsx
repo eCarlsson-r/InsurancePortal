@@ -5,6 +5,7 @@ import { agencySchema } from '@/schemas/models';
 import { exportTableToExcel } from '@/utils/exportToExcel';
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Table } from 'react-bootstrap';
 import { z } from 'zod';
 
@@ -31,6 +32,7 @@ export default function Program({
     report_month: string | null;
     report_agency: string | null;
 }) {
+    const { t } = useTranslation();
     const [month, setMonth] = useState(report_month || '');
     const [agency, setAgency] = useState(report_agency || '');
 
@@ -57,34 +59,31 @@ export default function Program({
 
     return (
         <TablePage
-            headTitle="Program Report"
-            title="Laporan Program Financing"
+            headTitle={t('report.program-report')}
+            title={t('report.program-report')}
             i18nTitle="program-report"
             breadcrumbs={[
                 {
-                    label: 'Laporan',
+                    label: t('common.reports'),
                     href: 'javascript:void(0)',
                     i18n: 'report',
                 },
                 {
-                    label: 'Laporan Program Financing',
+                    label: t('report.program-report'),
                     active: true,
                     i18n: 'program-report',
                 },
             ]}
             toolbar={
                 <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 w-100">
-                    <h4
-                        className="card-title mb-0"
-                        data-i18n="agent-program-report"
-                    >
-                        Laporan Program Agen
+                    <h4 className="card-title mb-0">
+                        {t('report.agent-program-report')}
                     </h4>
                     <div className="d-flex flex-wrap align-items-center gap-2">
                         <div className="d-flex align-items-center gap-2">
                             <MonthInput
                                 id="program-month"
-                                label="Month"
+                                label={t('common.month')}
                                 style={{ width: '200px' }}
                                 value={month}
                                 onChange={(e) => setMonth(e.target.value)}
@@ -93,8 +92,9 @@ export default function Program({
                         <div className="d-flex align-items-center gap-2">
                             <SelectInput
                                 id="program-agency"
-                                label="Agency"
+                                label={t('agency.title')}
                                 style={{ width: '300px' }}
+                                placeholder={t('agency.select_agency')}
                                 value={agency}
                                 onChange={(value) =>
                                     setAgency(value.toString())
@@ -114,14 +114,14 @@ export default function Program({
                                     );
                             }}
                         >
-                            Cari
+                            {t('common.search')}
                         </button>
                         <button
                             className="btn btn-success"
                             onClick={exportToExcel}
                             disabled={data.length === 0}
                         >
-                            Ekspor ke Excel
+                            {t('common.export_excel')}
                         </button>
                     </div>
                 </div>
@@ -221,7 +221,7 @@ export default function Program({
                     ) : (
                         <tr>
                             <td colSpan={10} className="text-center">
-                                No data available
+                                {t('common.no_data')}
                             </td>
                         </tr>
                     )}

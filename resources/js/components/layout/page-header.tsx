@@ -10,16 +10,15 @@ interface BreadcrumbItem {
 
 interface PageHeaderProps {
     title: string;
-    i18nTitle?: string;
     breadcrumbs: BreadcrumbItem[];
     actions?: ReactNode;
 }
 
-export default function PageHeader({ title, i18nTitle, breadcrumbs, actions }: PageHeaderProps) {
+export default function PageHeader({ title, breadcrumbs, actions }: PageHeaderProps) {
     return (
         <div className="row page-titles mx-0">
             <div className={`col-sm-6 p-md-0 ${actions ? 'd-flex align-items-center' : ''}`}>
-                <h3 className="text-primary d-inline" data-i18n={i18nTitle}>
+                <h3 className="text-primary d-inline">
                     {title}
                 </h3>
                 {actions && <div className="ms-3">{actions}</div>}

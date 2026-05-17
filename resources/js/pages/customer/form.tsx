@@ -113,7 +113,7 @@ export default function CustomerForm({
                                                     e.target.value,
                                                 )
                                             }
-                                            className="form-control flex-grow-1"
+                                            className="form-control grow"
                                         />
                                         <DateInput
                                             id="birth_date"
@@ -224,11 +224,11 @@ export default function CustomerForm({
                             </Accordion.Body>
                         </Accordion.Item>
                         <Accordion.Item eventKey="1" className="mb-3">
-                            <Accordion.Header>{t('customer.home_address')}</Accordion.Header>
+                            <Accordion.Header>{t('common.home_address')}</Accordion.Header>
                             <Accordion.Body>
                                 <TextInput
                                     id="home_address"
-                                    label={t('common.home_address')}
+                                    label={t('customer.address')}
                                     value={data.home_address}
                                     onChange={(e) =>
                                         setData('home_address', e.target.value)
@@ -256,11 +256,11 @@ export default function CustomerForm({
                             </Accordion.Body>
                         </Accordion.Item>
                         <Accordion.Item eventKey="2">
-                            <Accordion.Header>{t('common.office_address')}</Accordion.Header>
+                            <Accordion.Header>{t('common.work_address')}</Accordion.Header>
                             <Accordion.Body>
                                 <TextInput
                                     id="work_address"
-                                    label={t('common.office_address')}
+                                    label={t('customer.address')}
                                     value={data.work_address}
                                     onChange={(e) =>
                                         setData('work_address', e.target.value)

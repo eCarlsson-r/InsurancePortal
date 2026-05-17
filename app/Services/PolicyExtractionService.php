@@ -34,7 +34,7 @@ class PolicyExtractionService {
             'policy_holder_home_address_street' => 'holder.home_address',
             'policy_holder_home_postal_code'    => 'holder.home_postal',
             'policy_holder_home_city'           => 'holder.home_city',
-            'policy_holder_work_office_address' => 'holder.work_address',
+            'policy_holder_work_work_address' => 'holder.work_address',
             'policy_holder_work_postal_code'    => 'holder.work_postal',
             'policy_holder_work_city'           => 'holder.work_city',
 
@@ -154,7 +154,7 @@ class PolicyExtractionService {
                             "policy_holder_city_of_birth, policy_holder_birth_date, policy_holder_religion, ".
                             "policy_holder_marital_status, policy_holder_current_profession, ".
                             "policy_holder_home_address_street, policy_holder_home_postal_code, policy_holder_home_city, ".
-                            "policy_holder_work_office_address, policy_holder_work_postal_code, policy_holder_work_city"
+                            "policy_holder_work_work_address, policy_holder_work_postal_code, policy_holder_work_city"
             ],
             'Data Tertanggung' => [
                 'source' => $spajText,

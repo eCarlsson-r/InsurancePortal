@@ -1,9 +1,12 @@
 import { Link } from '@inertiajs/react';
+import { LanguageToggle } from '../components/language-toggle'; // Import the LanguageToggle component
+import { useTranslation } from 'react-i18next';
 import MetisMenu from 'metismenujs';
 import { PropsWithChildren, useEffect, useRef } from 'react';
 import { menuItems } from '../data/menu';
 
 export default function TemplateLayout({ children }: PropsWithChildren) {
+    const { t } = useTranslation();
     const mainWrapperRef = useRef<HTMLDivElement>(null);
     const sideMenuRef = useRef<HTMLUListElement>(null);
 
@@ -102,6 +105,9 @@ export default function TemplateLayout({ children }: PropsWithChildren) {
                             <div className="header-left"></div>
                             <ul className="navbar-nav header-right">
                                 <li className="nav-item dropdown header-profile">
+                                    <LanguageToggle  />
+                                </li>
+                                <li className="nav-item dropdown header-profile">
                                     <Link
                                         href="/logout"
                                         method="post"
@@ -110,7 +116,7 @@ export default function TemplateLayout({ children }: PropsWithChildren) {
                                     >
                                         <i className="icon-key"></i>
                                         <span className="ml-2">
-                                            Logout{' '}
+                                            {t('common.logout')}
                                         </span>
                                     </Link>
                                 </li>
@@ -131,7 +137,7 @@ export default function TemplateLayout({ children }: PropsWithChildren) {
                                         key={index}
                                         className={`nav-label ${index === 0 ? 'first' : ''}`}
                                     >
-                                        {item.title}
+                                        {item.titleKey ? t(item.titleKey) : item.title}
                                     </li>
                                 );
                             }
@@ -152,7 +158,7 @@ export default function TemplateLayout({ children }: PropsWithChildren) {
                                             <i className={item.icon}></i>
                                         )}
                                         <span className="nav-text">
-                                            {item.title}
+                                            {item.titleKey ? t(item.titleKey) : item.title}
                                         </span>
                                     </Link>
 
@@ -167,7 +173,7 @@ export default function TemplateLayout({ children }: PropsWithChildren) {
                                                                 '#'
                                                             }
                                                         >
-                                                            {child.title}
+                                                            {child.titleKey ? t(child.titleKey) : child.title}
                                                         </Link>
                                                     </li>
                                                 ),

@@ -28,7 +28,7 @@ export default function Customer({ customers, filters }: CustomerProps) {
     const handleDelete = (customerId: string | undefined) => {
         if (
             customerId &&
-            confirm('Are you sure you want to delete this customer?')
+            confirm(t('customer.confirm_delete'))
         ) {
             router.delete(`/master/customer/${customerId}`);
         }
@@ -78,7 +78,7 @@ export default function Customer({ customers, filters }: CustomerProps) {
                         className="btn btn-primary"
                     >
                         <i className="fa fa-user me-2"></i>
-                        <span data-i18n="new-customer">{t('customer.new_customer')}</span>
+                        <span>{t('customer.new_customer')}</span>
                     </Link>
                     <div className="ms-auto d-flex gap-2">
                         <InputGroup>
@@ -112,34 +112,30 @@ export default function Customer({ customers, filters }: CustomerProps) {
                 >
                     <thead>
                         <tr>
-                            <th data-i18n="customer-name">{t('common.name')}</th>
+                            <th>{t('common.name')}</th>
                             <th
                                 style={{ width: '150px' }}
-                                data-i18n="id-number"
                             >
                                 {t('customer.identity_number')}
                             </th>
                             <th
                                 style={{ width: '150px' }}
-                                data-i18n="birth-date"
                             >
                                 {t('customer.birth_date')}
                             </th>
                             <th
                                 style={{ width: '150px' }}
-                                data-i18n="birth-place"
                             >
                                 {t('customer.birth_place')}
                             </th>
-                            <th style={{ width: '100px' }} data-i18n="status">
+                            <th style={{ width: '100px' }}>
                                 {t('common.status')}
                             </th>
-                            <th style={{ width: '100px' }} data-i18n="religion">
+                            <th style={{ width: '100px' }}>
                                 {t('customer.religion')}
                             </th>
                             <th
                                 style={{ width: '150px' }}
-                                data-i18n="mobile-number"
                             >
                                 {t('common.mobile_number')}
                             </th>
@@ -166,7 +162,7 @@ export default function Customer({ customers, filters }: CustomerProps) {
                                     <td>{customer.birth_place}</td>
                                     <td>
                                         {customer.marital === 1
-                                            ? 'Single'
+                                            ? t('common.single')
                                             : customer.marital === 2
                                               ? t('common.married')
                                               : customer.marital === 3
@@ -200,7 +196,7 @@ export default function Customer({ customers, filters }: CustomerProps) {
                                                 handleDelete(customer.id);
                                             }}
                                             className="btn btn-sm btn-danger"
-                                            title="Delete"
+                                            title={t('common.delete')}
                                         >
                                             <i className="fa fa-trash"></i>
                                         </button>
@@ -213,7 +209,7 @@ export default function Customer({ customers, filters }: CustomerProps) {
                                     colSpan={8}
                                     className="text-center text-muted py-4"
                                 >
-                                    No customers found.
+                                    {t('customer.no_customers_found')}
                                 </td>
                             </tr>
                         )}

@@ -64,7 +64,7 @@ export default function Product({ products, filters }: ProductProps) {
     const isEdit = !!data.id;
 
     const handleDelete = (productCode: string | undefined) => {
-        if (confirm(t('product.confirmDelete'))) {
+        if (confirm(t('product.confirm_delete'))) {
             router.delete(`/master/product/${productCode}`);
         }
     };
@@ -103,20 +103,18 @@ export default function Product({ products, filters }: ProductProps) {
 
     return (
         <TableFormPage
-            headTitle="Product"
-            title="Produk"
-            i18nTitle="product"
+            headTitle={t('product.title')}
+            title={t('product.title')}
             breadcrumbs={[
-                { label: 'Master', href: 'javascript:void(0)', i18n: 'master' },
-                { label: 'Produk', active: true, i18n: 'product' },
+                { label: t('common.master'), href: 'javascript:void(0)', i18n: 'master' },
+                { label: t('product.title'), active: true, i18n: 'product' },
             ]}
-            tableTitle={t('product.productList')}
-            tableI18nTitle="product-list"
+            tableTitle={t('product.list_title')}
             tableToolbar={
                 <input
                     type="text"
                     className="form-control form-control-sm float-end"
-                    placeholder={t('product.searchPlaceholder')}
+                    placeholder={t('product.search_placeholder')}
                     style={{ width: '200px' }}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -127,12 +125,8 @@ export default function Product({ products, filters }: ProductProps) {
                 <Table hover striped bordered responsive>
                     <thead>
                         <tr>
-                            <th className="col-8" data-i18n="product-name">
-                                {t('product.productName')}
-                            </th>
-                            <th className="col-3" data-i18n="product-type">
-                                {t('product.productType')}
-                            </th>
+                            <th className="col-8">{t('product.product_name')}</th>
+                            <th className="col-3">{t('product.product_type')}</th>
                             <th className="col-1"></th>
                         </tr>
                     </thead>
@@ -162,7 +156,7 @@ export default function Product({ products, filters }: ProductProps) {
                                                 e.stopPropagation();
                                                 handleDelete(product.id);
                                             }}
-                                            title="Delete"
+                                            title={t('common.delete')}
                                         >
                                             <i className="fa fa-trash"></i>
                                         </button>
@@ -172,30 +166,28 @@ export default function Product({ products, filters }: ProductProps) {
                         ) : (
                             <tr>
                                 <td colSpan={3} className="text-center">
-                                    {t('product.noProductsFound')}
+                                    {t('product.no_products_found')}
                                 </td>
                             </tr>
                         )}
                     </tbody>
                 </Table>
             }
-            formTitle={isEdit ? t('product.editProduct') : t('product.createProduct')}
-            formI18nTitle="edit-product"
-            formSubtitle={t('product.formSubtitle')}
-            formI18nSubtitle="edit-product-inst"
+            formTitle={isEdit ? t('product.edit_title') : t('product.create_title')}
+            formSubtitle={t('product.form_subtitle')}
             formOnSubmit={handleSubmit}
             formContent={
                 <>
                     <TextInput
                         id="product-name"
-                        label={t('product.productName')}
+                        label={t('product.product_name')}
                         value={data.name || ''}
                         onChange={(e) => setData('name', e.target.value)}
                         row
                     />
                     <SelectInput
                         id="product-type"
-                        label={t('product.productType')}
+                        label={t('product.product_type')}
                         value={data.type}
                         onChange={(value) => setData('type', value.toString())}
                         options={[
@@ -209,7 +201,7 @@ export default function Product({ products, filters }: ProductProps) {
                     />
 
                     <div className="row form-group mb-3">
-                        <label className="col-sm-3" data-i18n="commission">
+                        <label className="col-sm-3">
                             {t('product.commission')}
                         </label>
                         <div className="col-sm-9 text-end">
@@ -229,10 +221,8 @@ export default function Product({ products, filters }: ProductProps) {
                             <Table size="sm">
                                 <thead>
                                     <tr>
-                                        <th data-i18n="year">{t('product.year')}</th>
-                                        <th data-i18n="commission-rate">
-                                            {t('product.commissionRate')}
-                                        </th>
+                                        <th>{t('product.year')}</th>
+                                        <th>{t('product.commission_rate')}</th>
                                         <th></th>
                                     </tr>
                                 </thead>

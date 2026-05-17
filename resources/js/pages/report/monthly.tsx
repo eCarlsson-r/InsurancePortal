@@ -2,6 +2,7 @@ import MonthInput from '@/components/form/month-input';
 import TablePage from '@/layouts/TablePage';
 import { exportTableToExcel } from '@/utils/exportToExcel';
 import { router } from '@inertiajs/react';
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { Table } from 'react-bootstrap';
 
@@ -24,6 +25,7 @@ export default function Monthly({
     data: MonthlyData[];
     report_month: string;
 }) {
+    const { t } = useTranslation();
     const [month, setMonth] = useState(report_month);
     const formatCurrency = (value: number) => {
         return new Intl.NumberFormat('id-ID', {
@@ -61,33 +63,30 @@ export default function Monthly({
 
     return (
         <TablePage
-            headTitle="Income List Bulanan"
-            title="Income List Bulanan"
+            headTitle={t('report.monthly-report')}
+            title={t('report.monthly-report')}
             i18nTitle="monthly-report"
             breadcrumbs={[
                 {
-                    label: 'Laporan',
+                    label: t('common.reports'),
                     href: 'javascript:void(0)',
                     i18n: 'report',
                 },
                 {
-                    label: 'Income List Bulanan',
+                    label: t('report.monthly-report'),
                     active: true,
                     i18n: 'monthly-report',
                 },
             ]}
             toolbar={
                 <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 w-100">
-                    <h4
-                        className="card-title mb-0"
-                        data-i18n="agent-monthly-report"
-                    >
-                        Laporan Bulanan Agen
+                    <h4 className="card-title mb-0">
+                        {t('report.agent_monthly_report')}
                     </h4>
                     <div className="d-flex flex-wrap align-items-center gap-2">
                         <MonthInput
                             id="monthly-month"
-                            label="Year"
+                            label={t('common.year')}
                             style={{ width: '200px' }}
                             value={month}
                             onChange={handleChange}
@@ -98,7 +97,7 @@ export default function Monthly({
                         onClick={exportToExcel}
                         disabled={data.length === 0}
                     >
-                        Ekspor ke Excel
+                        {t('common.export_excel')}
                     </button>
                 </div>
             }
@@ -106,14 +105,14 @@ export default function Monthly({
             <Table hover striped bordered responsive>
                 <thead>
                     <tr>
-                        <th>Kode Agen</th>
-                        <th>Nama Agen</th>
-                        <th>Komisi</th>
-                        <th>Production Bonus</th>
-                        <th>Overriding</th>
-                        <th>Bonus Rekrut</th>
-                        <th>Allowance</th>
-                        <th>Total Komisi</th>
+                        <th>{t('agent.agent_code')}</th>
+                        <th>{t('agent.agent_name')}</th>
+                        <th>{t('report.commission')}</th>
+                        <th>{t('report.production_bonus')}</th>
+                        <th>{t('report.overriding')}</th>
+                        <th>{t('report.recruit_bonus')}</th>
+                        <th>{t('report.allowance')}</th>
+                        <th>{t('report.total_commission')}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -138,7 +137,7 @@ export default function Monthly({
                                 colSpan={8}
                                 className="text-center text-muted py-4"
                             >
-                                No agent found.
+                                {t('agent.noAgentsFound')}
                             </td>
                         </tr>
                     )}

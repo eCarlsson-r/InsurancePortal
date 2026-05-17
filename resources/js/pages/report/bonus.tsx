@@ -4,6 +4,7 @@ import TablePage from '@/layouts/TablePage';
 import { agencySchema } from '@/schemas/models';
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Table } from 'react-bootstrap';
 import { z } from 'zod';
 
@@ -26,38 +27,36 @@ export default function BonusGap(props: {
     month: string;
     agency: string;
 }) {
+    const { t } = useTranslation();
     const [month, setMonth] = useState(props.month);
     const [agency, setAgency] = useState(props.agency);
     return (
         <TablePage
-            headTitle="Bonus Gap Report"
-            title="Laporan Bonus"
+            headTitle={t('report.bonus-gap-report')}
+            title={t('report.bonus_report')}
             i18nTitle="bonus-gap-report"
             breadcrumbs={[
                 {
-                    label: 'Laporan',
+                    label: t('common.reports'),
                     href: 'javascript:void(0)',
                     i18n: 'report',
                 },
                 {
-                    label: 'Laporan Bonus',
+                    label: t('report.bonus_report'),
                     active: true,
                     i18n: 'bonus-gap-report',
                 },
             ]}
             toolbar={
                 <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 w-100">
-                    <h4
-                        className="card-title mb-0"
-                        data-i18n="agent-bonus-report"
-                    >
-                        Laporan Bonus Agen
+                    <h4 className="card-title mb-0">
+                        {t('report.agent-bonus-report')}
                     </h4>
                     <div className="d-flex flex-wrap align-items-center gap-2">
                         <div className="d-flex align-items-center gap-2">
                             <MonthInput
                                 id="bonusgap-month"
-                                label="Bulan"
+                                label={t('common.month')}
                                 min="2022-01"
                                 style={{ width: '200px' }}
                                 value={month}
@@ -67,10 +66,10 @@ export default function BonusGap(props: {
                         <div className="d-flex align-items-center gap-2">
                             <SelectInput
                                 id="bonusgap-agency"
-                                label="Agency"
+                                label={t('agency.title')}
+                                placeholder={t('agency.select_agency')}
                                 style={{ width: '250px' }}
                                 options={[
-                                    { value: '', label: 'Pilih Agency' },
                                     ...props.agencies.map((ag) => ({
                                         value: ag.id || 0,
                                         label: ag.name,
@@ -91,7 +90,7 @@ export default function BonusGap(props: {
                                     );
                             }}
                         >
-                            Cari
+                            {t('common.search')}
                         </button>
                     </div>
                 </div>
@@ -101,22 +100,22 @@ export default function BonusGap(props: {
                 <thead>
                     <tr>
                         <th className="col-3" rowSpan={2}>
-                            Nama Agen
+                            {t('agent.name')}
                         </th>
-                        <th colSpan={3}>Production Bonus</th>
-                        <th colSpan={3}>Half Year Bonus</th>
-                        <th colSpan={3}>Year End Bonus</th>
+                        <th colSpan={3}>{t('report.production-bonus')}</th>
+                        <th colSpan={3}>{t('report.half-year-bonus')}</th>
+                        <th colSpan={3}>{t('report.year-end-bonus')}</th>
                     </tr>
                     <tr>
-                        <th>Pencapaian</th>
-                        <th>Bonus (%)</th>
-                        <th>Kekurangan</th>
-                        <th>Pencapaian</th>
-                        <th>Bonus (%)</th>
-                        <th>Kekurangan</th>
-                        <th>Pencapaian</th>
-                        <th>Bonus (%)</th>
-                        <th>Kekurangan</th>
+                        <th>{t('report.achievement')}</th>
+                        <th>{t('contest.bonus_percent')}</th>
+                        <th>{t('report.shortage')}</th>
+                        <th>{t('report.achievement')}</th>
+                        <th>{t('contest.bonus_percent')}</th>
+                        <th>{t('report.shortage')}</th>
+                        <th>{t('report.achievement')}</th>
+                        <th>{t('contest.bonus_percent')}</th>
+                        <th>{t('report.shortage')}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -186,7 +185,7 @@ export default function BonusGap(props: {
                     ) : (
                         <tr>
                             <td colSpan={10} className="text-center">
-                                Tidak ada data
+                                {t('common.no_data')}
                             </td>
                         </tr>
                     )}

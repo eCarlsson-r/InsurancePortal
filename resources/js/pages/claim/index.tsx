@@ -86,10 +86,10 @@ export default function ClaimIndex({ claims, filters }: ClaimProps) {
 
     const getStatusBadge = (status: string) => {
         const statusConfig = {
-            pending: { bg: 'warning', icon: 'la-clock', text: 'Pending' },
-            approved: { bg: 'info', icon: 'la-check-circle', text: 'Approved' },
-            rejected: { bg: 'danger', icon: 'la-times-circle', text: 'Rejected' },
-            paid: { bg: 'success', icon: 'la-money-bill', text: 'Paid' },
+            pending: { bg: 'warning', icon: 'la-clock', text: t('claim.pending') },
+            approved: { bg: 'info', icon: 'la-check-circle', text: t('claim.approved') },
+            rejected: { bg: 'danger', icon: 'la-times-circle', text: t('claim.rejected') },
+            paid: { bg: 'success', icon: 'la-money-bill', text: t('claim.paid') },
         };
 
         const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
@@ -136,11 +136,11 @@ export default function ClaimIndex({ claims, filters }: ClaimProps) {
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value)}
                         >
-                            <option value="">All Status</option>
-                            <option value="pending">Pending</option>
-                            <option value="approved">Approved</option>
-                            <option value="rejected">Rejected</option>
-                            <option value="paid">Paid</option>
+                            <option value="">{t('claim.all_status')}</option>
+                            <option value="pending">{t('claim.pending')}</option>
+                            <option value="approved">{t('claim.approved')}</option>
+                            <option value="rejected">{t('claim.rejected')}</option>
+                            <option value="paid">{t('claim.paid')}</option>
                         </select>
 
                         <select
@@ -149,13 +149,13 @@ export default function ClaimIndex({ claims, filters }: ClaimProps) {
                             value={claimTypeFilter}
                             onChange={(e) => setClaimTypeFilter(e.target.value)}
                         >
-                            <option value="">All Types</option>
-                            <option value="death">Death</option>
-                            <option value="maturity">Maturity</option>
-                            <option value="surrender">Surrender</option>
-                            <option value="disability">Disability</option>
-                            <option value="critical_illness">Critical Illness</option>
-                            <option value="hospitalization">Hospitalization</option>
+                            <option value="">{t('claim.all_types')}</option>
+                            <option value="death">{t('claim.death')}</option>
+                            <option value="maturity">{t('claim.maturity')}</option>
+                            <option value="surrender">{t('claim.surrender')}</option>
+                            <option value="disability">{t('claim.disability')}</option>
+                            <option value="critical_illness">{t('claim.critical_illness')}</option>
+                            <option value="hospitalization">{t('claim.hospitalization')}</option>
                         </select>
                     </div>
 
@@ -164,7 +164,7 @@ export default function ClaimIndex({ claims, filters }: ClaimProps) {
                             <input
                                 type="text"
                                 className="form-control"
-                                placeholder="Search claim number, policy, holder..."
+                                placeholder={t('claim.search_placeholder')}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 onKeyPress={handleKeyPress}
@@ -185,22 +185,22 @@ export default function ClaimIndex({ claims, filters }: ClaimProps) {
             <Table hover striped bordered responsive className="vertical-middle">
                 <thead>
                     <tr>
-                        <th style={{ width: '120px' }}>Claim Number</th>
-                        <th style={{ width: '120px' }}>Policy Number</th>
-                        <th>Policyholder</th>
-                        <th>Insured</th>
-                        <th style={{ width: '120px' }}>Claim Type</th>
-                        <th style={{ width: '100px' }}>Claim Date</th>
+                        <th style={{ width: '120px' }}>{t('claim.claim_number')}</th>
+                        <th style={{ width: '120px' }}>{t('policy.policy_number')}</th>
+                        <th>{t('policy.policyholder')}</th>
+                        <th>{t('policy.insured')}</th>
+                        <th style={{ width: '120px' }}>{t('claim.claim_type')}</th>
+                        <th style={{ width: '100px' }}>{t('claim.claim_date')}</th>
                         <th style={{ width: '130px' }} className="text-end">
-                            Claim Amount
+                            {t('claim.claim_amount')}
                         </th>
                         <th style={{ width: '130px' }} className="text-end">
-                            Approved Amount
+                            {t('claim.approved_amount')}
                         </th>
                         <th style={{ width: '100px' }} className="text-center">
-                            Status
+                            {t('common.status')}
                         </th>
-                        <th style={{ width: '120px' }}>Processed By</th>
+                        <th style={{ width: '120px' }}>{t('claim.processed_by')}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -243,9 +243,9 @@ export default function ClaimIndex({ claims, filters }: ClaimProps) {
                                 colSpan={10}
                                 className="text-center text-muted py-4"
                             >
-                                No claims found.{' '}
+                                {t('claim.no_claims_found')}{' '}
                                 {(searchQuery || statusFilter || claimTypeFilter) &&
-                                    'Try adjusting your filters.'}
+                                    t('claim.try_adjusting_filters')}
                             </td>
                         </tr>
                     )}

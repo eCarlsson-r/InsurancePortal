@@ -1,6 +1,7 @@
 import SelectInput from '@/components/form/select-input';
 import TablePage from '@/layouts/TablePage';
 import { router } from '@inertiajs/react';
+import { useTranslation } from 'react-i18next';
 import { Table } from 'react-bootstrap';
 
 interface Customer {
@@ -19,6 +20,7 @@ export default function Religion({
     religion: string;
     customers: Customer[];
 }) {
+    const { t } = useTranslation();
     const handleChange = (value: string | number) => {
         router.get('/reports/religion', {
             religion: value,
@@ -27,41 +29,35 @@ export default function Religion({
 
     return (
         <TablePage
-            headTitle="Religion"
-            title="Agama Pemegang Polis"
+            headTitle={t('report.religion-report')}
+            title={t('report.customer-religion-report')}
             i18nTitle="religion-report"
             breadcrumbs={[
                 {
-                    label: 'Laporan',
+                    label: t('common.reports'),
                     href: 'javascript:void(0)',
                     i18n: 'report',
                 },
                 {
-                    label: 'Agama Pemegang Polis',
+                    label: t('report.customer-religion-report'),
                     active: true,
                     i18n: 'religion-report',
                 },
             ]}
             toolbar={
                 <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 w-100">
-                    <h4
-                        className="card-title mb-0"
-                        data-i18n="customer-religion-report"
-                    >
-                        Daftar Agama Nasabah
+                    <h4 className="card-title mb-0">
+                        {t('report.customer-religion-report')}
                     </h4>
                     <div className="d-flex flex-wrap align-items-center gap-2">
-                        <label
-                            htmlFor="religion"
-                            className="mb-0"
-                            data-i18n="customer-religion"
-                        >
-                            Agama
+                        <label htmlFor="religion" className="mb-0">
+                            {t('customer.religion')}
                         </label>
                         <div style={{ width: '150px' }}>
                             <SelectInput
                                 id="religion"
                                 value={religion}
+                                placeholder={t('customer.religion_placeholder')}
                                 onChange={handleChange}
                                 options={[
                                     { value: '1', label: 'Budha' },
@@ -78,10 +74,10 @@ export default function Religion({
             <Table hover striped bordered responsive>
                 <thead>
                     <tr>
-                        <th data-i18n="name">Nama</th>
-                        <th data-i18n="birth-date">Tanggal Lahir</th>
-                        <th data-i18n="age">Umur</th>
-                        <th data-i18n="home-address">Alamat Rumah</th>
+                        <th>{t('common.name')}</th>
+                        <th>{t('customer.birth_date')}</th>
+                        <th>{t('common.age')}</th>
+                        <th>{t('common.home_address')}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -104,7 +100,7 @@ export default function Religion({
                                 colSpan={5}
                                 className="text-center text-muted py-4"
                             >
-                                No customer found.
+                                {t('customer.no_customers_found')}
                             </td>
                         </tr>
                     )}

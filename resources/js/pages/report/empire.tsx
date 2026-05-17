@@ -4,6 +4,7 @@ import { agencySchema } from '@/schemas/models';
 import { exportTableToExcel } from '@/utils/exportToExcel';
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Table } from 'react-bootstrap';
 import { z } from 'zod';
 
@@ -28,6 +29,7 @@ export default function EmpireClubReport({
     prod_agency: string;
     prod_year: string;
 }) {
+    const { t } = useTranslation();
     const [year, setYear] = useState(prod_year || '');
     const [agency, setAgency] = useState(prod_agency || '');
 
@@ -51,40 +53,37 @@ export default function EmpireClubReport({
 
     return (
         <TablePage
-            headTitle="Empire Club"
-            title="Laporan Empire Club"
+            headTitle={t('report.empire-club')}
+            title={t('report.empire-club-report')}
             i18nTitle="empire-club"
             breadcrumbs={[
                 {
-                    label: 'Laporan',
+                    label: t('common.reports'),
                     href: 'javascript:void(0)',
                     i18n: 'report',
                 },
                 {
-                    label: 'Laporan MDRT Internasional',
+                    label: t('report.empire-club-report'),
                     active: true,
                     i18n: 'empire-club',
                 },
             ]}
             toolbar={
                 <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 w-100">
-                    <h4
-                        className="card-title mb-0"
-                        data-i18n="agent-empire-report"
-                    >
-                        Laporan Empire Agen
+                    <h4 className="card-title mb-0">
+                        {t('report.agent-empire-report')}
                     </h4>
                     <div className="d-flex flex-wrap align-items-center gap-2">
                         <div className="d-flex align-items-center gap-2">
                             <SelectInput
                                 id="empire-year"
-                                label="Tahun"
+                                label={t('common.year')}
                                 style={{ width: '150px' }}
                                 value={year}
                                 onChange={(value) => {
                                     setYear(value.toString());
                                 }}
-                                placeholder="Pilih Tahun"
+                                placeholder={t('common.select_year')}
                                 options={[
                                     ...Array.from({ length: 10 }, (_, i) => ({
                                         value: (
@@ -100,9 +99,9 @@ export default function EmpireClubReport({
                         <div className="d-flex align-items-center gap-2">
                             <SelectInput
                                 id="empire-agency"
-                                label="Agency"
+                                label={t('agency.title')}
                                 style={{ width: '300px' }}
-                                placeholder="Pilih Agency"
+                                placeholder={t('agency.select_agency')}
                                 options={[
                                     ...agencies.map((agency) => ({
                                         value: agency.id || 0,
@@ -131,7 +130,7 @@ export default function EmpireClubReport({
                             onClick={exportToExcel}
                             disabled={data.length === 0}
                         >
-                            Ekspor ke Excel
+                            {t('common.export_excel')}
                         </button>
                     </div>
                 </div>
@@ -140,7 +139,7 @@ export default function EmpireClubReport({
             <Table hover striped bordered responsive>
                 <thead>
                     <tr>
-                        <th data-field="agent-name">Nama Agen</th>
+                        <th>{t('agent.agent_name')}</th>
                         <th
                             data-field="current-ape"
                             data-formatter="empireIDRFormatter"

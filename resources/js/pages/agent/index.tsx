@@ -73,12 +73,12 @@ export default function Agent({ agents, filters }: AgentProps) {
 
     return (
         <TablePage
-            headTitle="Agen"
-            title="Daftar Agen"
+            headTitle={t('agent.title')}
+            title={t('agent.list_title')}
             i18nTitle="agent"
             breadcrumbs={[
-                { label: 'Master', href: 'javascript:void(0)', i18n: 'master' },
-                { label: 'Agen', active: true, i18n: 'agent' },
+                { label: t('common.master'), href: 'javascript:void(0)', i18n: 'master' },
+                { label: t('agent.title'), active: true, i18n: 'agent' },
             ]}
             toolbar={
                 <div className="d-flex align-items-center">
@@ -87,14 +87,14 @@ export default function Agent({ agents, filters }: AgentProps) {
                         className="btn btn-primary me-3"
                     >
                         <i className="fa fa-user me-2"></i>
-                        <span data-i18n="new-agent">{t('agent.newAgent')}</span>
+                        <span>{t('agent.new_agent')}</span>
                     </Link>
                     <div className="ms-auto d-flex gap-2">
                         <InputGroup>
                             <input
                                 type="text"
                                 className="form-control"
-                                placeholder={t('agent.searchPlaceholder')}
+                                placeholder={t('agent.search_placeholder')}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 onKeyPress={handleKeyPress}
@@ -121,22 +121,21 @@ export default function Agent({ agents, filters }: AgentProps) {
             >
                 <thead>
                     <tr>
-                        <th style={{ width: '120px' }} data-i18n="agent-number">
-                            {t('agent.agentCode')}
+                        <th style={{ width: '120px' }}>
+                            {t('agent.agent_code')}
                         </th>
-                        <th data-i18n="agent-name">{t('agent.agentName')}</th>
-                        <th style={{ width: '150px' }} data-i18n="agent-level">
+                        <th>{t('agent.agent_name')}</th>
+                        <th style={{ width: '150px' }}>
                             {t('agent.position')}
                         </th>
-                        <th data-i18n="agent-email">{t('customer.email')}</th>
+                        <th>{t('common.email_address')}</th>
                         <th
                             style={{ width: '150px' }}
-                            data-i18n="agent-birth-date"
                         >
-                            {t('customer.birthDate')}
+                            {t('customer.birth_date')}
                         </th>
-                        <th style={{ width: '150px' }} data-i18n="agent-mobile">
-                            {t('customer.mobileNumber')}
+                        <th style={{ width: '150px' }}>
+                            {t('common.mobile_number')}
                         </th>
                         <th style={{ width: '50px' }}></th>
                     </tr>
@@ -172,7 +171,7 @@ export default function Agent({ agents, filters }: AgentProps) {
                                             handleUpload(agent.id || '');
                                         }}
                                         className="btn btn-sm btn-primary me-1"
-                                        title="Upload"
+                                        title={t('common.upload')}
                                     >
                                         <i className="la la-upload"></i>
                                     </button>
@@ -182,7 +181,7 @@ export default function Agent({ agents, filters }: AgentProps) {
                                             handleDelete(agent.id);
                                         }}
                                         className="btn btn-sm btn-danger"
-                                        title="Delete"
+                                        title={t('common.delete')}
                                     >
                                         <i className="fa fa-trash"></i>
                                     </button>

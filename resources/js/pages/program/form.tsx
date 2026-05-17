@@ -6,6 +6,7 @@ import FormPage from '@/layouts/FormPage';
 import { programSchema } from '@/schemas/models';
 import { router, useForm } from '@inertiajs/react';
 import { Accordion, Table } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
 export default function ProgramForm({
@@ -13,6 +14,7 @@ export default function ProgramForm({
 }: {
     program?: z.infer<typeof programSchema> | null;
 }) {
+    const { t } = useTranslation();
     const isEdit = !!program;
 
     // Initial form state with safe defaults
@@ -62,7 +64,7 @@ export default function ProgramForm({
 
     const removeTarget = (index: number) => {
         if (data.targets[index].id) {
-            if (confirm('Are you sure you want to delete this?')) {
+            if (confirm(t('program.confirm_delete'))) {
                 destroy(`/master/target/${data.targets[index].id}`, {
                     onSuccess: () => {
                         // Redirects back to the current page, triggering a re-fetch of props
@@ -86,16 +88,16 @@ export default function ProgramForm({
 
     return (
         <FormPage
-            headTitle={isEdit ? 'Sunting Program' : 'Tambah Program'}
-            title="Program"
+            headTitle={isEdit ? t('program.edit_title') : t('program.create_title')}
+            title={t('program.title')}
             i18nTitle="program"
             breadcrumbs={[
-                { label: 'Master', href: 'javascript:void(0)', i18n: 'master' },
-                { label: 'Program', active: true, i18n: 'program' },
+                { label: t('common.master'), href: 'javascript:void(0)', i18n: 'master' },
+                { label: t('program.title'), active: true, i18n: 'program' },
             ]}
             headerActions={
                 <SubmitButton processing={processing} onClick={handleSubmit}>
-                    {isEdit ? 'Perbarui' : 'Simpan'}
+                    {isEdit ? t('common.update') : t('common.save')}
                 </SubmitButton>
             }
         >
@@ -103,11 +105,11 @@ export default function ProgramForm({
                 <div className="col-md-6">
                     <Accordion defaultActiveKey="0" className="mb-4">
                         <Accordion.Item eventKey="0">
-                            <Accordion.Header>Data Program</Accordion.Header>
+                            <Accordion.Header>{t('program.program_data')}</Accordion.Header>
                             <Accordion.Body>
                                 <TextInput
                                     id="name"
-                                    label="Nama Program"
+                                    label={t('program.program_name')}
                                     value={data.name}
                                     onChange={(e) =>
                                         setData('name', e.target.value)
@@ -117,7 +119,7 @@ export default function ProgramForm({
 
                                 <SelectInput
                                     id="position"
-                                    label="Jabatan"
+                                    label={t('program.position')}
                                     value={data.position}
                                     onChange={(value) =>
                                         setData('position', value.toString())
@@ -160,7 +162,7 @@ export default function ProgramForm({
                                                     parseFloat(e.target.value),
                                                 )
                                             }
-                                            placeholder="Minimal"
+                                            placeholder={t('common.minimum')}
                                         />
                                         <span className="text-muted">s/d</span>
                                         <input
@@ -173,7 +175,7 @@ export default function ProgramForm({
                                                     parseFloat(e.target.value),
                                                 )
                                             }
-                                            placeholder="Maksimal"
+                                            placeholder={t('common.maximum')}
                                         />
                                     </div>
                                 </FormField>
@@ -199,17 +201,17 @@ export default function ProgramForm({
                 <div className="col-md-6">
                     <Accordion defaultActiveKey="0">
                         <Accordion.Item eventKey="0">
-                            <Accordion.Header>Target Program</Accordion.Header>
+                            <Accordion.Header>{t('program.program_targets')}</Accordion.Header>
                             <Accordion.Body>
                                 <div className="d-flex justify-content-between align-items-center mb-2">
-                                    <h6 className="mb-0">Daftar Target</h6>
+                                    <h6 className="mb-0">{t('program.target_list')}</h6>
                                     <button
                                         onClick={addTarget}
                                         className="btn btn-sm btn-primary"
                                         type="button"
                                     >
                                         <i className="fa fa-plus me-1"></i>
-                                        Tambah
+                                        {t('common.add')}
                                     </button>
                                 </div>
                                 <div className="table-responsive">
@@ -368,7 +370,7 @@ export default function ProgramForm({
                                                                     }
                                                                     className="btn btn-link btn-sm text-danger p-0"
                                                                     type="button"
-                                                                    title="Delete"
+                                                                    title={t('common.delete')}
                                                                 >
                                                                     <i className="fa fa-trash"></i>
                                                                 </button>

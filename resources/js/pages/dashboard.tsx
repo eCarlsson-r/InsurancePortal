@@ -62,7 +62,7 @@ export default function Dashboard({ kpis, empire_stats, mdrt_stats, empire_club,
     
     return (
         <TemplateLayout>
-            <Head title="Dashboard" />
+            <Head title={t('dashboard.title')} />
 
             <div className="container-fluid">
                 {/* KPI Cards Section */}
@@ -73,13 +73,13 @@ export default function Dashboard({ kpis, empire_stats, mdrt_stats, empire_club,
                             <div className="card-body p-4">
                                 <div className="media">
                                     <span className="mr-3">
-                                        <i className="la la-file-text" style={{ fontSize: '36px' }}></i>
+                                        <i className="fa fa-file-text" style={{ fontSize: '36px' }}></i>
                                     </span>
                                     <div className="media-body text-white">
-                                        <p className="mb-1">New Policies This Month</p>
+                                        <p className="mb-1">{t('dashboard.new_policies_this_month')}</p>
                                         <h3 className="text-white mb-0">{kpis.new_policies.this_month}</h3>
                                         <small>
-                                            Last month: {kpis.new_policies.last_month}
+                                            {t('dashboard.last_month')}: {kpis.new_policies.last_month}
                                             {kpis.new_policies.change !== 0 && (
                                                 <span className={`ml-2 badge ${kpis.new_policies.change > 0 ? 'badge-success' : 'badge-danger'}`}>
                                                     {kpis.new_policies.change > 0 ? '+' : ''}{kpis.new_policies.change}
@@ -99,12 +99,12 @@ export default function Dashboard({ kpis, empire_stats, mdrt_stats, empire_club,
                             <div className="card-body p-4">
                                 <div className="media">
                                     <span className="mr-3">
-                                        <i className="la la-money" style={{ fontSize: '36px' }}></i>
+                                        <i className="fa fa-money" style={{ fontSize: '36px' }}></i>
                                     </span>
                                     <div className="media-body text-white">
-                                        <p className="mb-1">Premium Collected</p>
+                                        <p className="mb-1">{t('dashboard.premium_collected')}</p>
                                         <h3 className="text-white mb-0">{kpis.premium_collected.formatted}</h3>
-                                        <small>This month</small>
+                                        <small>{t('dashboard.this_month')}</small>
                                     </div>
                                 </div>
                             </div>
@@ -117,12 +117,12 @@ export default function Dashboard({ kpis, empire_stats, mdrt_stats, empire_club,
                             <div className="card-body p-4">
                                 <div className="media">
                                     <span className="mr-3">
-                                        <i className="la la-users" style={{ fontSize: '36px' }}></i>
+                                        <i className="fa fa-users" style={{ fontSize: '36px' }}></i>
                                     </span>
                                     <div className="media-body text-white">
-                                        <p className="mb-1">MDRT-Tracking Agents</p>
+                                        <p className="mb-1">{t('dashboard.mdrt_tracking_agents')}</p>
                                         <h3 className="text-white mb-0">{kpis.mdrt_agents.count}</h3>
-                                        <small>Active agents on track</small>
+                                        <small>{t('dashboard.active_agents_on_track')}</small>
                                     </div>
                                 </div>
                             </div>
@@ -135,13 +135,13 @@ export default function Dashboard({ kpis, empire_stats, mdrt_stats, empire_club,
                             <div className="card-body p-4">
                                 <div className="media">
                                     <span className="mr-3">
-                                        <i className="la la-clipboard-list" style={{ fontSize: '36px' }}></i>
+                                        <i className="fa fa-clipboard" style={{ fontSize: '36px' }}></i>
                                     </span>
                                     <div className="media-body text-white">
-                                        <p className="mb-1">Active Claims</p>
+                                        <p className="mb-1">{t('dashboard.active_claims')}</p>
                                         <h3 className="text-white mb-0">{kpis.active_claims.count}</h3>
                                         <small>
-                                            Pending: {kpis.active_claims.pending} | Approved: {kpis.active_claims.approved}
+                                            {t('dashboard.pending')}: {kpis.active_claims.pending} | {t('dashboard.approved')}: {kpis.active_claims.approved}
                                         </small>
                                     </div>
                                 </div>
@@ -155,12 +155,12 @@ export default function Dashboard({ kpis, empire_stats, mdrt_stats, empire_club,
                             <div className="card-body p-4">
                                 <div className="media">
                                     <span className="mr-3">
-                                        <i className="la la-calendar-times" style={{ fontSize: '36px' }}></i>
+                                        <i className="fa fa-calendar-times-o" style={{ fontSize: '36px' }}></i>
                                     </span>
                                     <div className="media-body text-white">
-                                        <p className="mb-1">Expiring in 30 Days</p>
+                                        <p className="mb-1">{t('dashboard.expiring_in_30_days')}</p>
                                         <h3 className="text-white mb-0">{kpis.expiring_policies.count}</h3>
-                                        <small>Policies requiring renewal</small>
+                                        <small>{t('dashboard.policies_requiring_renewal')}</small>
                                     </div>
                                 </div>
                             </div>
@@ -173,12 +173,12 @@ export default function Dashboard({ kpis, empire_stats, mdrt_stats, empire_club,
                             <div className="card-body p-4">
                                 <div className="media">
                                     <span className="mr-3">
-                                        <i className="la la-birthday-cake" style={{ fontSize: '36px' }}></i>
+                                        <i className="fa fa-birthday-cake" style={{ fontSize: '36px' }}></i>
                                     </span>
                                     <div className="media-body text-white">
-                                        <p className="mb-1">Birthdays This Week</p>
+                                        <p className="mb-1">{t('dashboard.birthdays_this_week')}</p>
                                         <h3 className="text-white mb-0">{kpis.birthdays.count}</h3>
-                                        <small>Customer birthdays</small>
+                                        <small>{t('dashboard.customer_birthdays')}</small>
                                     </div>
                                 </div>
                             </div>
@@ -245,18 +245,18 @@ export default function Dashboard({ kpis, empire_stats, mdrt_stats, empire_club,
                     <div className="col-xl-6 col-xxl-6 col-lg-6">
                         <div className="card">
                             <div className="card-header">
-                                <h4 className="card-title">Empire Club</h4>
+                                <h4 className="card-title">{t('dashboard.empire_club')}</h4>
                             </div>
                             <div className="card-body">
                                 <Table responsive>
                                     <thead>
                                         <tr>
-                                            <th>Agent</th>
-                                            <th>Status</th>
-                                            <th>WAPE</th>
-                                            <th>Cases</th>
-                                            <th>Gap WAPE</th>
-                                            <th>Gap Cases</th>
+                                            <th>{t('dashboard.agent')}</th>
+                                            <th>{t('dashboard.status')}</th>
+                                            <th>{t('dashboard.wape')}</th>
+                                            <th>{t('dashboard.cases')}</th>
+                                            <th>{t('dashboard.gap_wape')}</th>
+                                            <th>{t('dashboard.gap_cases')}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -273,7 +273,7 @@ export default function Dashboard({ kpis, empire_stats, mdrt_stats, empire_club,
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan={6}>No Data</td>
+                                                <td colSpan={6}>{t('dashboard.no_data')}</td>
                                             </tr>
                                         )}
                                     </tbody>
@@ -285,16 +285,16 @@ export default function Dashboard({ kpis, empire_stats, mdrt_stats, empire_club,
                     <div className="col-xl-6 col-xxl-6 col-lg-6">
                         <div className="card">
                             <div className="card-header">
-                                <h4 className="card-title">MDRT</h4>
+                                <h4 className="card-title">{t('dashboard.mdrt')}</h4>
                             </div>
                             <div className="card-body">
                                 <Table responsive>
                                     <thead>
                                         <tr>
-                                            <th>Agent</th>
-                                            <th>Status</th>
-                                            <th>FYP</th>
-                                            <th>Gap FYP</th>
+                                            <th>{t('dashboard.agent')}</th>
+                                            <th>{t('dashboard.status')}</th>
+                                            <th>{t('dashboard.fyp')}</th>
+                                            <th>{t('dashboard.gap_fyp')}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -309,7 +309,7 @@ export default function Dashboard({ kpis, empire_stats, mdrt_stats, empire_club,
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan={4}>No Data</td>
+                                                <td colSpan={4}>{t('dashboard.no_data')}</td>
                                             </tr>
                                         )}
                                     </tbody>

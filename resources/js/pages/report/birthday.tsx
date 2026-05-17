@@ -1,6 +1,7 @@
 import SelectInput from '@/components/form/select-input';
 import TablePage from '@/layouts/TablePage';
 import { router } from '@inertiajs/react';
+import { useTranslation } from 'react-i18next';
 import { Table } from 'react-bootstrap';
 
 interface Customer {
@@ -19,6 +20,8 @@ export default function Birthday({
     month: string;
     customers: Customer[];
 }) {
+    const { t } = useTranslation();
+
     const handleChange = (value: string | number) => {
         router.get('/reports/birthday', {
             month: value,
@@ -27,55 +30,52 @@ export default function Birthday({
 
     return (
         <TablePage
-            headTitle="Birthday"
-            title="Ulang Tahun Nasabah"
+            headTitle={t('report.birthday-report')}
+            title={t('report.customer-birthday-report')}
             i18nTitle="birthday-report"
             breadcrumbs={[
                 {
-                    label: 'Laporan',
+                    label: t('common.reports'),
                     href: 'javascript:void(0)',
                     i18n: 'report',
                 },
                 {
-                    label: 'Ulang Tahun Nasabah',
+                    label: t('report.customer-birthday-report'),
                     active: true,
                     i18n: 'birthday-report',
                 },
             ]}
             toolbar={
                 <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 w-100">
-                    <h4
-                        className="card-title mb-0"
-                        data-i18n="customer-birthday-report"
-                    >
-                        Daftar Ulang Tahun Nasabah
+                    <h4 className="card-title mb-0">
+                        {t('report.customer-birthday-report')}
                     </h4>
                     <div className="d-flex flex-wrap align-items-center gap-2">
                         <label
                             htmlFor="birthday-month"
                             className="mb-0"
-                            data-i18n="month"
                         >
-                            Bulan
+                            {t('common.month')}
                         </label>
                         <div style={{ width: '150px' }}>
                             <SelectInput
                                 id="birthday-month"
                                 value={month}
                                 onChange={handleChange}
+                                placeholder={t('common.select_month')}
                                 options={[
-                                    { value: '1', label: 'January' },
-                                    { value: '2', label: 'February' },
-                                    { value: '3', label: 'March' },
-                                    { value: '4', label: 'April' },
-                                    { value: '5', label: 'May' },
-                                    { value: '6', label: 'June' },
-                                    { value: '7', label: 'July' },
-                                    { value: '8', label: 'August' },
-                                    { value: '9', label: 'September' },
-                                    { value: '10', label: 'October' },
-                                    { value: '11', label: 'November' },
-                                    { value: '12', label: 'December' },
+                                    { value: '1', label: t('months.january') },
+                                    { value: '2', label: t('months.february') },
+                                    { value: '3', label: t('months.march') },
+                                    { value: '4', label: t('months.april') },
+                                    { value: '5', label: t('months.may') },
+                                    { value: '6', label: t('months.june') },
+                                    { value: '7', label: t('months.july') },
+                                    { value: '8', label: t('months.august') },
+                                    { value: '9', label: t('months.september') },
+                                    { value: '10', label: t('months.october') },
+                                    { value: '11', label: t('months.november') },
+                                    { value: '12', label: t('months.december') },
                                 ]}
                             />
                         </div>
@@ -86,11 +86,11 @@ export default function Birthday({
             <Table hover striped bordered responsive>
                 <thead>
                     <tr>
-                        <th data-i18n="name">Nama</th>
-                        <th data-i18n="birth-date">Tanggal Lahir</th>
-                        <th data-i18n="age">Umur</th>
-                        <th data-i18n="religion">Agama</th>
-                        <th data-i18n="home-address">Alamat Rumah</th>
+                        <th>{t('common.name')}</th>
+                        <th>{t('customer.birth_date')}</th>
+                        <th>{t('common.age')}</th>
+                        <th>{t('customer.religion')}</th>
+                        <th>{t('common.home_address')}</th>
                     </tr>
                 </thead>
                 <tbody>

@@ -2,6 +2,7 @@ import SelectInput from '@/components/form/select-input';
 import TablePage from '@/layouts/TablePage';
 import { exportTableToExcel } from '@/utils/exportToExcel';
 import { router } from '@inertiajs/react';
+import { useTranslation } from 'react-i18next';
 import { Table } from 'react-bootstrap';
 
 type AnnualData = {
@@ -23,6 +24,8 @@ export default function Annual({
     data: AnnualData[];
     year: string;
 }) {
+    const { t } = useTranslation();
+
     const formatCurrency = (value: number) => {
         return new Intl.NumberFormat('id-ID', {
             style: 'currency',
@@ -58,35 +61,32 @@ export default function Annual({
 
     return (
         <TablePage
-            headTitle="Income List Tahunan"
-            title="Income List Tahunan"
+            headTitle={t('report.annual-report')}
+            title={t('report.annual-report')}
             i18nTitle="annual-report"
             breadcrumbs={[
                 {
-                    label: 'Laporan',
+                    label: t('common.reports'),
                     href: 'javascript:void(0)',
                     i18n: 'report',
                 },
                 {
-                    label: 'Income List Tahunan',
+                    label: t('report.annual-report'),
                     active: true,
                     i18n: 'annual-report',
                 },
             ]}
             toolbar={
                 <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 w-100">
-                    <h4
-                        className="card-title mb-0"
-                        data-i18n="agent-annual-report"
-                    >
-                        Laporan Tahunan Agen
+                    <h4 className="card-title mb-0">
+                        {t('report.agent_annual_report')}
                     </h4>
                     <div className="d-flex flex-wrap align-items-center gap-2">
                         <SelectInput
                             id="annual-year"
-                            label="Year"
+                            label={t('common.year')}
                             style={{ width: '200px' }}
-                            placeholder="Pilih Tahun"
+                            placeholder={t('common.select_year')}
                             value={year}
                             onChange={handleChange}
                             options={[
@@ -106,7 +106,7 @@ export default function Annual({
                         onClick={exportToExcel}
                         disabled={data.length === 0}
                     >
-                        Ekspor ke Excel
+                        {t('common.export_excel')}
                     </button>
                 </div>
             }
@@ -114,14 +114,14 @@ export default function Annual({
             <Table hover striped bordered responsive>
                 <thead>
                     <tr>
-                        <th>Kode Agen</th>
-                        <th>Nama Agen</th>
-                        <th>Komisi</th>
-                        <th>Bonus Tahunan</th>
-                        <th>Overriding</th>
-                        <th>Bonus Rekrut</th>
-                        <th>Allowance</th>
-                        <th>Total Komisi</th>
+                        <th>{t('agent.agent_code')}</th>
+                        <th>{t('agent.agent_name')}</th>
+                        <th>{t('report.commission')}</th>
+                        <th>{t('report.annual_bonus')}</th>
+                        <th>{t('report.overriding')}</th>
+                        <th>{t('report.recruit_bonus')}</th>
+                        <th>{t('report.allowance')}</th>
+                        <th>{t('report.total_amount')}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -144,7 +144,7 @@ export default function Annual({
                                 colSpan={8}
                                 className="text-center text-muted py-4"
                             >
-                                No agent found.
+                                {t('agent.noAgentsFound')}
                             </td>
                         </tr>
                     )}

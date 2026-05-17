@@ -4,6 +4,7 @@ import { agencySchema } from '@/schemas/models';
 import { exportTableToExcel } from '@/utils/exportToExcel';
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Table } from 'react-bootstrap';
 import { z } from 'zod';
 
@@ -26,6 +27,7 @@ export default function MDRTReport({
     prod_agency: string;
     prod_year: string;
 }) {
+    const { t } = useTranslation();
     const [year, setYear] = useState(prod_year || '');
     const [agency, setAgency] = useState(prod_agency || '');
 
@@ -47,41 +49,38 @@ export default function MDRTReport({
 
     return (
         <TablePage
-            headTitle="MDRT Report"
-            title="Laporan MDRT Internasional"
+            headTitle={t('report.mdrt-report')}
+            title={t('report.mdrt-report')}
             i18nTitle="mdrt-report"
             breadcrumbs={[
                 {
-                    label: 'Laporan',
+                    label: t('common.reports'),
                     href: 'javascript:void(0)',
                     i18n: 'report',
                 },
                 {
-                    label: 'Laporan MDRT Internasional',
+                    label: t('report.mdrt-report'),
                     active: true,
                     i18n: 'mdrt-report',
                 },
             ]}
             toolbar={
                 <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 w-100">
-                    <h4
-                        className="card-title mb-0"
-                        data-i18n="agent-mdrt-report"
-                    >
-                        Laporan MDRT Agen
+                    <h4 className="card-title mb-0">
+                        {t('report.agent-mdrt-report')}
                     </h4>
                     <div className="d-flex flex-wrap align-items-center gap-2">
                         <div className="d-flex align-items-center gap-2">
                             <SelectInput
                                 id="mdrt-year"
-                                label="Year"
+                                label={t('common.year')}
                                 style={{ width: '100px' }}
                                 value={year}
+                                placeholder={t('common.select_year')}
                                 onChange={(value) => {
                                     setYear(value.toString());
                                 }}
                                 options={[
-                                    { value: '', label: 'Pilih Tahun' },
                                     ...Array.from({ length: 10 }, (_, i) => ({
                                         value: (
                                             new Date().getFullYear() - i
@@ -96,10 +95,10 @@ export default function MDRTReport({
                         <div className="d-flex align-items-center gap-2">
                             <SelectInput
                                 id="mdrt-agency"
-                                label="Agency"
+                                label={t('agency.title')}
                                 style={{ width: '300px' }}
                                 options={[
-                                    { value: '', label: 'Pilih Agency' },
+                                    { value: '', label: t('agency.select_agency') },
                                     ...agencies.map((ag) => ({
                                         value: ag.id || 0,
                                         label: ag.name,
@@ -120,14 +119,14 @@ export default function MDRTReport({
                                     );
                             }}
                         >
-                            Cari
+                            {t('common.search')}
                         </button>
                         <button
                             className="btn btn-success"
                             onClick={exportToExcel}
                             disabled={data.length === 0}
                         >
-                            Ekspor ke Excel
+                            {t('common.export_excel')}
                         </button>
                     </div>
                 </div>
@@ -136,11 +135,11 @@ export default function MDRTReport({
             <Table hover striped bordered responsive>
                 <thead>
                     <tr>
-                        <th>Nama Agen</th>
-                        <th>FYP terkumpul</th>
-                        <th>Level tercapai</th>
-                        <th>Level selanjutnya</th>
-                        <th>FYP kurang</th>
+                        <th>{t('agent.agent_name')}</th>
+                        <th>{t('report.fyp_collected')}</th>
+                        <th>{t('report.achievement')}</th>
+                        <th>{t('report.next_level')}</th>
+                        <th>{t('report.shortage')}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -173,7 +172,7 @@ export default function MDRTReport({
                     ) : (
                         <tr>
                             <td colSpan={5} className="text-center">
-                                Tidak ada data
+                                {t('common.no_data')}
                             </td>
                         </tr>
                     )}
