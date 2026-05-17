@@ -15,6 +15,7 @@ import {
 import { Link, useForm } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import { Accordion, InputGroup, Table } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
 export default function PolicyForm({
@@ -32,6 +33,7 @@ export default function PolicyForm({
     products: z.infer<typeof productSchema>[];
     funds: z.infer<typeof fundSchema>[];
 }) {
+    const { t } = useTranslation();
     const isEdit = !!policy;
 
     // Initial form state with safe defaults
@@ -173,12 +175,12 @@ export default function PolicyForm({
 
     return (
         <FormPage
-            headTitle={isEdit ? 'Sunting Data SP' : 'Input Data SP'}
-            title={isEdit ? 'Sunting Data SP' : 'Input Data SP'}
+            headTitle={isEdit ? t('policy.editPolicy') : t('policy.createPolicy')}
+            title={isEdit ? t('policy.editPolicy') : t('policy.createPolicy')}
             breadcrumbs={[
                 { label: 'Penjualan', i18n: 'sales' },
                 { label: 'SP / Polis', href: '/sales', i18n: 'case' },
-                { label: isEdit ? 'Sunting' : 'Input', active: true },
+                { label: isEdit ? t('common.edit') : t('common.create'), active: true },
             ]}
         >
             <form id="case-form" onSubmit={handleSubmit}>
@@ -213,7 +215,7 @@ export default function PolicyForm({
                         {fileUrl && (
                             <Accordion defaultActiveKey="0">
                                 <Accordion.Item eventKey="0">
-                                    <Accordion.Header>Polis</Accordion.Header>
+                                    <Accordion.Header>{t('policy.policy')}</Accordion.Header>
                                     <Accordion.Body>
                                         <iframe
                                             src={`${fileUrl}#page=3&toolbar=0&navpanes=0`}
@@ -232,11 +234,11 @@ export default function PolicyForm({
                         <Accordion defaultActiveKey="0" className="mb-3">
                             {/* Section 1: Data SP */}
                             <Accordion.Item eventKey="0">
-                                <Accordion.Header>Data SP</Accordion.Header>
+                                <Accordion.Header>{t('policy.policyData')}</Accordion.Header>
                                 <Accordion.Body>
                                     <TextInput
                                         id="case_no"
-                                        label="No. SP"
+                                        label={t('policy.caseNumber')}
                                         value={data.case_code}
                                         onChange={(event) =>
                                             setData(
@@ -250,7 +252,7 @@ export default function PolicyForm({
 
                                     <SelectInput
                                         id="agent_id"
-                                        label="Agen"
+                                        label={t('common.agent')}
                                         value={data.agent_id}
                                         onChange={(value) =>
                                             setData(
@@ -268,7 +270,7 @@ export default function PolicyForm({
 
                                     <DateInput
                                         id="entry_date"
-                                        label="Tanggal SP Masuk"
+                                        label={t('policy.entryDate')}
                                         value={
                                             typeof data.entry_date === 'string'
                                                 ? data.entry_date
@@ -288,22 +290,22 @@ export default function PolicyForm({
 
                                     <SelectInput
                                         id="bill_at"
-                                        label="Tagih"
+                                        label={t('policy.billAt')}
                                         value={data.bill_at}
                                         onChange={(value) =>
                                             setData('bill_at', Number(value))
                                         }
                                         error={errors.bill_at}
                                         options={[
-                                            { value: 1, label: 'Rumah' },
-                                            { value: 2, label: 'Kantor' },
+                                            { value: 1, label: t('common.home') },
+                                            { value: 2, label: t('common.office') },
                                         ]}
                                         row
                                     />
 
                                     <CheckboxInput
                                         id="insure-holder"
-                                        label="Data pemegang polis sama dengan data tertanggung."
+                                        label={t('policy.sameAsInsured')}
                                         checked={data.is_insure_holder}
                                         onChange={(event) =>
                                             setData(
@@ -318,12 +320,12 @@ export default function PolicyForm({
                             {/* Section 2: Pemegang Polis */}
                             <Accordion.Item eventKey="1">
                                 <Accordion.Header>
-                                    Data Pemegang Polis
+                                    {t('policy.policyHolderData')}
                                 </Accordion.Header>
                                 <Accordion.Body>
                                     <TextInput
                                         id="holder_name"
-                                        label="Nama Lengkap"
+                                        label={t('customer.fullName')}
                                         value={data.holder.name}
                                         onChange={(event) =>
                                             setData(
@@ -336,7 +338,7 @@ export default function PolicyForm({
 
                                     <SelectInput
                                         id="holder_gender"
-                                        label="Jenis Kelamin"
+                                        label={t('customer.gender')}
                                         value={data.holder.gender}
                                         onChange={(value) =>
                                             setData(
@@ -345,20 +347,20 @@ export default function PolicyForm({
                                             )
                                         }
                                         options={[
-                                            { value: 1, label: 'Pria' },
-                                            { value: 2, label: 'Wanita' },
+                                            { value: 1, label: t('customer.male') },
+                                            { value: 2, label: t('customer.female') },
                                         ]}
                                         row
                                     />
 
                                     <div className="mb-3 row form-group">
                                         <label className="col-sm-3 col-form-label">
-                                            Tempat dan Tanggal Lahir
+                                            {t('customer.birthPlaceDate')}
                                         </label>
                                         <InputGroup className="col-sm-9">
                                             <TextInput
                                                 id="holder_birth_place"
-                                                placeholder="Tempat"
+                                                placeholder={t('customer.birthPlace')}
                                                 value={data.holder.birth_place}
                                                 onChange={(event) =>
                                                     setData('holder', {
@@ -384,7 +386,7 @@ export default function PolicyForm({
 
                                     <SelectInput
                                         id="holder_marital"
-                                        label="Status"
+                                        label={t('customer.maritalStatus')}
                                         value={data.holder.marital}
                                         onChange={(value) =>
                                             setData('holder', {
@@ -393,17 +395,17 @@ export default function PolicyForm({
                                             })
                                         }
                                         options={[
-                                            { value: 1, label: 'Single' },
-                                            { value: 2, label: 'Kawin' },
-                                            { value: 3, label: 'Duda/Janda' },
-                                            { value: 4, label: 'Cerai' },
+                                            { value: 1, label: t('customer.single') },
+                                            { value: 2, label: t('customer.married') },
+                                            { value: 3, label: t('customer.widowed') },
+                                            { value: 4, label: t('customer.divorced') },
                                         ]}
                                         row
                                     />
 
                                     <SelectInput
                                         id="holder_religion"
-                                        label="Agama"
+                                        label={t('customer.religion')}
                                         value={data.holder.religion}
                                         onChange={(value) =>
                                             setData('holder', {
@@ -413,17 +415,17 @@ export default function PolicyForm({
                                         }
                                         options={[
                                             { value: 0, label: '' },
-                                            { value: 1, label: 'Budha' },
-                                            { value: 2, label: 'Kristen' },
-                                            { value: 3, label: 'Islam' },
-                                            { value: 4, label: 'Hindu' },
+                                            { value: 1, label: t('customer.buddhist') },
+                                            { value: 2, label: t('customer.christian') },
+                                            { value: 3, label: t('customer.muslim') },
+                                            { value: 4, label: t('customer.hindu') },
                                         ]}
                                         row
                                     />
 
                                     <TextInput
                                         id="holder_identity_number"
-                                        label="Nomor Identitas"
+                                        label={t('customer.identityNumber')}
                                         value={data.holder.identity}
                                         onChange={(event) =>
                                             setData('holder', {
@@ -436,7 +438,7 @@ export default function PolicyForm({
 
                                     <TextInput
                                         id="holder_profession"
-                                        label="Pekerjaan"
+                                        label={t('customer.profession')}
                                         value={data.holder.profession}
                                         onChange={(event) =>
                                             setData('holder', {
@@ -449,7 +451,7 @@ export default function PolicyForm({
 
                                     <TextInput
                                         id="holder_mobile"
-                                        label="Nomor Ponsel"
+                                        label={t('customer.mobileNumber')}
                                         value={data.holder.mobile}
                                         onChange={(event) =>
                                             setData('holder', {
@@ -462,7 +464,7 @@ export default function PolicyForm({
 
                                     <TextInput
                                         id="holder_email"
-                                        label="Alamat e-Mail"
+                                        label={t('customer.email')}
                                         type="email"
                                         value={data.holder.email}
                                         onChange={(event) =>
@@ -476,7 +478,7 @@ export default function PolicyForm({
 
                                     <TextInput
                                         id="holder_home_address"
-                                        label="Alamat Rumah"
+                                        label={t('customer.homeAddress')}
                                         value={data.holder.home_address}
                                         onChange={(event) =>
                                             setData('holder', {
@@ -490,12 +492,12 @@ export default function PolicyForm({
 
                                     <div className="mb-3 row form-group">
                                         <label className="col-sm-3 col-form-label">
-                                            Kode Pos / Kota
+                                            {t('customer.postalCity')}
                                         </label>
                                         <div className="col-sm-9 d-flex gap-2">
                                             <TextInput
                                                 id="holder_home_postal"
-                                                placeholder="Kode Pos"
+                                                placeholder={t('customer.postalCode')}
                                                 style={{ maxWidth: '100px' }}
                                                 value={data.holder.home_postal}
                                                 onChange={(event) =>
@@ -508,7 +510,7 @@ export default function PolicyForm({
                                             />
                                             <TextInput
                                                 id="holder_home_city"
-                                                placeholder="Kota"
+                                                placeholder={t('customer.city')}
                                                 value={data.holder.home_city}
                                                 onChange={(event) =>
                                                     setData('holder', {
@@ -523,7 +525,7 @@ export default function PolicyForm({
 
                                     <TextInput
                                         id="holder_work_address"
-                                        label="Alamat Kantor"
+                                        label={t('customer.officeAddress')}
                                         value={data.holder.work_address}
                                         onChange={(event) =>
                                             setData('holder', {
@@ -537,12 +539,12 @@ export default function PolicyForm({
 
                                     <div className="mb-3 row form-group">
                                         <label className="col-sm-3 col-form-label">
-                                            Kode Pos / Kota
+                                            {t('customer.postalCity')}
                                         </label>
                                         <div className="col-sm-9 d-flex gap-2">
                                             <TextInput
                                                 id="holder_work_postal"
-                                                placeholder="Kode Pos"
+                                                placeholder={t('customer.postalCode')}
                                                 style={{ maxWidth: '100px' }}
                                                 value={data.holder.work_postal}
                                                 onChange={(event) =>
@@ -555,7 +557,7 @@ export default function PolicyForm({
                                             />
                                             <TextInput
                                                 id="holder_work_city"
-                                                placeholder="Kota"
+                                                placeholder={t('customer.city')}
                                                 value={data.holder.work_city}
                                                 onChange={(event) =>
                                                     setData('holder', {
@@ -573,12 +575,12 @@ export default function PolicyForm({
                             {/* Section 3: Tertanggung */}
                             <Accordion.Item eventKey="2">
                                 <Accordion.Header>
-                                    Data Tertanggung
+                                    {t('policy.insuredData')}
                                 </Accordion.Header>
                                 <Accordion.Body>
                                     <TextInput
                                         id="insured_name"
-                                        label="Nama Lengkap"
+                                        label={t('customer.fullName')}
                                         value={data.insured.name}
                                         onChange={(event) =>
                                             setData('insured', {
@@ -592,7 +594,7 @@ export default function PolicyForm({
 
                                     <SelectInput
                                         id="insured_gender"
-                                        label="Jenis Kelamin"
+                                        label={t('customer.gender')}
                                         value={data.insured.gender}
                                         onChange={(value) =>
                                             setData('insured', {
@@ -602,20 +604,20 @@ export default function PolicyForm({
                                         }
                                         disabled={data.is_insure_holder}
                                         options={[
-                                            { value: 1, label: 'Pria' },
-                                            { value: 2, label: 'Wanita' },
+                                            { value: 1, label: t('customer.male') },
+                                            { value: 2, label: t('customer.female') },
                                         ]}
                                         row
                                     />
 
                                     <div className="mb-3 row form-group">
                                         <label className="col-sm-3 col-form-label">
-                                            Tempat & Tgl Lahir
+                                            {t('customer.birthPlaceDate')}
                                         </label>
                                         <div className="col-sm-9 d-flex gap-2">
                                             <TextInput
                                                 id="insured_birth_place"
-                                                placeholder="Tempat"
+                                                placeholder={t('customer.birthPlace')}
                                                 value={data.insured.birth_place}
                                                 onChange={(event) =>
                                                     setData('insured', {
@@ -643,7 +645,7 @@ export default function PolicyForm({
 
                                     <SelectInput
                                         id="insured_marital"
-                                        label="Status"
+                                        label={t('customer.maritalStatus')}
                                         value={data.insured.marital}
                                         onChange={(value) =>
                                             setData('insured', {
@@ -653,17 +655,17 @@ export default function PolicyForm({
                                         }
                                         disabled={data.is_insure_holder}
                                         options={[
-                                            { value: 1, label: 'Single' },
-                                            { value: 2, label: 'Kawin' },
-                                            { value: 3, label: 'Duda/Janda' },
-                                            { value: 4, label: 'Cerai' },
+                                            { value: 1, label: t('customer.single') },
+                                            { value: 2, label: t('customer.married') },
+                                            { value: 3, label: t('customer.widowed') },
+                                            { value: 4, label: t('customer.divorced') },
                                         ]}
                                         row
                                     />
 
                                     <SelectInput
                                         id="holder_insured_relationship"
-                                        label="Hubungan"
+                                        label={t('policy.relationship')}
                                         value={data.holder_insured_relationship}
                                         onChange={(value) =>
                                             setData(
@@ -675,22 +677,22 @@ export default function PolicyForm({
                                         options={[
                                             {
                                                 value: '1',
-                                                label: 'Diri Sendiri',
+                                                label: t('policy.self'),
                                             },
                                             {
                                                 value: '2',
-                                                label: 'Suami / Istri',
+                                                label: t('policy.spouse'),
                                             },
-                                            { value: '3', label: 'Anak' },
-                                            { value: '4', label: 'Orang Tua' },
-                                            { value: '5', label: 'Lainnya' },
+                                            { value: '3', label: t('policy.child') },
+                                            { value: '4', label: t('policy.parent') },
+                                            { value: '5', label: t('common.other') },
                                         ]}
                                         row
                                     />
 
                                     <TextInput
                                         id="insured_profession"
-                                        label="Pekerjaan"
+                                        label={t('customer.profession')}
                                         value={data.insured.profession}
                                         onChange={(event) =>
                                             setData('insured', {
@@ -704,7 +706,7 @@ export default function PolicyForm({
 
                                     <TextInput
                                         id="insured_home_address"
-                                        label="Alamat Rumah"
+                                        label={t('customer.homeAddress')}
                                         value={data.insured.home_address}
                                         onChange={(event) =>
                                             setData('insured', {
@@ -719,12 +721,12 @@ export default function PolicyForm({
 
                                     <div className="mb-3 row form-group">
                                         <label className="col-sm-3 col-form-label">
-                                            Kode Pos / Kota
+                                            {t('customer.postalCity')}
                                         </label>
                                         <div className="col-sm-9 d-flex gap-2">
                                             <TextInput
                                                 id="insured_home_postal"
-                                                placeholder="Kode Pos"
+                                                placeholder={t('customer.postalCode')}
                                                 style={{ maxWidth: '100px' }}
                                                 value={data.insured.home_postal}
                                                 onChange={(event) =>
@@ -738,7 +740,7 @@ export default function PolicyForm({
                                             />
                                             <TextInput
                                                 id="insured_home_city"
-                                                placeholder="Kota"
+                                                placeholder={t('customer.city')}
                                                 value={data.insured.home_city}
                                                 onChange={(event) =>
                                                     setData('insured', {
@@ -757,12 +759,12 @@ export default function PolicyForm({
                             {/* Section 4: Data Asuransi */}
                             <Accordion.Item eventKey="3">
                                 <Accordion.Header>
-                                    Data Asuransi
+                                    {t('policy.insuranceData')}
                                 </Accordion.Header>
                                 <Accordion.Body>
                                     <TextInput
                                         id="policy_no"
-                                        label="No. Polis"
+                                        label={t('policy.policyNumber')}
                                         value={data.policy_no}
                                         onChange={(event) =>
                                             setData(
@@ -775,7 +777,7 @@ export default function PolicyForm({
 
                                     <SelectInput
                                         id="product_id"
-                                        label="Produk"
+                                        label={t('common.product')}
                                         value={data.product_id}
                                         onChange={(value) =>
                                             setData(
@@ -792,7 +794,7 @@ export default function PolicyForm({
 
                                     <SelectInput
                                         id="currency_id"
-                                        label="Mata Uang"
+                                        label={t('policy.currency')}
                                         value={data.currency_id}
                                         onChange={(value) =>
                                             setData(
@@ -801,15 +803,15 @@ export default function PolicyForm({
                                             )
                                         }
                                         options={[
-                                            { value: 1, label: 'Rupiah' },
-                                            { value: 2, label: 'Dollar' },
+                                            { value: 1, label: t('policy.rupiah') },
+                                            { value: 2, label: t('policy.dollar') },
                                         ]}
                                         row
                                     />
 
                                     <div className="mb-3 row form-group">
                                         <label className="col-sm-3 col-form-label">
-                                            Premi Dasar
+                                            {t('policy.basePremium')}
                                         </label>
                                         <InputGroup className="col-sm-9">
                                             <input
@@ -845,24 +847,24 @@ export default function PolicyForm({
 
                                     <SelectInput
                                         id="pay_method"
-                                        label="Cara Bayar"
+                                        label={t('policy.paymentMethod')}
                                         value={data.pay_method}
                                         onChange={(value) =>
                                             setData('pay_method', Number(value))
                                         }
                                         options={[
-                                            { value: 1, label: 'Tahunan' },
-                                            { value: 2, label: 'Enam Bulanan' },
-                                            { value: 4, label: 'Tiga Bulanan' },
-                                            { value: 12, label: 'Bulanan' },
-                                            { value: 0, label: 'Sekaligus' },
+                                            { value: 1, label: t('policy.annual') },
+                                            { value: 2, label: t('policy.semiAnnual') },
+                                            { value: 4, label: t('policy.quarterly') },
+                                            { value: 12, label: t('policy.monthly') },
+                                            { value: 0, label: t('policy.single') },
                                         ]}
                                         row
                                     />
 
                                     <TextInput
                                         id="base_insure"
-                                        label="U.P. Dasar"
+                                        label={t('policy.baseCoverage')}
                                         type="number"
                                         value={data.base_insure}
                                         onChange={(event) =>
@@ -878,7 +880,7 @@ export default function PolicyForm({
                                     <div className="mb-3 mt-4">
                                         <div className="d-flex justify-content-between align-items-center mb-2">
                                             <h6 className="mb-0">
-                                                Pilihan Investasi
+                                                {t('policy.investmentOptions')}
                                             </h6>
                                             <button
                                                 type="button"
@@ -886,13 +888,13 @@ export default function PolicyForm({
                                                 onClick={addInvestment}
                                             >
                                                 <i className="fa fa-plus me-1"></i>
-                                                Tambah
+                                                {t('common.add')}
                                             </button>
                                         </div>
                                         <Table bordered responsive>
                                             <thead>
                                                 <tr>
-                                                    <th>Jenis Investasi</th>
+                                                    <th>{t('policy.investmentType')}</th>
                                                     <th
                                                         style={{
                                                             width: '100px',
@@ -940,7 +942,7 @@ export default function PolicyForm({
                                                                         options={[
                                                                             {
                                                                                 value: 0,
-                                                                                label: 'Pilih Fund',
+                                                                                label: t('policy.selectFund'),
                                                                             },
                                                                             ...funds.map(
                                                                                 (
@@ -1006,7 +1008,7 @@ export default function PolicyForm({
                                                             colSpan={3}
                                                             className="text-center text-muted py-2"
                                                         >
-                                                            Belum ada investasi
+                                                            {t('policy.noInvestments')}
                                                         </td>
                                                     </tr>
                                                 )}
@@ -1018,7 +1020,7 @@ export default function PolicyForm({
                                     <div className="mb-3 mt-4">
                                         <div className="d-flex justify-content-between align-items-center mb-2">
                                             <h6 className="mb-0">
-                                                Asuransi Tambahan
+                                                {t('policy.additionalInsurance')}
                                             </h6>
                                             <button
                                                 type="button"
@@ -1026,7 +1028,7 @@ export default function PolicyForm({
                                                 onClick={addRider}
                                             >
                                                 <i className="fa fa-plus me-1"></i>
-                                                Tambah
+                                                {t('common.add')}
                                             </button>
                                         </div>
                                         <div className="table-responsive">
@@ -1036,11 +1038,11 @@ export default function PolicyForm({
                                             >
                                                 <thead>
                                                     <tr>
-                                                        <th>Rider</th>
-                                                        <th>U.P. Rider</th>
-                                                        <th>Premi</th>
-                                                        <th>Masa Asuransi</th>
-                                                        <th>Masa Bayar</th>
+                                                        <th>{t('policy.rider')}</th>
+                                                        <th>{t('policy.riderCoverage')}</th>
+                                                        <th>{t('policy.premium')}</th>
+                                                        <th>{t('policy.insurancePeriod')}</th>
+                                                        <th>{t('policy.paymentPeriod')}</th>
                                                         <th
                                                             style={{
                                                                 width: '40px',
@@ -1079,7 +1081,7 @@ export default function PolicyForm({
                                                                             options={[
                                                                                 {
                                                                                     value: '',
-                                                                                    label: 'Pilih Rider',
+                                                                                    label: t('policy.selectRider'),
                                                                                 },
                                                                                 ...products
                                                                                     .filter(
@@ -1240,7 +1242,7 @@ export default function PolicyForm({
                                                                 colSpan={6}
                                                                 className="text-center text-muted py-2"
                                                             >
-                                                                Belum ada rider
+                                                                {t('policy.noRiders')}
                                                             </td>
                                                         </tr>
                                                     )}
@@ -1251,7 +1253,7 @@ export default function PolicyForm({
 
                                     <TextareaInput
                                         id="description"
-                                        label="Keterangan"
+                                        label={t('common.description')}
                                         value={data.description}
                                         onChange={(event) =>
                                             setData(
@@ -1271,10 +1273,10 @@ export default function PolicyForm({
                                 onClick={handleSubmit}
                             >
                                 <i className="fa fa-save me-2"></i>
-                                {isEdit ? 'Perbaharui' : 'Simpan'}
+                                {isEdit ? t('common.update') : t('common.save')}
                             </SubmitButton>
                             <Link href="/sales" className="btn btn-secondary">
-                                Batal
+                                {t('common.cancel')}
                             </Link>
                         </div>
                     </div>

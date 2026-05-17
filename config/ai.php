@@ -138,6 +138,14 @@ return [
             'driver' => 'xai',
             'key' => env('XAI_API_KEY'),
         ],
+
+        'watsonx' => [
+            'driver' => 'watsonx',
+            'api_key' => env('WATSONX_API_KEY'),
+            'project_id' => env('WATSONX_PROJECT_ID'),
+            'url' => env('WATSONX_URL', 'https://us-south.ml.cloud.ibm.com'),
+            'model_id' => env('WATSONX_MODEL_ID', 'ibm/granite-13b-chat-v2'),
+        ],
     ],
 
 ];

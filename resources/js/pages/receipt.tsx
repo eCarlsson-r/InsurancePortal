@@ -14,6 +14,7 @@ import {
 import { router, useForm } from '@inertiajs/react';
 import { useCallback, useEffect, useState } from 'react';
 import { Table } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
 interface ReceiptProps {
@@ -40,6 +41,7 @@ export default function Receipt({
     agents = [],
     filters,
 }: ReceiptProps) {
+    const { t } = useTranslation();
     const [searchQuery, setSearchQuery] = useState(filters.search || '');
 
     const handleSearch = useCallback(() => {
@@ -85,7 +87,7 @@ export default function Receipt({
     const isEdit = !!data.id;
 
     const handleDelete = (receiptId: number | undefined) => {
-        if (confirm('Are you sure you want to delete this receipt?')) {
+        if (confirm(t('receipt.confirmDelete'))) {
             router.delete(`/master/receipt/${receiptId}`);
         }
     };
@@ -115,13 +117,13 @@ export default function Receipt({
                 { label: 'Master', href: 'javascript:void(0)', i18n: 'master' },
                 { label: 'Kwitansi', active: true, i18n: 'receipt' },
             ]}
-            tableTitle="Daftar Kwitansi"
+            tableTitle={t('receipt.receiptList')}
             tableI18nTitle="receipt-list"
             tableToolbar={
                 <input
                     type="text"
                     className="form-control form-control-sm float-end"
-                    placeholder="Cari kwitansi (No. SP)..."
+                    placeholder={t('receipt.searchPlaceholder')}
                     style={{ width: '200px' }}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -132,10 +134,10 @@ export default function Receipt({
                 <Table hover striped bordered responsive>
                     <thead>
                         <tr>
-                            <th data-i18n="pay-date">Tgl. Bayar</th>
-                            <th data-i18n="paid-date">Tgl. Terima</th>
-                            <th data-i18n="policy-no">No. SP / Polis</th>
-                            <th data-i18n="premium">Premi</th>
+                            <th data-i18n="pay-date">{t('receipt.payDate')}</th>
+                            <th data-i18n="paid-date">{t('receipt.paidDate')}</th>
+                            <th data-i18n="policy-no">{t('receipt.policyNumber')}</th>
+                            <th data-i18n="premium">{t('policy.premium')}</th>
                             <th className="col-1"></th>
                         </tr>
                     </thead>
@@ -177,23 +179,23 @@ export default function Receipt({
                         ) : (
                             <tr>
                                 <td colSpan={5} className="text-center">
-                                    No receipts found
+                                    {t('receipt.noReceiptsFound')}
                                 </td>
                             </tr>
                         )}
                     </tbody>
                 </Table>
             }
-            formTitle={isEdit ? 'Sunting Kwitansi' : 'Tambah Kwitansi'}
+            formTitle={isEdit ? t('receipt.editReceipt') : t('receipt.createReceipt')}
             formI18nTitle="edit-receipt"
-            formSubtitle="Masukkan informasi kwitansi pembayaran premi."
+            formSubtitle={t('receipt.formSubtitle')}
             formI18nSubtitle="edit-receipt-inst"
             formOnSubmit={handleSubmit}
             formContent={
                 <>
                     <TextInput
                         id="policy_code"
-                        label="No. SP / Polis"
+                        label={t('receipt.policyNumber')}
                         value={data.policy?.policy_no}
                         onChange={(e) =>
                             setData('policy', {
@@ -205,7 +207,7 @@ export default function Receipt({
                     />
                     <SelectInput
                         id="product_id"
-                        label="Produk"
+                        label={t('common.product')}
                         value={data.policy?.product_id}
                         onChange={(value) =>
                             setData('policy', {
@@ -221,7 +223,7 @@ export default function Receipt({
                     />
                     <SelectInput
                         id="holder_id"
-                        label="Pemegang Polis"
+                        label={t('policy.policyHolder')}
                         value={data.policy?.holder_id}
                         onChange={(value) =>
                             setData('policy', {
@@ -237,7 +239,7 @@ export default function Receipt({
                     />
                     <SelectInput
                         id="agent_id"
-                        label="Agen"
+                        label={t('common.agent')}
                         value={data.policy?.agent_id}
                         onChange={(value) =>
                             setData('agent_id', value.toString())
@@ -250,14 +252,14 @@ export default function Receipt({
                     />
                     <DateInput
                         id="pay_date"
-                        label="Tanggal Jatuh Tempo"
+                        label={t('receipt.dueDate')}
                         value={data.pay_date ? data.pay_date.split('T')[0] : ''}
                         onChange={(e) => setData('pay_date', e.target.value)}
                         row
                     />
                     <DateInput
                         id="paid_date"
-                        label="Tanggal Bayar"
+                        label={t('receipt.paymentDate')}
                         value={
                             data.paid_date ? data.paid_date.split('T')[0] : ''
                         }
@@ -266,7 +268,7 @@ export default function Receipt({
                     />
                     <TextInput
                         id="premium"
-                        label="Premi"
+                        label={t('policy.premium')}
                         type="number"
                         value={data.premium}
                         onChange={(e) =>
@@ -276,7 +278,7 @@ export default function Receipt({
                     />
                     <TextInput
                         id="currency_rate"
-                        label="Kurs"
+                        label={t('receipt.exchangeRate')}
                         type="number"
                         value={data.currency_rate}
                         onChange={(e) =>
@@ -286,30 +288,30 @@ export default function Receipt({
                     />
                     <SelectInput
                         id="pay_method"
-                        label="Metode Bayar"
+                        label={t('policy.paymentMethod')}
                         value={data.pay_method}
                         onChange={(value) =>
                             setData('pay_method', value.toString())
                         }
                         options={[
-                            { value: '1', label: 'Tahunan' },
-                            { value: '2', label: 'Semesteran' },
-                            { value: '4', label: 'Tiga Bulanan' },
-                            { value: '12', label: 'Bulanan' },
-                            { value: '0', label: 'Sekaligus' },
+                            { value: '1', label: t('policy.annual') },
+                            { value: '2', label: t('policy.semiAnnual') },
+                            { value: '4', label: t('policy.quarterly') },
+                            { value: '12', label: t('policy.monthly') },
+                            { value: '0', label: t('policy.single') },
                         ]}
                         row
                     />
                     <TextareaInput
                         id="description"
-                        label="Keterangan"
+                        label={t('common.description')}
                         value={data.description}
                         onChange={(e) => setData('description', e.target.value)}
                         row
                     />
                     <div className="text-end">
                         <SubmitButton processing={processing}>
-                            {isEdit ? 'Perbarui' : 'Simpan'}
+                            {isEdit ? t('common.update') : t('common.save')}
                         </SubmitButton>
                     </div>
                 </>

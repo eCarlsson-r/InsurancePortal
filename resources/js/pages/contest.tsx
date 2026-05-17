@@ -8,6 +8,7 @@ import { contestSchema } from '@/schemas/models';
 import { router, useForm } from '@inertiajs/react';
 import { useCallback, useEffect, useState } from 'react';
 import { Table } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
 interface ContestProps {
@@ -25,6 +26,7 @@ interface ContestProps {
 }
 
 export default function Contest({ contests, filters }: ContestProps) {
+    const { t } = useTranslation();
     const [searchQuery, setSearchQuery] = useState(filters.search || '');
 
     const handleSearch = useCallback(() => {
@@ -50,7 +52,7 @@ export default function Contest({ contests, filters }: ContestProps) {
     }, [searchQuery, filters.search, handleSearch]);
 
     const handleDelete = (contestId: number | undefined) => {
-        if (confirm('Are you sure you want to delete this contest?')) {
+        if (confirm(t('contest.confirmDelete'))) {
             router.delete(`/master/contest/${contestId}`);
         }
     };
@@ -93,13 +95,13 @@ export default function Contest({ contests, filters }: ContestProps) {
                 { label: 'Master', href: 'javascript:void(0)', i18n: 'master' },
                 { label: 'Kontes', active: true, i18n: 'contest' },
             ]}
-            tableTitle="Daftar Kontes"
+            tableTitle={t('contest.contestList')}
             tableI18nTitle="contest-list"
             tableToolbar={
                 <input
                     type="text"
                     className="form-control form-control-sm float-end"
-                    placeholder="Cari kontes..."
+                    placeholder={t('contest.searchPlaceholder')}
                     style={{ width: '200px' }}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -110,10 +112,10 @@ export default function Contest({ contests, filters }: ContestProps) {
                 <Table hover striped bordered responsive>
                     <thead>
                         <tr>
-                            <th data-field="contest-name">Nama Kontes</th>
-                            <th data-field="contest-start">Mulai Kontes</th>
-                            <th data-field="contest-end">Selesai Kontes</th>
-                            <th data-field="minimum-premium">Premi Minimal</th>
+                            <th data-field="contest-name">{t('contest.contestName')}</th>
+                            <th data-field="contest-start">{t('contest.contestStart')}</th>
+                            <th data-field="contest-end">{t('contest.contestEnd')}</th>
+                            <th data-field="minimum-premium">{t('contest.minimumPremium')}</th>
                             <th className="col-1"></th>
                         </tr>
                     </thead>
@@ -165,30 +167,30 @@ export default function Contest({ contests, filters }: ContestProps) {
                                     className="text-center"
                                     data-i18n="no-contest"
                                 >
-                                    Tidak ada kontes
+                                    {t('contest.noContests')}
                                 </td>
                             </tr>
                         )}
                     </tbody>
                 </Table>
             }
-            formTitle={isEdit ? 'Sunting Kontes' : 'Tambah Kontes'}
+            formTitle={isEdit ? t('contest.editContest') : t('contest.createContest')}
             formI18nTitle="edit-contest"
-            formSubtitle="Masukkan informasi kontes yang dikejar Agen."
+            formSubtitle={t('contest.formSubtitle')}
             formI18nSubtitle="edit-contest-inst"
             formOnSubmit={handleSubmit}
             formContent={
                 <>
                     <TextInput
                         id="name"
-                        label="Nama Kontes"
+                        label={t('contest.contestName')}
                         value={data.name}
                         onChange={(e) => setData('name', e.target.value)}
                         row
                     />
                     <SelectInput
                         id="type"
-                        label="Jenis Kontes"
+                        label={t('contest.contestType')}
                         value={data.type}
                         onChange={(value) => setData('type', value.toString())}
                         options={[
@@ -223,21 +225,21 @@ export default function Contest({ contests, filters }: ContestProps) {
                     />
                     <DateInput
                         id="start"
-                        label="Mulai Kontes"
+                        label={t('contest.contestStart')}
                         value={data.start ? data.start.split('T')[0] : ''}
                         onChange={(e) => setData('start', e.target.value)}
                         row
                     />
                     <DateInput
                         id="end"
-                        label="Selesai Kontes"
+                        label={t('contest.contestEnd')}
                         value={data.end ? data.end.split('T')[0] : ''}
                         onChange={(e) => setData('end', e.target.value)}
                         row
                     />
                     <TextInput
                         id="minimum_premium"
-                        label="Minimal Premi"
+                        label={t('contest.minimumPremium')}
                         type="number"
                         value={data.minimum_premium}
                         onChange={(e) =>
@@ -250,7 +252,7 @@ export default function Contest({ contests, filters }: ContestProps) {
                     />
                     <TextInput
                         id="bonus_percent"
-                        label="Bonus %"
+                        label={t('contest.bonusPercent')}
                         type="number"
                         value={data.bonus_percent}
                         onChange={(e) =>
@@ -263,7 +265,7 @@ export default function Contest({ contests, filters }: ContestProps) {
                     />
                     <TextInput
                         id="reward"
-                        label="Hadiah"
+                        label={t('contest.reward')}
                         value={data.reward}
                         onChange={(e) => setData('reward', e.target.value)}
                         row
@@ -273,7 +275,7 @@ export default function Contest({ contests, filters }: ContestProps) {
                             processing={processing}
                             onClick={handleSubmit}
                         >
-                            {isEdit ? 'Perbarui' : 'Simpan'}
+                            {isEdit ? t('common.update') : t('common.save')}
                         </SubmitButton>
                     </div>
                 </>

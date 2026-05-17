@@ -7,6 +7,7 @@ import { agencySchema, agentSchema } from '@/schemas/models';
 import { router, useForm } from '@inertiajs/react';
 import { useCallback, useEffect, useState } from 'react';
 import { Table } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
 interface AgencyProps {
@@ -29,6 +30,7 @@ export default function Agency({
     agents = [],
     filters,
 }: AgencyProps) {
+    const { t } = useTranslation();
     const [searchQuery, setSearchQuery] = useState(filters.search || '');
 
     const handleSearch = useCallback(() => {
@@ -67,7 +69,7 @@ export default function Agency({
     const isEdit = !!data.id;
 
     const handleDelete = (agencyId: number | undefined) => {
-        if (confirm('Are you sure you want to delete this agency?')) {
+        if (confirm(t('agency.confirmDelete'))) {
             router.delete(`/master/agency/${agencyId}`);
         }
     };
@@ -89,13 +91,13 @@ export default function Agency({
                 { label: 'Master', href: 'javascript:void(0)', i18n: 'master' },
                 { label: 'Agency / Regional', active: true, i18n: 'agency' },
             ]}
-            tableTitle="Daftar Agency / Regional"
+            tableTitle={t('agency.agencyList')}
             tableI18nTitle="agency-list"
             tableToolbar={
                 <input
                     type="text"
                     className="form-control form-control-sm float-end"
-                    placeholder="Cari agency..."
+                    placeholder={t('agency.searchPlaceholder')}
                     style={{ width: '200px' }}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -107,10 +109,10 @@ export default function Agency({
                     <thead>
                         <tr>
                             <th className="col-8" data-i18n="agency-name">
-                                Agency / Regional
+                                {t('agency.agencyName')}
                             </th>
                             <th className="col-3" data-i18n="agency-city">
-                                Kota
+                                {t('agency.city')}
                             </th>
                             <th className="col-1"></th>
                         </tr>
@@ -141,23 +143,23 @@ export default function Agency({
                         ) : (
                             <tr>
                                 <td colSpan={3} className="text-center">
-                                    No agencies found
+                                    {t('agency.noAgenciesFound')}
                                 </td>
                             </tr>
                         )}
                     </tbody>
                 </Table>
             }
-            formTitle={isEdit ? 'Sunting Agency' : 'Tambah Agency'}
+            formTitle={isEdit ? t('agency.editAgency') : t('agency.createAgency')}
             formI18nTitle="edit-agency"
-            formSubtitle="Masukkan informasi mengenai Agency."
+            formSubtitle={t('agency.formSubtitle')}
             formI18nSubtitle="edit-agency-inst"
             formOnSubmit={handleSubmit}
             formContent={
                 <>
                     <TextInput
                         id="name"
-                        label="Nama Agency"
+                        label={t('agency.agencyName')}
                         value={data.name}
                         onChange={(e) => setData('name', e.target.value)}
                         row
@@ -165,7 +167,7 @@ export default function Agency({
 
                     <TextInput
                         id="city"
-                        label="Kota Agency"
+                        label={t('agency.agencyCity')}
                         value={data.city}
                         onChange={(e) => setData('city', e.target.value)}
                         row
@@ -173,7 +175,7 @@ export default function Agency({
 
                     <SelectInput
                         id="director"
-                        label="Direktur Agency"
+                        label={t('agency.agencyDirector')}
                         value={data.director}
                         onChange={(value) =>
                             setData('director', value.toString())
@@ -187,7 +189,7 @@ export default function Agency({
 
                     <SelectInput
                         id="leader"
-                        label="Agency Atasan"
+                        label={t('agency.parentAgency')}
                         value={data.leader || ''}
                         onChange={(value) =>
                             setData('leader', value.toString())
@@ -203,7 +205,7 @@ export default function Agency({
                             processing={processing}
                             onClick={handleSubmit}
                         >
-                            {isEdit ? 'Perbarui' : 'Simpan'}
+                            {isEdit ? t('common.update') : t('common.save')}
                         </SubmitButton>
                     </div>
                 </>

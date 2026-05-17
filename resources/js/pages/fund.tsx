@@ -8,6 +8,7 @@ import { router, useForm } from '@inertiajs/react';
 import { useCallback, useEffect, useState } from 'react';
 import { Table } from 'react-bootstrap';
 import { z } from 'zod';
+import { useTranslation } from 'react-i18next';
 
 interface FundProps {
     funds: {
@@ -24,6 +25,7 @@ interface FundProps {
 }
 
 export default function Fund({ funds, filters }: FundProps) {
+    const { t } = useTranslation();
     const [searchQuery, setSearchQuery] = useState(filters.search || '');
 
     const handleSearch = useCallback(() => {
@@ -75,20 +77,20 @@ export default function Fund({ funds, filters }: FundProps) {
 
     return (
         <TableFormPage
-            headTitle="Fund"
-            title="Jenis Dana"
+            headTitle={t('fund.title')}
+            title={t('fund.title')}
             i18nTitle="fund"
             breadcrumbs={[
                 { label: 'Master', href: 'javascript:void(0)', i18n: 'master' },
-                { label: 'Jenis Dana', active: true, i18n: 'fund' },
+                { label: t('fund.title'), active: true, i18n: 'fund' },
             ]}
-            tableTitle="Daftar Jenis Dana"
+            tableTitle={t('fund.list_title')}
             tableI18nTitle="fund-list"
             tableToolbar={
                 <input
                     type="text"
                     className="form-control form-control-sm float-end"
-                    placeholder="Cari jenis dana..."
+                    placeholder={t('fund.search_placeholder')}
                     style={{ width: '200px' }}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -100,10 +102,10 @@ export default function Fund({ funds, filters }: FundProps) {
                     <thead>
                         <tr>
                             <th className="col-8" data-i18n="fund-name">
-                                Nama Jenis Dana
+                                {t('fund.fund_name')}
                             </th>
                             <th className="col-3" data-i18n="fund-currency">
-                                Mata Uang
+                                {t('fund.currency')}
                             </th>
                             <th className="col-1"></th>
                         </tr>
@@ -142,23 +144,23 @@ export default function Fund({ funds, filters }: FundProps) {
                     </tbody>
                 </Table>
             }
-            formTitle={isEdit ? 'Sunting Jenis Dana' : 'Tambah Jenis Dana'}
+            formTitle={isEdit ? t('fund.edit_title') : t('fund.create_title')}
             formI18nTitle="edit-fund"
-            formSubtitle="Masukkan informasi jenis dana investasi."
+            formSubtitle={t('fund.form_subtitle')}
             formI18nSubtitle="edit-fund-inst"
             formOnSubmit={handleSubmit}
             formContent={
                 <>
                     <TextInput
                         id="fund-name"
-                        label="Nama Jenis Dana"
+                        label={t('fund.fund_name')}
                         value={data.name}
                         onChange={(e) => setData('name', e.target.value)}
                         row
                     />
                     <SelectInput
                         id="fund-currency"
-                        label="Mata Uang"
+                        label={t('fund.currency')}
                         value={data.currency}
                         onChange={(value) => setData('currency', Number(value))}
                         options={[
@@ -169,7 +171,7 @@ export default function Fund({ funds, filters }: FundProps) {
                     />
                     <div className="text-end">
                         <SubmitButton processing={processing}>
-                            {isEdit ? 'Perbarui' : 'Simpan'}
+                            {isEdit ? t('common.update') : t('common.save')}
                         </SubmitButton>
                     </div>
                 </>

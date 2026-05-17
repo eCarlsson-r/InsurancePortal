@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Customer extends Model
 {
@@ -57,5 +58,21 @@ class Customer extends Model
             $this->home_city,
             $this->home_postal
         ]));
+    }
+
+    /**
+     * Get policies where this customer is the holder
+     */
+    public function policiesAsHolder()
+    {
+        return $this->hasMany(Policy::class, 'holder_id');
+    }
+
+    /**
+     * Get policies where this customer is the insured
+     */
+    public function policiesAsInsured()
+    {
+        return $this->hasMany(Policy::class, 'insured_id');
     }
 }

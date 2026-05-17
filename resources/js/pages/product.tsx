@@ -7,6 +7,7 @@ import { productCommissionSchema, productSchema } from '@/schemas/models';
 import { router, useForm } from '@inertiajs/react';
 import { useCallback, useEffect, useState } from 'react';
 import { Table } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
 interface ProductProps {
@@ -24,6 +25,7 @@ interface ProductProps {
 }
 
 export default function Product({ products, filters }: ProductProps) {
+    const { t } = useTranslation();
     const [searchQuery, setSearchQuery] = useState(filters.search || '');
 
     const handleSearch = useCallback(() => {
@@ -62,7 +64,7 @@ export default function Product({ products, filters }: ProductProps) {
     const isEdit = !!data.id;
 
     const handleDelete = (productCode: string | undefined) => {
-        if (confirm('Are you sure you want to delete this product?')) {
+        if (confirm(t('product.confirmDelete'))) {
             router.delete(`/master/product/${productCode}`);
         }
     };
@@ -108,13 +110,13 @@ export default function Product({ products, filters }: ProductProps) {
                 { label: 'Master', href: 'javascript:void(0)', i18n: 'master' },
                 { label: 'Produk', active: true, i18n: 'product' },
             ]}
-            tableTitle="Daftar Produk"
+            tableTitle={t('product.productList')}
             tableI18nTitle="product-list"
             tableToolbar={
                 <input
                     type="text"
                     className="form-control form-control-sm float-end"
-                    placeholder="Cari produk..."
+                    placeholder={t('product.searchPlaceholder')}
                     style={{ width: '200px' }}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -126,10 +128,10 @@ export default function Product({ products, filters }: ProductProps) {
                     <thead>
                         <tr>
                             <th className="col-8" data-i18n="product-name">
-                                Nama Produk
+                                {t('product.productName')}
                             </th>
                             <th className="col-3" data-i18n="product-type">
-                                Jenis Produk
+                                {t('product.productType')}
                             </th>
                             <th className="col-1"></th>
                         </tr>
@@ -170,30 +172,30 @@ export default function Product({ products, filters }: ProductProps) {
                         ) : (
                             <tr>
                                 <td colSpan={3} className="text-center">
-                                    No products found
+                                    {t('product.noProductsFound')}
                                 </td>
                             </tr>
                         )}
                     </tbody>
                 </Table>
             }
-            formTitle={isEdit ? 'Sunting Produk' : 'Tambah Produk'}
+            formTitle={isEdit ? t('product.editProduct') : t('product.createProduct')}
             formI18nTitle="edit-product"
-            formSubtitle="Masukkan informasi produk asuransi."
+            formSubtitle={t('product.formSubtitle')}
             formI18nSubtitle="edit-product-inst"
             formOnSubmit={handleSubmit}
             formContent={
                 <>
                     <TextInput
                         id="product-name"
-                        label="Nama Produk"
+                        label={t('product.productName')}
                         value={data.name || ''}
                         onChange={(e) => setData('name', e.target.value)}
                         row
                     />
                     <SelectInput
                         id="product-type"
-                        label="Jenis Produk"
+                        label={t('product.productType')}
                         value={data.type}
                         onChange={(value) => setData('type', value.toString())}
                         options={[
@@ -208,7 +210,7 @@ export default function Product({ products, filters }: ProductProps) {
 
                     <div className="row form-group mb-3">
                         <label className="col-sm-3" data-i18n="commission">
-                            Komisi
+                            {t('product.commission')}
                         </label>
                         <div className="col-sm-9 text-end">
                             <button
@@ -227,9 +229,9 @@ export default function Product({ products, filters }: ProductProps) {
                             <Table size="sm">
                                 <thead>
                                     <tr>
-                                        <th data-i18n="year">Tahun</th>
+                                        <th data-i18n="year">{t('product.year')}</th>
                                         <th data-i18n="commission-rate">
-                                            Komisi (%)
+                                            {t('product.commissionRate')}
                                         </th>
                                         <th></th>
                                     </tr>
@@ -299,7 +301,7 @@ export default function Product({ products, filters }: ProductProps) {
                             processing={processing}
                             onClick={handleSubmit}
                         >
-                            {isEdit ? 'Perbarui' : 'Simpan'}
+                            {isEdit ? t('common.update') : t('common.save')}
                         </SubmitButton>
                     </div>
                 </>

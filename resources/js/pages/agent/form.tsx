@@ -12,6 +12,7 @@ import {
 } from '@/schemas/models';
 import { useForm } from '@inertiajs/react';
 import { Accordion, InputGroup, Table } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
 type AgentFormData = Omit<
@@ -42,6 +43,7 @@ export default function AgentForm({
     programs: z.infer<typeof programSchema>[];
     agents: z.infer<typeof agentSchema>[];
 }) {
+    const { t } = useTranslation();
     const isEdit = !!agent;
 
     // Initial form state with safe defaults
@@ -118,8 +120,8 @@ export default function AgentForm({
 
     return (
         <FormPage
-            headTitle={isEdit ? 'Sunting Agen' : 'Tambah Agen'}
-            title="Agen"
+            headTitle={isEdit ? t('agent.editAgent') : t('agent.createAgent')}
+            title={t('common.agent')}
             i18nTitle="agent"
             breadcrumbs={[
                 { label: 'Master', href: 'javascript:void(0)', i18n: 'master' },
@@ -127,7 +129,7 @@ export default function AgentForm({
             ]}
             headerActions={
                 <SubmitButton processing={processing} onClick={handleSubmit}>
-                    {isEdit ? 'Perbarui' : 'Simpan'}
+                    {isEdit ? t('common.update') : t('common.save')}
                 </SubmitButton>
             }
         >
@@ -161,13 +163,13 @@ export default function AgentForm({
                     <Accordion defaultActiveKey="0">
                         <Accordion.Item eventKey="0">
                             <Accordion.Header as="h4">
-                                Data Pribadi
+                                {t('agent.personalData')}
                             </Accordion.Header>
 
                             <Accordion.Body>
                                 <TextInput
                                     id="name"
-                                    label="Nama sesuai KTP"
+                                    label={t('agent.nameAsID')}
                                     value={data.name}
                                     onChange={(e) =>
                                         setData('name', e.target.value)
@@ -178,7 +180,7 @@ export default function AgentForm({
 
                                 <SelectInput
                                     id="gender"
-                                    label="Jenis Kelamin"
+                                    label={t('customer.gender')}
                                     value={data.gender}
                                     onChange={(value) =>
                                         setData('gender', Number(value))
@@ -188,12 +190,12 @@ export default function AgentForm({
                                     options={[
                                         {
                                             value: 1,
-                                            label: 'Pria',
+                                            label: t('customer.male'),
                                             i18n: 'male',
                                         },
                                         {
                                             value: 2,
-                                            label: 'Wanita',
+                                            label: t('customer.female'),
                                             i18n: 'female',
                                         },
                                     ]}
@@ -204,7 +206,7 @@ export default function AgentForm({
                                         className="col-sm-3 col-form-label"
                                         data-i18n="place_date_birth"
                                     >
-                                        Tempat dan Tanggal Lahir
+                                        {t('customer.birthPlaceDate')}
                                     </label>
                                     <div className="col-sm-9 d-flex gap-2">
                                         <input
@@ -235,7 +237,7 @@ export default function AgentForm({
 
                                 <TextareaInput
                                     id="address"
-                                    label="Alamat"
+                                    label={t('customer.address')}
                                     value={data.address}
                                     onChange={(e) =>
                                         setData('address', e.target.value)
@@ -247,7 +249,7 @@ export default function AgentForm({
 
                                 <TextInput
                                     id="religion"
-                                    label="Agama"
+                                    label={t('customer.religion')}
                                     value={data.religion}
                                     onChange={(e) =>
                                         setData('religion', e.target.value)
@@ -258,7 +260,7 @@ export default function AgentForm({
 
                                 <TextInput
                                     id="identity_number"
-                                    label="No. KTP"
+                                    label={t('agent.idNumber')}
                                     value={data.identity_number}
                                     onChange={(e) =>
                                         setData(
@@ -272,7 +274,7 @@ export default function AgentForm({
 
                                 <TextInput
                                     id="tax_number"
-                                    label="NPWP"
+                                    label={t('agent.taxNumber')}
                                     value={data.tax_number}
                                     onChange={(e) =>
                                         setData('tax_number', e.target.value)
@@ -283,7 +285,7 @@ export default function AgentForm({
 
                                 <TextInput
                                     id="city"
-                                    label="Kota Marketing"
+                                    label={t('agent.marketingCity')}
                                     value={data.city}
                                     onChange={(e) =>
                                         setData('city', e.target.value)
@@ -294,7 +296,7 @@ export default function AgentForm({
 
                                 <TextInput
                                     id="province"
-                                    label="Provinsi"
+                                    label={t('agent.province')}
                                     value={data.province}
                                     onChange={(e) =>
                                         setData('province', e.target.value)
@@ -305,7 +307,7 @@ export default function AgentForm({
 
                                 <TextInput
                                     id="postal_code"
-                                    label="Kode Pos"
+                                    label={t('customer.postalCode')}
                                     value={data.postal_code}
                                     onChange={(e) =>
                                         setData('postal_code', e.target.value)
@@ -316,7 +318,7 @@ export default function AgentForm({
 
                                 <TextInput
                                     id="education"
-                                    label="Pendidikan Terakhir"
+                                    label={t('agent.lastEducation')}
                                     value={data.education}
                                     onChange={(e) =>
                                         setData('education', e.target.value)
@@ -327,7 +329,7 @@ export default function AgentForm({
 
                                 <TextInput
                                     id="phone"
-                                    label="Nomor Telfon"
+                                    label={t('agent.phoneNumber')}
                                     type="tel"
                                     value={data.phone}
                                     onChange={(e) =>
@@ -339,7 +341,7 @@ export default function AgentForm({
 
                                 <TextInput
                                     id="mobile"
-                                    label="Nomor Ponsel"
+                                    label={t('customer.mobileNumber')}
                                     type="tel"
                                     value={data.mobile}
                                     onChange={(e) =>
@@ -351,7 +353,7 @@ export default function AgentForm({
 
                                 <TextInput
                                     id="email"
-                                    label="Alamat e-Mail"
+                                    label={t('customer.email')}
                                     type="email"
                                     value={data.email}
                                     onChange={(e) =>
@@ -363,7 +365,7 @@ export default function AgentForm({
 
                                 <SelectInput
                                     id="status"
-                                    label="Status"
+                                    label={t('customer.maritalStatus')}
                                     value={data.status}
                                     onChange={(value) =>
                                         setData('status', Number(value))
@@ -373,12 +375,12 @@ export default function AgentForm({
                                     options={[
                                         {
                                             value: 1,
-                                            label: 'Single',
+                                            label: t('customer.single'),
                                             i18n: 'single',
                                         },
                                         {
                                             value: 2,
-                                            label: 'Kawin',
+                                            label: t('customer.married'),
                                             i18n: 'married',
                                         },
                                     ]}
@@ -386,19 +388,19 @@ export default function AgentForm({
 
                                 <TextInput
                                     id="spouse"
-                                    label="Nama Suami / Isteri"
+                                    label={t('agent.spouseName')}
                                     value={data.spouse}
                                     onChange={(e) =>
                                         setData('spouse', e.target.value)
                                     }
-                                    placeholder="Diisi bila menikah"
+                                    placeholder={t('agent.fillIfMarried')}
                                     data-i18n="spouse-name"
                                     row
                                 />
 
                                 <TextInput
                                     id="occupation"
-                                    label="Pekerjaan"
+                                    label={t('customer.profession')}
                                     value={data.occupation}
                                     onChange={(e) =>
                                         setData('occupation', e.target.value)
@@ -412,7 +414,7 @@ export default function AgentForm({
                                         className="col-sm-3 col-form-label"
                                         data-i18n="number-dependents"
                                     >
-                                        Jumlah Tanggungan
+                                        {t('agent.numberOfDependents')}
                                     </label>
                                     <div className="col-sm-9">
                                         <InputGroup>
@@ -434,7 +436,7 @@ export default function AgentForm({
                                             />
                                             <InputGroup.Text>
                                                 {' '}
-                                                orang
+                                                {t('agent.people')}
                                             </InputGroup.Text>
                                         </InputGroup>
                                     </div>
@@ -442,7 +444,7 @@ export default function AgentForm({
 
                                 <TextareaInput
                                     id="notes"
-                                    label="Catatan"
+                                    label={t('common.notes')}
                                     value={data.notes}
                                     onChange={(e) =>
                                         setData('notes', e.target.value)
@@ -456,12 +458,12 @@ export default function AgentForm({
 
                         <Accordion.Item eventKey="1">
                             <Accordion.Header as="h4">
-                                Status Agen
+                                {t('agent.agentStatus')}
                             </Accordion.Header>
                             <Accordion.Body>
                                 <DateInput
                                     id="apply_date"
-                                    label="Tanggal Pengisian"
+                                    label={t('agent.applyDate')}
                                     value={data.apply_date}
                                     onChange={(e) =>
                                         setData('apply_date', e.target.value)
@@ -472,7 +474,7 @@ export default function AgentForm({
 
                                 <TextInput
                                     id="apply_place"
-                                    label="Tempat Pengisian"
+                                    label={t('agent.applyPlace')}
                                     value={data.apply_place}
                                     onChange={(e) =>
                                         setData('apply_place', e.target.value)
@@ -483,7 +485,7 @@ export default function AgentForm({
 
                                 <SelectInput
                                     id="agency_id"
-                                    label="Agency / Regional"
+                                    label={t('agent.agency')}
                                     value={data.agency_id}
                                     onChange={(value) =>
                                         setData('agency_id', Number(value))
@@ -500,7 +502,7 @@ export default function AgentForm({
 
                                 <TextInput
                                     id="official_number"
-                                    label="Kode Agen"
+                                    label={t('agent.agentCode')}
                                     value={data.official_number}
                                     onChange={(e) =>
                                         setData(
@@ -509,13 +511,13 @@ export default function AgentForm({
                                         )
                                     }
                                     data-i18n="official_number"
-                                    placeholder="Kode Agen"
+                                    placeholder={t('agent.agentCode')}
                                     row
                                 />
 
                                 <TextInput
                                     id="license"
-                                    label="Nomor Lisensi"
+                                    label={t('agent.licenseNumber')}
                                     value={data.license}
                                     onChange={(e) =>
                                         setData('license', e.target.value)
@@ -526,7 +528,7 @@ export default function AgentForm({
 
                                 <DateInput
                                     id="due_date"
-                                    label="Jatuh Tempo"
+                                    label={t('agent.dueDate')}
                                     value={data.due_date}
                                     onChange={(e) =>
                                         setData('due_date', e.target.value)
@@ -537,7 +539,7 @@ export default function AgentForm({
 
                                 <SelectInput
                                     id="recruiter_id"
-                                    label="Perekruit"
+                                    label={t('agent.recruiter')}
                                     value={data.recruiter_id}
                                     onChange={(value) =>
                                         setData('recruiter_id', Number(value))
@@ -557,7 +559,7 @@ export default function AgentForm({
                                             className="mb-0"
                                             data-i18n="agent_level"
                                         >
-                                            Program Allowance
+                                            {t('agent.programAllowance')}
                                         </h6>
                                         <button
                                             id="program-launcher"
@@ -566,7 +568,7 @@ export default function AgentForm({
                                             onClick={addProgram}
                                         >
                                             <i className="fa fa-plus me-1"></i>
-                                            Tambah
+                                            {t('common.add')}
                                         </button>
                                     </div>
                                     <div className="col-12">
@@ -583,7 +585,7 @@ export default function AgentForm({
                                                             }}
                                                             data-i18n="program-start"
                                                         >
-                                                            Mulai
+                                                            {t('agent.start')}
                                                         </th>
                                                         <th
                                                             style={{
@@ -591,13 +593,13 @@ export default function AgentForm({
                                                             }}
                                                             data-i18n="position"
                                                         >
-                                                            Jabatan
+                                                            {t('agent.position')}
                                                         </th>
                                                         <th data-i18n="leader">
-                                                            Leader Langsung
+                                                            {t('agent.directLeader')}
                                                         </th>
                                                         <th data-i18n="program">
-                                                            Program
+                                                            {t('agent.program')}
                                                         </th>
                                                         <th
                                                             style={{
@@ -605,7 +607,7 @@ export default function AgentForm({
                                                             }}
                                                             data-i18n="allowance"
                                                         >
-                                                            Allowance
+                                                            {t('agent.allowance')}
                                                         </th>
                                                         <th
                                                             style={{
@@ -740,7 +742,7 @@ export default function AgentForm({
                                                                             options={[
                                                                                 {
                                                                                     value: '',
-                                                                                    label: 'Select Leader',
+                                                                                    label: t('agent.selectLeader'),
                                                                                 },
                                                                                 ...agents.map(
                                                                                     (
@@ -794,7 +796,7 @@ export default function AgentForm({
                                                                             options={[
                                                                                 {
                                                                                     value: '',
-                                                                                    label: 'Pilih Program',
+                                                                                    label: t('agent.selectProgram'),
                                                                                 },
                                                                                 ...programs.map(
                                                                                     (

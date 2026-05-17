@@ -5,6 +5,7 @@ import TablePage from '@/layouts/TablePage';
 import { router } from '@inertiajs/react';
 import { useCallback, useEffect, useState } from 'react';
 import { InputGroup, Table } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 
 interface PolicyData {
     id: string;
@@ -35,6 +36,7 @@ interface PolicyProps {
 }
 
 export default function Policy({ policies, filters }: PolicyProps) {
+    const { t } = useTranslation();
     const [searchQuery, setSearchQuery] = useState(filters.q || '');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [documentId, setDocumentId] = useState('');
@@ -78,7 +80,7 @@ export default function Policy({ policies, filters }: PolicyProps) {
     };
 
     const handleDelete = (caseCode: string) => {
-        if (confirm('Are you sure you want to delete this policy?')) {
+        if (confirm(t('policy.confirmDelete'))) {
             router.delete(`/sales/policy/${caseCode}`);
         }
     };
@@ -113,14 +115,14 @@ export default function Policy({ policies, filters }: PolicyProps) {
                         className="btn btn-primary"
                     >
                         <i className="fa fa-file me-2"></i>
-                        <span data-i18n="new-case">SP / Polis Baru</span>
+                        <span data-i18n="new-case">{t('policy.newPolicy')}</span>
                     </button>
                     <div className="ms-auto d-flex gap-2">
                         <InputGroup>
                             <input
                                 type="text"
                                 className="form-control"
-                                placeholder="Cari Nasabah / No. Polis / No. SP"
+                                placeholder={t('policy.searchPlaceholder')}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 onKeyPress={handleKeyPress}
@@ -142,15 +144,15 @@ export default function Policy({ policies, filters }: PolicyProps) {
                 <thead>
                     <tr>
                         <th className="col-1"></th>
-                        <th className="col-1">No. SP</th>
-                        <th className="col-1">No. Polis</th>
-                        <th className="col-2">Nama Pemegang Polis</th>
-                        <th className="col-2">Nama Tertanggung</th>
-                        <th className="col-2">Produk</th>
-                        <th className="col-1">Agent</th>
-                        <th className="col-1">Premi Dasar</th>
-                        <th className="col-1">Premi Topup</th>
-                        <th className="col-1">UP Dasar</th>
+                        <th className="col-1">{t('policy.caseNumber')}</th>
+                        <th className="col-1">{t('policy.policyNumber')}</th>
+                        <th className="col-2">{t('policy.policyHolder')}</th>
+                        <th className="col-2">{t('policy.insuredName')}</th>
+                        <th className="col-2">{t('common.product')}</th>
+                        <th className="col-1">{t('common.agent')}</th>
+                        <th className="col-1">{t('policy.basePremium')}</th>
+                        <th className="col-1">{t('policy.topupPremium')}</th>
+                        <th className="col-1">{t('policy.baseCoverage')}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -206,9 +208,9 @@ export default function Policy({ policies, filters }: PolicyProps) {
                                 colSpan={10}
                                 className="text-center text-muted py-4"
                             >
-                                No policies found.{' '}
+                                {t('policy.noPoliciesFound')}{' '}
                                 {searchQuery &&
-                                    `Try adjusting your search query.`}
+                                    t('common.tryAdjustingSearch')}
                             </td>
                         </tr>
                     )}

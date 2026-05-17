@@ -8,12 +8,14 @@ import { customerSchema } from '@/schemas/models';
 import { useForm } from '@inertiajs/react';
 import { Accordion } from 'react-bootstrap';
 import { z } from 'zod';
+import { useTranslation } from 'react-i18next';
 
 export default function CustomerForm({
     customer,
 }: {
     customer?: z.infer<typeof customerSchema> | null;
 }) {
+    const { t } = useTranslation();
     const isEdit = !!customer;
 
     // Initial form state with safe defaults
@@ -53,16 +55,16 @@ export default function CustomerForm({
 
     return (
         <FormPage
-            headTitle={isEdit ? 'Sunting Nasabah' : 'Tambah Nasabah'}
-            title="Nasabah"
+            headTitle={isEdit ? t('customer.edit_title') : t('customer.create_title')}
+            title={t('customer.title')}
             i18nTitle="customer"
             breadcrumbs={[
                 { label: 'Master', href: 'javascript:void(0)', i18n: 'master' },
-                { label: 'Nasabah', active: true, i18n: 'customer' },
+                { label: t('customer.title'), active: true, i18n: 'customer' },
             ]}
             headerActions={
                 <SubmitButton processing={processing} onClick={handleSubmit}>
-                    {isEdit ? 'Perbarui' : 'Simpan'}
+                    {isEdit ? t('common.update') : t('common.save')}
                 </SubmitButton>
             }
         >
@@ -70,11 +72,11 @@ export default function CustomerForm({
                 <div className="col-md-6">
                     <Accordion defaultActiveKey="0" className="mb-4">
                         <Accordion.Item eventKey="0">
-                            <Accordion.Header>Data Pribadi</Accordion.Header>
+                            <Accordion.Header>{t('customer.personal_data')}</Accordion.Header>
                             <Accordion.Body>
                                 <TextInput
                                     id="name"
-                                    label="Nama Lengkap"
+                                    label={t('customer.full_name')}
                                     value={data.name}
                                     onChange={(e) =>
                                         setData('name', e.target.value)
@@ -84,26 +86,26 @@ export default function CustomerForm({
 
                                 <SelectInput
                                     id="gender"
-                                    label="Jenis Kelamin"
+                                    label={t('customer.gender')}
                                     value={data.gender}
                                     onChange={(value) =>
                                         setData('gender', Number(value))
                                     }
                                     options={[
-                                        { value: 1, label: 'Pria' },
-                                        { value: 2, label: 'Wanita' },
+                                        { value: 1, label: t('common.male') },
+                                        { value: 2, label: t('common.female') },
                                     ]}
                                     row
                                 />
 
                                 <div className="row form-group mb-3">
                                     <label className="col-sm-3 col-form-label">
-                                        Tempat & Tgl Lahir
+                                        {t('customer.place_date_birth')}
                                     </label>
                                     <div className="col-sm-9 d-flex gap-2">
                                         <input
                                             type="text"
-                                            placeholder="Tempat"
+                                            placeholder={t('customer.place')}
                                             value={data.birth_place}
                                             onChange={(e) =>
                                                 setData(
@@ -129,40 +131,40 @@ export default function CustomerForm({
 
                                 <SelectInput
                                     id="marital"
-                                    label="Status"
+                                    label={t('customer.marital_status')}
                                     value={data.marital}
                                     onChange={(value) =>
                                         setData('religion', Number(value))
                                     }
                                     options={[
                                         { value: 1, label: 'Single' },
-                                        { value: 2, label: 'Kawin' },
-                                        { value: 3, label: 'Duda/Janda' },
-                                        { value: 4, label: 'Cerai' },
+                                        { value: 2, label: t('common.married') },
+                                        { value: 3, label: t('common.widowed') },
+                                        { value: 4, label: t('common.divorced') },
                                     ]}
                                     row
                                 />
 
                                 <SelectInput
                                     id="religion"
-                                    label="Agama"
+                                    label={t('customer.religion')}
                                     value={data.religion}
                                     onChange={(value) =>
                                         setData('religion', Number(value))
                                     }
                                     options={[
                                         { value: 0, label: '' },
-                                        { value: 1, label: 'Budha' },
-                                        { value: 2, label: 'Kristen' },
-                                        { value: 3, label: 'Islam' },
-                                        { value: 4, label: 'Hindu' },
+                                        { value: 1, label: t('religion.buddhist') },
+                                        { value: 2, label: t('religion.christian') },
+                                        { value: 3, label: t('religion.islam') },
+                                        { value: 4, label: t('religion.hindu') },
                                     ]}
                                     row
                                 />
 
                                 <TextInput
                                     id="identity"
-                                    label="Nomor Identitas"
+                                    label={t('customer.identity_number')}
                                     value={data.identity}
                                     onChange={(e) =>
                                         setData('identity', e.target.value)
@@ -172,7 +174,7 @@ export default function CustomerForm({
 
                                 <TextInput
                                     id="profession"
-                                    label="Pekerjaan"
+                                    label={t('customer.occupation')}
                                     value={data.profession}
                                     onChange={(e) =>
                                         setData('profession', e.target.value)
@@ -182,7 +184,7 @@ export default function CustomerForm({
 
                                 <TextareaInput
                                     id="description"
-                                    label="Keterangan"
+                                    label={t('common.description')}
                                     value={data.description}
                                     onChange={(e) =>
                                         setData('description', e.target.value)
@@ -197,11 +199,11 @@ export default function CustomerForm({
                 <div className="col-md-6">
                     <Accordion defaultActiveKey="0">
                         <Accordion.Item eventKey="0" className="mb-3">
-                            <Accordion.Header>Kontak Nasabah</Accordion.Header>
+                            <Accordion.Header>{t('customer.contact_info')}</Accordion.Header>
                             <Accordion.Body>
                                 <TextInput
                                     id="mobile"
-                                    label="Nomor Ponsel"
+                                    label={t('common.mobile_number')}
                                     value={data.mobile}
                                     onChange={(e) =>
                                         setData('mobile', e.target.value)
@@ -211,7 +213,7 @@ export default function CustomerForm({
 
                                 <TextInput
                                     id="email"
-                                    label="Alamat e-Mail"
+                                    label={t('common.email_address')}
                                     type="email"
                                     value={data.email}
                                     onChange={(e) =>
@@ -222,11 +224,11 @@ export default function CustomerForm({
                             </Accordion.Body>
                         </Accordion.Item>
                         <Accordion.Item eventKey="1" className="mb-3">
-                            <Accordion.Header>Alamat Rumah</Accordion.Header>
+                            <Accordion.Header>{t('customer.home_address')}</Accordion.Header>
                             <Accordion.Body>
                                 <TextInput
                                     id="home_address"
-                                    label="Alamat Rumah"
+                                    label={t('common.home_address')}
                                     value={data.home_address}
                                     onChange={(e) =>
                                         setData('home_address', e.target.value)
@@ -235,7 +237,7 @@ export default function CustomerForm({
                                 />
                                 <TextInput
                                     id="home_postal"
-                                    label="Kode Pos"
+                                    label={t('common.postal_code')}
                                     value={data.home_postal}
                                     onChange={(e) =>
                                         setData('home_postal', e.target.value)
@@ -244,7 +246,7 @@ export default function CustomerForm({
                                 />
                                 <TextInput
                                     id="home_city"
-                                    label="Kota"
+                                    label={t('common.city')}
                                     value={data.home_city}
                                     onChange={(e) =>
                                         setData('home_city', e.target.value)
@@ -254,11 +256,11 @@ export default function CustomerForm({
                             </Accordion.Body>
                         </Accordion.Item>
                         <Accordion.Item eventKey="2">
-                            <Accordion.Header>Alamat Kantor</Accordion.Header>
+                            <Accordion.Header>{t('common.office_address')}</Accordion.Header>
                             <Accordion.Body>
                                 <TextInput
                                     id="work_address"
-                                    label="Alamat Kantor"
+                                    label={t('common.office_address')}
                                     value={data.work_address}
                                     onChange={(e) =>
                                         setData('work_address', e.target.value)
@@ -267,7 +269,7 @@ export default function CustomerForm({
                                 />
                                 <TextInput
                                     id="work_postal"
-                                    label="Kode Pos"
+                                    label={t('common.postal_code')}
                                     value={data.work_postal}
                                     onChange={(e) =>
                                         setData('work_postal', e.target.value)
@@ -276,7 +278,7 @@ export default function CustomerForm({
                                 />
                                 <TextInput
                                     id="work_city"
-                                    label="Kota"
+                                    label={t('common.city')}
                                     value={data.work_city}
                                     onChange={(e) =>
                                         setData('work_city', e.target.value)

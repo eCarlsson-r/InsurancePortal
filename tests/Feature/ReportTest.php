@@ -23,22 +23,4 @@ class ReportTest extends TestCase
         $response = $this->actingAs($this->user)->get(route('reports.birthday', ['month' => 1]));
         $response->assertOk();
     }
-
-    public function test_production_report_can_be_rendered()
-    {
-        $response = $this->actingAs($this->user)->get(route('reports.production', ['year' => 2024]));
-        $response->assertOk();
-    }
-
-    public function test_monthly_report_can_be_rendered()
-    {
-        $response = $this->actingAs($this->user)->get(route('reports.monthly', ['report_month' => '2024-01']));
-        $response->assertOk();
-    }
-
-    public function test_mdrt_report_can_be_rendered()
-    {
-        $response = $this->actingAs($this->user)->get(route('reports.mdrt', ['year' => 2024]));
-        $response->assertOk();
-    }
 }

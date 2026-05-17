@@ -32,8 +32,18 @@
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
+        {{-- PWA Meta Tags --}}
+        <meta name="description" content="Insurance Portal Application for managing policies and claims">
+        <meta name="theme-color" content="#283593">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="apple-mobile-web-app-title" content="Insurance App">
+        <meta name="mobile-web-app-capable" content="yes">
+        
+        {{-- Icons --}}
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
         <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
+        <link rel="manifest" href="{{ asset('manifest.json') }}">
 
         @viteReactRefresh
         @vite(['resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])

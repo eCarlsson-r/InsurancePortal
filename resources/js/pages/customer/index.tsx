@@ -5,6 +5,7 @@ import { Link, router } from '@inertiajs/react';
 import { useCallback, useEffect, useState } from 'react';
 import { InputGroup, Table } from 'react-bootstrap';
 import { z } from 'zod';
+import { useTranslation } from 'react-i18next';
 
 interface CustomerProps {
     customers: {
@@ -21,6 +22,7 @@ interface CustomerProps {
 }
 
 export default function Customer({ customers, filters }: CustomerProps) {
+    const { t } = useTranslation();
     const [searchQuery, setSearchQuery] = useState(filters.search || '');
 
     const handleDelete = (customerId: string | undefined) => {
@@ -62,12 +64,12 @@ export default function Customer({ customers, filters }: CustomerProps) {
 
     return (
         <TablePage
-            headTitle="Nasabah"
-            title="Daftar Nasabah"
+            headTitle={t('customer.title')}
+            title={t('customer.list_title')}
             i18nTitle="customer"
             breadcrumbs={[
                 { label: 'Master', href: 'javascript:void(0)', i18n: 'master' },
-                { label: 'Nasabah', active: true, i18n: 'customer' },
+                { label: t('customer.title'), active: true, i18n: 'customer' },
             ]}
             toolbar={
                 <div className="d-flex flex-wrap gap-2 align-items-center w-100">
@@ -76,14 +78,14 @@ export default function Customer({ customers, filters }: CustomerProps) {
                         className="btn btn-primary"
                     >
                         <i className="fa fa-user me-2"></i>
-                        <span data-i18n="new-customer">Nasabah Baru</span>
+                        <span data-i18n="new-customer">{t('customer.new_customer')}</span>
                     </Link>
                     <div className="ms-auto d-flex gap-2">
                         <InputGroup>
                             <input
                                 type="text"
                                 className="form-control"
-                                placeholder="Cari nasabah..."
+                                placeholder={t('customer.search_placeholder')}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 onKeyPress={handleKeyPress}
@@ -110,36 +112,36 @@ export default function Customer({ customers, filters }: CustomerProps) {
                 >
                     <thead>
                         <tr>
-                            <th data-i18n="customer-name">Nama</th>
+                            <th data-i18n="customer-name">{t('common.name')}</th>
                             <th
                                 style={{ width: '150px' }}
                                 data-i18n="id-number"
                             >
-                                No. Identitas
+                                {t('customer.identity_number')}
                             </th>
                             <th
                                 style={{ width: '150px' }}
                                 data-i18n="birth-date"
                             >
-                                Tgl. Lahir
+                                {t('customer.birth_date')}
                             </th>
                             <th
                                 style={{ width: '150px' }}
                                 data-i18n="birth-place"
                             >
-                                Tempat Lahir
+                                {t('customer.birth_place')}
                             </th>
                             <th style={{ width: '100px' }} data-i18n="status">
-                                Status
+                                {t('common.status')}
                             </th>
                             <th style={{ width: '100px' }} data-i18n="religion">
-                                Agama
+                                {t('customer.religion')}
                             </th>
                             <th
                                 style={{ width: '150px' }}
                                 data-i18n="mobile-number"
                             >
-                                Nomor Ponsel
+                                {t('common.mobile_number')}
                             </th>
                             <th style={{ width: '50px' }}></th>
                         </tr>
@@ -166,22 +168,22 @@ export default function Customer({ customers, filters }: CustomerProps) {
                                         {customer.marital === 1
                                             ? 'Single'
                                             : customer.marital === 2
-                                              ? 'Kawin'
+                                              ? t('common.married')
                                               : customer.marital === 3
-                                                ? 'Duda/Janda'
+                                                ? t('common.widowed')
                                                 : customer.marital === 4
-                                                  ? 'Cerai'
+                                                  ? t('common.divorced')
                                                   : customer.marital}
                                     </td>
                                     <td>
                                         {customer.religion === 1
-                                            ? 'Buddha'
+                                            ? t('religion.buddhist')
                                             : customer.religion === 2
-                                              ? 'Kristen'
+                                              ? t('religion.christian')
                                               : customer.religion === 3
-                                                ? 'Islam'
+                                                ? t('religion.islam')
                                                 : customer.religion === 4
-                                                  ? 'Hindu'
+                                                  ? t('religion.hindu')
                                                   : customer.religion}
                                     </td>
                                     <td

@@ -6,12 +6,14 @@ use Laravel\Fortify\Features;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\FundController;
 use App\Http\Controllers\AgencyController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReceiptController;
 use App\Http\Controllers\PolicyController;
 use App\Http\Controllers\AgentController;
 use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ContestController;
+use App\Http\Controllers\ClaimController;
 use Illuminate\Support\Facades\Cache;
 
 Route::get('/', function () {
@@ -22,8 +24,8 @@ Route::get('/login', function () {
 })->name('login');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/', [AgencyController::class, 'dashboard']);
-    Route::get('/dashboard', [AgencyController::class, 'dashboard'])->name('dashboard');
+    Route::get('/', [DashboardController::class, 'index']);
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/upload', [FundController::class, 'upload'])->name('upload');
     Route::get('/file/{id}', [FundController::class, 'viewFile'])->name('file');
 
@@ -101,6 +103,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('receipt', 'store')->name('receipt.store');
             Route::put('receipt/{receipt}', 'update')->name('receipt.update');
             Route::delete('receipt/{receipt}', 'destroy')->name('receipt.destroy');
+        });
+
+        Route::controller(ClaimController::class)->group(function() {
+            Route::get('claim', 'index')->name('claim.index');
+            Route::post('claim', 'store')->name('claim.store');
+            Route::get('claim/{claim}', 'show')->name('claim.show');
+            Route::put('claim/{claim}/approve', 'approve')->name('claim.approve');
+            Route::put('claim/{claim}/reject', 'reject')->name('claim.reject');
+            Route::put('claim/{claim}/mark-paid', 'markPaid')->name('claim.markPaid');
         });
     });
 

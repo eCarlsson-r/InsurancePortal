@@ -5,6 +5,7 @@ import { agentSchema } from '@/schemas/models';
 import { Link, router } from '@inertiajs/react';
 import { useCallback, useEffect, useState } from 'react';
 import { InputGroup, Table } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
 interface AgentProps {
@@ -22,6 +23,7 @@ interface AgentProps {
 }
 
 export default function Agent({ agents, filters }: AgentProps) {
+    const { t } = useTranslation();
     const [searchQuery, setSearchQuery] = useState(filters.search || '');
     const [fileModalOpen, setFileModalOpen] = useState(false);
     const [documentId, setDocumentId] = useState('');
@@ -60,7 +62,7 @@ export default function Agent({ agents, filters }: AgentProps) {
     };
 
     const handleDelete = (agentId: string | undefined) => {
-        if (agentId && confirm('Are you sure you want to delete this agent?')) {
+        if (agentId && confirm(t('agent.confirmDelete'))) {
             router.delete(`/master/agent/${agentId}`);
         }
     };
@@ -85,14 +87,14 @@ export default function Agent({ agents, filters }: AgentProps) {
                         className="btn btn-primary me-3"
                     >
                         <i className="fa fa-user me-2"></i>
-                        <span data-i18n="new-agent">Agen Baru</span>
+                        <span data-i18n="new-agent">{t('agent.newAgent')}</span>
                     </Link>
                     <div className="ms-auto d-flex gap-2">
                         <InputGroup>
                             <input
                                 type="text"
                                 className="form-control"
-                                placeholder="Cari agen..."
+                                placeholder={t('agent.searchPlaceholder')}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 onKeyPress={handleKeyPress}
@@ -120,21 +122,21 @@ export default function Agent({ agents, filters }: AgentProps) {
                 <thead>
                     <tr>
                         <th style={{ width: '120px' }} data-i18n="agent-number">
-                            Kode Agen
+                            {t('agent.agentCode')}
                         </th>
-                        <th data-i18n="agent-name">Nama Agen</th>
+                        <th data-i18n="agent-name">{t('agent.agentName')}</th>
                         <th style={{ width: '150px' }} data-i18n="agent-level">
-                            Jabatan
+                            {t('agent.position')}
                         </th>
-                        <th data-i18n="agent-email">Email</th>
+                        <th data-i18n="agent-email">{t('customer.email')}</th>
                         <th
                             style={{ width: '150px' }}
                             data-i18n="agent-birth-date"
                         >
-                            Tanggal Lahir
+                            {t('customer.birthDate')}
                         </th>
                         <th style={{ width: '150px' }} data-i18n="agent-mobile">
-                            Nomor Ponsel
+                            {t('customer.mobileNumber')}
                         </th>
                         <th style={{ width: '50px' }}></th>
                     </tr>
@@ -193,7 +195,7 @@ export default function Agent({ agents, filters }: AgentProps) {
                                 colSpan={7}
                                 className="text-center text-muted py-4"
                             >
-                                No agents found.
+                                {t('agent.noAgentsFound')}
                             </td>
                         </tr>
                     )}

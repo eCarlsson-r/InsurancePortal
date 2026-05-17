@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\Claim;
+use App\Observers\ClaimObserver;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
 
@@ -23,5 +25,8 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->environment('production')) {
             URL::forceScheme('https');
         }
+
+        // Register observers
+        Claim::observe(ClaimObserver::class);
     }
 }

@@ -4,6 +4,7 @@ import { programSchema } from '@/schemas/models';
 import { Link, router } from '@inertiajs/react';
 import { useCallback, useEffect, useState } from 'react';
 import { InputGroup, Table } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
 interface ProgramProps {
@@ -21,6 +22,7 @@ interface ProgramProps {
 }
 
 export default function Program({ programs, filters }: ProgramProps) {
+    const { t } = useTranslation();
     const [searchQuery, setSearchQuery] = useState(filters.search || '');
 
     const handleSearch = useCallback(() => {
@@ -58,7 +60,7 @@ export default function Program({ programs, filters }: ProgramProps) {
     const handleDelete = (programId: number | undefined) => {
         if (
             programId &&
-            confirm('Are you sure you want to delete this program?')
+            confirm(t('program.confirmDelete'))
         ) {
             router.delete(`/master/program/${programId}`);
         }
@@ -75,7 +77,7 @@ export default function Program({ programs, filters }: ProgramProps) {
     return (
         <TablePage
             headTitle="Program"
-            title="Daftar Program"
+            title={t('program.programList')}
             i18nTitle="program"
             breadcrumbs={[
                 { label: 'Master', href: 'javascript:void(0)', i18n: 'master' },
@@ -88,14 +90,14 @@ export default function Program({ programs, filters }: ProgramProps) {
                         className="btn btn-primary me-3"
                     >
                         <i className="fa fa-file me-2"></i>
-                        <span data-i18n="new-program">Program Baru</span>
+                        <span data-i18n="new-program">{t('program.newProgram')}</span>
                     </Link>
                     <div className="ms-auto d-flex gap-2">
                         <InputGroup>
                             <input
                                 type="text"
                                 className="form-control"
-                                placeholder="Cari program..."
+                                placeholder={t('program.searchPlaceholder')}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 onKeyPress={handleKeyPress}
@@ -123,24 +125,24 @@ export default function Program({ programs, filters }: ProgramProps) {
                 >
                     <thead>
                         <tr>
-                            <th data-i18n="program-name">Nama Program</th>
+                            <th data-i18n="program-name">{t('program.programName')}</th>
                             <th
                                 style={{ width: '200px' }}
                                 data-i18n="agent-level"
                             >
-                                Jabatan Agen
+                                {t('agent.position')}
                             </th>
                             <th
                                 style={{ width: '200px' }}
                                 data-i18n="min-allowance"
                             >
-                                Allowance Minimal
+                                {t('program.minAllowance')}
                             </th>
                             <th
                                 style={{ width: '200px' }}
                                 data-i18n="max-allowance"
                             >
-                                Allowance Maksimal
+                                {t('program.maxAllowance')}
                             </th>
                             <th></th>
                         </tr>
@@ -191,7 +193,7 @@ export default function Program({ programs, filters }: ProgramProps) {
                                     colSpan={5}
                                     className="text-center text-muted py-4"
                                 >
-                                    No programs found.
+                                    {t('program.noProgramsFound')}
                                 </td>
                             </tr>
                         )}
