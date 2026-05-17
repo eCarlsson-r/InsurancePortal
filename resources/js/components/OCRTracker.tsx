@@ -48,7 +48,7 @@ const OCRTracker = ({
         }, 3000);
 
         return () => clearInterval(interval);
-    }, [ocrId, onFinish]);
+    }, [ocrId, onFinish, onError]);
 
     return (
         <div className="p-4 border rounded shadow-sm bg-white">

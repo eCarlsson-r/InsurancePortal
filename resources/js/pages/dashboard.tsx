@@ -17,7 +17,9 @@ interface KPIData {
         };
         mdrt_agents: {
             count: number;
-            stats: any[];
+            stats: {
+                current_level: number
+            }[];
         };
         active_claims: {
             count: number;
@@ -26,11 +28,23 @@ interface KPIData {
         };
         expiring_policies: {
             count: number;
-            list: any[];
+            list: {
+                policy_no: string;
+                holder_name: string;
+                product_name: string;
+                expiry_date: string;
+                days_until_expiry: number;
+            }[];
         };
         birthdays: {
             count: number;
-            list: any[];
+            list: {
+                name: string;
+                birth_date: string;
+                birthday_this_year: string;
+                age: number;
+                days_until: number;
+            }[];
         };
     };
     empire_stats: {
