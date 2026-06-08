@@ -198,7 +198,7 @@ export default function PolicyForm({
                                         eventKey={file.id?.toString() || ''}
                                     >
                                         <Accordion.Header>
-                                            {file.name}
+                                            <a href={`${file.path}`}>{file.name}</a>
                                         </Accordion.Header>
                                         <Accordion.Body>
                                             <iframe

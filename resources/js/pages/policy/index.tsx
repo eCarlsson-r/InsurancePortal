@@ -71,7 +71,8 @@ export default function Policy({ policies, filters }: PolicyProps) {
     }, [searchQuery, filters.q, handleSearch]);
 
     const handleCreateNew = () => {
-        setIsModalOpen(true);
+        router.get("/sales/policy/create");
+        //setIsModalOpen(true);
     };
 
     const handleUpload = (policyId: string) => {
