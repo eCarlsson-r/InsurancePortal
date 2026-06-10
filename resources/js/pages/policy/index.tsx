@@ -1,6 +1,5 @@
 import Pagination from '@/components/pagination';
 import UploadModal from '@/components/upload-modal';
-import UploadOcrModal from '@/components/upload-ocr-modal';
 import TablePage from '@/layouts/TablePage';
 import { router } from '@inertiajs/react';
 import { useCallback, useEffect, useState } from 'react';
@@ -38,7 +37,6 @@ interface PolicyProps {
 export default function Policy({ policies, filters }: PolicyProps) {
     const { t } = useTranslation();
     const [searchQuery, setSearchQuery] = useState(filters.q || '');
-    const [isModalOpen, setIsModalOpen] = useState(false);
     const [documentId, setDocumentId] = useState('');
     const [fileModalOpen, setFileModalOpen] = useState(false);
 
@@ -71,8 +69,7 @@ export default function Policy({ policies, filters }: PolicyProps) {
     }, [searchQuery, filters.q, handleSearch]);
 
     const handleCreateNew = () => {
-        router.get("/sales/policy/create");
-        //setIsModalOpen(true);
+        router.get('/sales/policy/create');
     };
 
     const handleUpload = (policyId: string) => {
@@ -218,10 +215,7 @@ export default function Policy({ policies, filters }: PolicyProps) {
                 </tbody>
             </Table>
 
-            <UploadOcrModal
-                show={isModalOpen}
-                onHide={() => setIsModalOpen(false)}
-            />
+            
 
             <UploadModal
                 show={fileModalOpen}

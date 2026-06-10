@@ -105,6 +105,8 @@ export default function PolicyForm({
 
     const [ocrModalOpen, setOcrModalOpen] = useState(false);
 
+    // OCR modal opens only when user explicitly clicks the button.
+
     // Effect to sync holder name if checkbox is checked
     useEffect(() => {
         if (data.is_insure_holder) {
@@ -187,6 +189,19 @@ export default function PolicyForm({
                 <div className="row">
                     {/* PDF Preview Sidebar (Sticky) */}
                     <div className="col-lg-6">
+                        {!isEdit && (
+                            <div className="mb-3 d-flex gap-2">
+                                <button
+                                    type="button"
+                                    className="btn btn-sm btn-primary"
+                                    onClick={() => setOcrModalOpen(true)}
+                                >
+                                    <i className="fa fa-magic me-1" />
+                                    {t('policy.processOcr') || 'Process OCR'}
+                                </button>
+                            </div>
+                        )}
+
                         {data.files && data.files.length > 0 && (
                             <Accordion
                                 defaultActiveKey={
@@ -198,11 +213,25 @@ export default function PolicyForm({
                                         eventKey={file.id?.toString() || ''}
                                     >
                                         <Accordion.Header>
-                                            <a href={`${file.path}`}>{file.name}</a>
+                                            <div className="d-flex justify-content-between align-items-center w-100">
+                                                <span>{file.name}</span>
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-sm btn-link text-primary"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        window.open(file.path, '_blank');
+                                                    }}
+                                                    title="Open in new tab"
+                                                >
+                                                    <i className="fa fa-external-link mr-1"></i>
+                                                    {t('policy.open')}
+                                                </button>
+                                            </div>
                                         </Accordion.Header>
                                         <Accordion.Body>
                                             <iframe
-                                                src={`${file.path}#toolbar=0&navpanes=0`}
+                                                src={`${file.path}`}
                                                 width="100%"
                                                 height="600px"
                                                 style={{ border: 'none' }}
