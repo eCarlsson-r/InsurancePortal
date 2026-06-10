@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -17,14 +18,15 @@ use App\Http\Controllers\ClaimController;
 use Illuminate\Support\Facades\Cache;
 
 Route::get('/', function () {
-    return Inertia::render('auth/login');
+    return Auth::check()
+        ? redirect()->route('dashboard')
+        : Inertia::render('auth/login');
 });
 Route::get('/login', function () {
     return Inertia::render('auth/login');
 })->name('login');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/', [DashboardController::class, 'index']);
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/upload', [FundController::class, 'upload'])->name('upload');
     Route::get('/file/{id}', [FundController::class, 'viewFile'])->name('file');
