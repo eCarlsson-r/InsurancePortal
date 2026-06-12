@@ -1777,7 +1777,6 @@ You have not created a todo list yet. Create one with `update_todo_list` if your
 27 |     Route::get('/', [DashboardController::class, 'index']);
 28 |     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 29 |     Route::post('/upload', [FundController::class, 'upload'])->name('upload');
-30 |     Route::get('/file/{id}', [FundController::class, 'viewFile'])->name('file');
 31 | 
 32 |     Route::prefix('master')->name('master.')->group(function () {
 33 |         Route::controller(CustomerController::class)->group(function() {

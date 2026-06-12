@@ -28,9 +28,8 @@ Route::get('/login', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::post('/upload', [FundController::class, 'upload'])->name('upload');
-    Route::get('/file/{id}', [FundController::class, 'viewFile'])->name('file');
-
+    Route::post('/upload', [PolicyController::class, 'upload'])->name('upload');
+    
     Route::prefix('master')->name('master.')->group(function () {
         Route::controller(CustomerController::class)->group(function() {
             Route::get('customer', 'index')->name('customer.index');

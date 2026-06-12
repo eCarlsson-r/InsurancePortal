@@ -256,6 +256,34 @@ class PolicyController extends Controller
         return redirect()->back();
     }
 
+    public function upload(Request $request)
+    {
+        $file = $request->file('document');
+        $purpose = $request->purpose;
+        $documentId = $request->document_id;
+        
+        if (!$file) {
+            return response()->json([
+                'message' => 'File is required',
+            ], 400);
+        }
+
+        $path = $file->storeAs('documents', $file->getClientOriginalName(), 'public');
+        $fullPath = Storage::disk('public')->path($path);
+
+        File::create([
+            'name' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
+            'type' => $file->getMimeType(),
+            'extension' => $file->getClientOriginalExtension(),
+            'size' => $file->getSize(),
+            'upload_date' => now(),
+            'purpose' => $purpose,
+            'document_id' => $documentId
+        ]);        
+
+        return redirect()->back();
+    }
+
     public function report_bonus_gap(Request $request)
     {
         $agency = $request->get("agency");

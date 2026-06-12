@@ -2069,7 +2069,6 @@ IMPORTANT: When task status changes, remember to call the `update_todo_list` too
  26 |     Route::get('/', [AgencyController::class, 'dashboard']);
  27 |     Route::get('/dashboard', [AgencyController::class, 'dashboard'])->name('dashboard');
  28 |     Route::post('/upload', [FundController::class, 'upload'])->name('upload');
- 29 |     Route::get('/file/{id}', [FundController::class, 'viewFile'])->name('file');
  30 | 
  31 |     Route::prefix('master')->name('master.')->group(function () {
  32 |         Route::controller(CustomerController::class)->group(function() {

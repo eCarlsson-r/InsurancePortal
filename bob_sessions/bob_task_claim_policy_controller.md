@@ -769,7 +769,6 @@ Now let me check the Claim model and related files to understand the structure:
  25 |     Route::get('/', [AgencyController::class, 'dashboard']);
  26 |     Route::get('/dashboard', [AgencyController::class, 'dashboard'])->name('dashboard');
  27 |     Route::post('/upload', [FundController::class, 'upload'])->name('upload');
- 28 |     Route::get('/file/{id}', [FundController::class, 'viewFile'])->name('file');
  29 | 
  30 |     Route::prefix('master')->name('master.')->group(function () {
  31 |         Route::controller(CustomerController::class)->group(function() {
