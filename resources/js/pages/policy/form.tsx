@@ -45,7 +45,7 @@ export default function PolicyForm({
             : extracted || {
                   id: '',
                   agent_id: 0,
-                  entry_date: new Date(),
+                  entry_date: '',
                   bill_at: 1,
                   is_insure_holder: false,
                   holder_insured_relationship: '',
@@ -54,7 +54,7 @@ export default function PolicyForm({
                   pay_period: 1,
                   currency_id: 1,
                   currency_rate: 1.0,
-                  start_date: new Date(),
+                  start_date: '',
                   base_insure: 0,
                   premium: 0,
                   pay_method: 1,
