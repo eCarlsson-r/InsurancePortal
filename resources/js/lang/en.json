@@ -128,6 +128,7 @@
     "policy_number": "Policy No.",
     "policy_number_short": "Policy Number",
     "entry_date": "SP Entry Date",
+    "start_date": "Insurance Start Date",
     "same_as_insured": "Policyholder data is the same as insured data",
     "policyholder_data": "Policyholder Data",
     "policyholder_name": "Policyholder Name",

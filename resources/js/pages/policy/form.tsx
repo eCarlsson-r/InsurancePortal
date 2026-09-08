@@ -804,6 +804,26 @@ export default function PolicyForm({
                                         row
                                     />
 
+                                    <DateInput
+                                        id="start_date"
+                                        label={t('policy.startDate')}
+                                        value={
+                                            typeof data.start_date === 'string'
+                                                ? data.start_date
+                                                : data.start_date
+                                                      .toISOString()
+                                                      .split('T')[0]
+                                        }
+                                        onChange={(event) =>
+                                            setData(
+                                                'start_date',
+                                                new Date(event.target.value),
+                                            )
+                                        }
+                                        error={errors.start_date}
+                                        row
+                                    />
+
                                     <SelectInput
                                         id="product_id"
                                         label={t('common.product')}

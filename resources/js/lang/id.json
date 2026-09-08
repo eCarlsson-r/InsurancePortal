@@ -129,6 +129,7 @@
     "policy_number": "No. Polis",
     "policy_number_short": "Nomor Polis",
     "entry_date": "Tanggal SP Masuk",
+    "start_date": "Tanggal Mulai Asuransi",
     "same_as_insured": "Data pemegang polis sama dengan data tertanggung",
     "policyholder_data": "Data Pemegang Polis",
     "policyholder_name": "Nama Pemegang Polis",
