@@ -7,7 +7,7 @@ export const fileSchema = z.object({
     ext: z.string(),
     path: z.string().optional(),
     size: z.number().int(),
-    upload_date: z.coerce.date(),
+    upload_date: z.string().date(),
     purpose: z.string(),
     document_id: z.string(),
 });
@@ -26,11 +26,11 @@ export const agentProgramSchema = z.object({
     program_id: z.number().int().nullable(),
     position: z.string(),
     program_start: z.string(),
-    program_end: z.coerce.date().optional(),
+    program_end: z.string().date().optional(),
     agent_leader_id: z.number().int().nullable(),
     allowance: z.number().int().nullable(),
-    created_at: z.coerce.date().optional(),
-    updated_at: z.coerce.date().optional(),
+    created_at: z.string().date().optional(),
+    updated_at: z.string().date().optional(),
 });
 
 export const agentSchema = z.object({
@@ -132,8 +132,8 @@ export const productCreditSchema = z.object({
     product_id: z.number().int(),
     production_credit: z.number(),
     contest_credit: z.number(),
-    credit_start: z.coerce.date(),
-    credit_end: z.coerce.date(),
+    credit_start: z.string().date(),
+    credit_end: z.string().date(),
 });
 
 export const productSchema = z.object({
@@ -152,7 +152,7 @@ export const riderSchema = z.object({
     premium: z.number().int(),
     insure_period: z.number().int(),
     pay_period: z.number().int(),
-    add_date: z.coerce.date().optional(),
+    add_date: z.string().date().optional(),
 });
 
 export const policySchema = z
@@ -165,7 +165,7 @@ export const policySchema = z
         insured_id: z.string().optional(),
         agent_id: z.string().optional(),
         holder_insured_relationship: z.string(),
-        entry_date: z.coerce.date(),
+        entry_date: z.string().date(),
         bill_at: z.number().int(),
         is_insure_holder: z.boolean(),
         product_id: z.string().optional(),
@@ -173,7 +173,7 @@ export const policySchema = z
         pay_period: z.number().int(),
         currency_id: z.number().int(),
         currency_rate: z.number(),
-        start_date: z.coerce.date(),
+        start_date: z.string().date(),
         base_insure: z.number(),
         premium: z.number().int(),
         pay_method: z.number().int(),
