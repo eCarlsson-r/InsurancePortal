@@ -36,71 +36,101 @@ export default function PolicyForm({
     const { t } = useTranslation();
     const isEdit = !!policy;
 
+    const defaultFormData = {
+        id: undefined,
+        case_code: '',
+        policy_no: '',
+        agent_id: '',
+        product_id: '',
+        entry_date: '',
+        bill_at: 1,
+        is_insure_holder: false,
+        holder_insured_relationship: '',
+        insure_period: 1,
+        pay_period: 1,
+        currency_id: 1,
+        currency_rate: 1.0,
+        start_date: '',
+        base_insure: 0,
+        premium: 0,
+        pay_method: 1,
+        description: '',
+        holder: {
+            name: '',
+            gender: 1,
+            birth_place: '',
+            birth_date: '',
+            marital: 1,
+            religion: 0,
+            identity: '',
+            profession: '',
+            mobile: '',
+            email: '',
+            home_address: '',
+            home_postal: '',
+            home_city: '',
+            work_address: '',
+            work_postal: '',
+            work_city: '',
+            description: '',
+        },
+        insured: {
+            name: '',
+            gender: 1,
+            birth_place: '',
+            birth_date: '',
+            marital: 1,
+            religion: 1,
+            identity: '',
+            profession: '',
+            mobile: '',
+            email: '',
+            home_address: '',
+            home_postal: '',
+            home_city: '',
+            work_address: '',
+            work_postal: '',
+            work_city: '',
+            description: '',
+        },
+        investments: [],
+        riders: [],
+    };
+
+    // Helper function to safely format date values for <DateInput />
+    const formatDateValue = (val: unknown): string => {
+        if (!val) return '';
+        if (typeof val === 'string') {
+            return val.includes('T') ? val.split('T')[0] : val;
+        }
+        if (val instanceof Date && !isNaN(val.getTime())) {
+            return val.toISOString().split('T')[0];
+        }
+        return '';
+    };
+
     // Initial form state with safe defaults
     const { data, setData, post, put, processing, errors } = useForm<
         z.infer<typeof policySchema>
     >(
         isEdit
-            ? policy
-            : extracted || {
-                  id: '',
-                  agent_id: 0,
-                  entry_date: '',
-                  bill_at: 1,
-                  is_insure_holder: false,
-                  holder_insured_relationship: '',
-                  product_id: 0,
-                  insure_period: 1,
-                  pay_period: 1,
-                  currency_id: 1,
-                  currency_rate: 1.0,
-                  start_date: '',
-                  base_insure: 0,
-                  premium: 0,
-                  pay_method: 1,
-                  description: '',
-                  policy_no: '',
+            ? { ...defaultFormData, ...policy }
+            : extracted
+            ? {
+                  ...defaultFormData,
+                  ...extracted,
                   holder: {
-                      name: '',
-                      gender: 1,
-                      birth_place: '',
-                      birth_date: '',
-                      marital: 1,
-                      religion: 0,
-                      identity: '',
-                      profession: '',
-                      mobile: '',
-                      email: '',
-                      home_address: '',
-                      home_postal: '',
-                      home_city: '',
-                      work_address: '',
-                      work_postal: '',
-                      work_city: '',
-                      description: '',
+                      ...defaultFormData.holder,
+                      ...(extracted.holder || {}),
                   },
                   insured: {
-                      name: '',
-                      gender: 1,
-                      birth_place: '',
-                      birth_date: '',
-                      marital: 1,
-                      religion: 1,
-                      identity: '',
-                      profession: '',
-                      mobile: '',
-                      email: '',
-                      home_address: '',
-                      home_postal: '',
-                      home_city: '',
-                      work_address: '',
-                      work_postal: '',
-                      work_city: '',
-                      description: '',
+                      ...defaultFormData.insured,
+                      ...(extracted.insured || {}),
                   },
-                  investments: [],
-                  riders: [],
-              },
+                  investments: extracted.investments || [],
+                  riders: extracted.riders || [],
+              }
+            : defaultFormData,
     );
 
     const [ocrModalOpen, setOcrModalOpen] = useState(false);
@@ -300,17 +330,11 @@ export default function PolicyForm({
                                     <DateInput
                                         id="entry_date"
                                         label={t('policy.entryDate')}
-                                        value={
-                                            typeof data.entry_date === 'string'
-                                                ? data.entry_date
-                                                : data.entry_date
-                                                      .toISOString()
-                                                      .split('T')[0]
-                                        }
+                                        value={formatDateValue(data.entry_date)}
                                         onChange={(event) =>
                                             setData(
                                                 'entry_date',
-                                                new Date(event.target.value),
+                                                event.target.value,
                                             )
                                         }
                                         error={errors.entry_date}
@@ -807,17 +831,11 @@ export default function PolicyForm({
                                     <DateInput
                                         id="start_date"
                                         label={t('policy.startDate')}
-                                        value={
-                                            typeof data.start_date === 'string'
-                                                ? data.start_date
-                                                : data.start_date
-                                                      .toISOString()
-                                                      .split('T')[0]
-                                        }
+                                        value={formatDateValue(data.start_date)}
                                         onChange={(event) =>
                                             setData(
                                                 'start_date',
-                                                new Date(event.target.value),
+                                                event.target.value,
                                             )
                                         }
                                         error={errors.start_date}

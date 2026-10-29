@@ -81,6 +81,8 @@ class ProcessPolicyOCR implements ShouldQueue
 
     public function handle(PolicyExtractionService $service)
     {
+        ini_set('memory_limit', '1024M');
+
         $parser = new Parser();
         $pdf = $parser->parseFile($this->filePath);
         $allPages = $pdf->getPages();
