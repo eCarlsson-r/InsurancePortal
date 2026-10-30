@@ -34,14 +34,14 @@ class ContestController extends Controller
             'type' => 'required|string',
             'start' => 'required|date',
             'end' => 'required|date',
-            'product' => 'required|string',
-            'level' => 'required|string',
+            'product' => 'string',
+            'level' => 'string',
             'minimum_commision' => 'required|numeric',
             'minimum_premium' => 'required|numeric',
             'minimum_policy' => 'required|numeric',
             'bonus_percent' => 'required|numeric',
             'bonus_amount' => 'required|numeric',
-            'reward' => 'required|string',
+            'reward' => 'string',
         ]);
 
         Contest::create($contestData);
