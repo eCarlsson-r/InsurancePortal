@@ -34,15 +34,18 @@ class ContestController extends Controller
             'type' => 'required|string',
             'start' => 'required|date',
             'end' => 'required|date',
-            'product' => 'string',
-            'level' => 'string',
+            'product' => 'nullable|string',
+            'level' => 'nullable|string',
             'minimum_commision' => 'required|numeric',
             'minimum_premium' => 'required|numeric',
             'minimum_policy' => 'required|numeric',
             'bonus_percent' => 'required|numeric',
             'bonus_amount' => 'required|numeric',
-            'reward' => 'string',
+            'reward' => 'required|string',
         ]);
+
+        $contestData['product'] ??= '';
+        $contestData['level'] ??= 'FC';
 
         Contest::create($contestData);
 
@@ -56,8 +59,8 @@ class ContestController extends Controller
             'type' => 'required|string',
             'start' => 'required|date',
             'end' => 'required|date',
-            'product' => 'required|string',
-            'level' => 'required|string',
+            'product' => 'nullable|string',
+            'level' => 'nullable|string',
             'minimum_commision' => 'required|numeric',
             'minimum_premium' => 'required|numeric',
             'minimum_policy' => 'required|numeric',
@@ -65,6 +68,9 @@ class ContestController extends Controller
             'bonus_amount' => 'required|numeric',
             'reward' => 'required|string',
         ]);
+
+        $contestData['product'] ??= '';
+        $contestData['level'] ??= 'FC';
 
         $contest->update($contestData);
 

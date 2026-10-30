@@ -58,7 +58,7 @@ export default function Contest({ contests, filters }: ContestProps) {
     };
 
     // Initial form state with safe defaults
-    const { data, setData, post, put, processing } = useForm<
+    const { data, setData, post, put, processing, errors } = useForm<
         z.infer<typeof contestSchema>
     >({
         id: undefined,
@@ -181,6 +181,7 @@ export default function Contest({ contests, filters }: ContestProps) {
                         label={t('contest.contest_name')}
                         value={data.name}
                         onChange={(e) => setData('name', e.target.value)}
+                        error={errors.name}
                         row
                     />
                     <SelectInput
@@ -188,6 +189,7 @@ export default function Contest({ contests, filters }: ContestProps) {
                         label={t('contest.contest_type')}
                         value={data.type}
                         onChange={(value) => setData('type', value.toString())}
+                        error={errors.type}
                         options={[
                             {
                                 value: 'annual',
@@ -223,6 +225,7 @@ export default function Contest({ contests, filters }: ContestProps) {
                         label={t('contest.contest_start')}
                         value={data.start ? data.start.split('T')[0] : ''}
                         onChange={(e) => setData('start', e.target.value)}
+                        error={errors.start}
                         row
                     />
                     <DateInput
@@ -230,6 +233,29 @@ export default function Contest({ contests, filters }: ContestProps) {
                         label={t('contest.contest_end')}
                         value={data.end ? data.end.split('T')[0] : ''}
                         onChange={(e) => setData('end', e.target.value)}
+                        error={errors.end}
+                        row
+                    />
+                    <TextInput
+                        id="product"
+                        label={t('product.product_name')}
+                        value={data.product}
+                        onChange={(e) => setData('product', e.target.value)}
+                        error={errors.product}
+                        row
+                    />
+                    <SelectInput
+                        id="level"
+                        label={t('contest.level')}
+                        value={data.level}
+                        onChange={(value) => setData('level', value.toString())}
+                        error={errors.level}
+                        options={[
+                            { value: 'FC', label: 'FC' },
+                            { value: 'UM', label: 'UM' },
+                            { value: 'BM', label: 'BM' },
+                            { value: 'AVP', label: 'AVP' },
+                        ]}
                         row
                     />
                     <TextInput
@@ -243,6 +269,7 @@ export default function Contest({ contests, filters }: ContestProps) {
                                 parseInt(e.target.value) || 0,
                             )
                         }
+                        error={errors.minimum_premium}
                         row
                     />
                     <TextInput
@@ -256,6 +283,7 @@ export default function Contest({ contests, filters }: ContestProps) {
                                 parseInt(e.target.value) || 0,
                             )
                         }
+                        error={errors.bonus_percent}
                         row
                     />
                     <TextInput
@@ -263,12 +291,12 @@ export default function Contest({ contests, filters }: ContestProps) {
                         label={t('contest.reward')}
                         value={data.reward}
                         onChange={(e) => setData('reward', e.target.value)}
+                        error={errors.reward}
                         row
                     />
                     <div className="text-end">
                         <SubmitButton
                             processing={processing}
-                            onClick={handleSubmit}
                         >
                             {isEdit ? t('common.update') : t('common.save')}
                         </SubmitButton>
