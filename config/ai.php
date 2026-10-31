@@ -115,7 +115,11 @@ return [
         'ollama' => [
             'driver' => 'ollama',
             'key' => env('OLLAMA_API_KEY', ''),
-            'model' => env('OLLAMA_MODEL', 'gemma4:e2b'),
+            'models' => [
+                'text' => [
+                    'default' => env('OLLAMA_MODEL', 'gemma4:e2b'),
+                ],
+            ],
             'url' => env('OLLAMA_URL', 'http://localhost:11434'),
         ],
 
