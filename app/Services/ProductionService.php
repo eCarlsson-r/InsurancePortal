@@ -140,7 +140,7 @@ class ProductionService
                 'p.id as case_id',
                 'hd.name as holder_name',
                 'is.name as insured_name',
-                'p.start_date',
+                DB::raw("DATE(p.start_date) AS start_date"),
                 DB::raw("DATE_FORMAT(p.start_date, '%m %Y') AS case_month"),
                 DB::raw("'PP' AS status_polis"),
                 'p.pay_method',
@@ -220,7 +220,7 @@ class ProductionService
                 'p.id as case_id',
                 'hd.name as holder_name',
                 'is.name as insured_name',
-                'p.start_date',
+                DB::raw("DATE(p.start_date) AS start_date"),
                 DB::raw("DATE_FORMAT(p.start_date, '%m %Y') AS case_month"), // Should ideally be cancel month
                 DB::raw("'BTL' AS status_polis"),
                 'p.pay_method',
@@ -455,7 +455,7 @@ class ProductionService
     public function reportMdrt($agencyId, $year)
     {
         $prodSub = $this->productionQuery($year);
-
+    
         $agentProd = DB::query()->fromSub($prodSub, 'production')
             ->join('agents as ag', 'production.agent_id', '=', 'ag.id')
             ->join('agent_programs as ap', 'ag.id', '=', 'ap.agent_id')
@@ -470,37 +470,15 @@ class ProductionService
                 DB::raw("SUM(mdrt) as current_fyp")
             ])
             ->groupBy(['production.agent_id', 'ag.name', 'ap.agent_leader_id', 'ap.position']);
-
+    
         return DB::query()->fromSub($agentProd, 'target')
-            ->leftJoinLateral(
-                DB::table('contests')
-                    ->select('reward as current_level', 'minimum_premium as current_min')
-                    ->where('type', 'mdrt')
-                    ->whereColumn('level', 'target.position')
-                    ->whereColumn('minimum_premium', '<=', 'target.current_fyp')
-                    ->whereRaw("? BETWEEN YEAR(start) AND YEAR(end)", [$year])
-                    ->orderBy('minimum_premium', 'DESC')
-                    ->limit(1),
-                'stbonus'
-            )
-            ->leftJoinLateral(
-                DB::table('contests')
-                    ->select('reward as next_level', 'minimum_premium as next_min')
-                    ->where('type', 'mdrt')
-                    ->whereColumn('level', 'target.position')
-                    ->whereColumn('minimum_premium', '>', 'target.current_fyp')
-                    ->whereRaw("? BETWEEN YEAR(start) AND YEAR(end)", [$year])
-                    ->orderBy('minimum_premium', 'ASC')
-                    ->limit(1),
-                'ntbonus'
-            )
             ->select([
                 'target.agent_id',
                 'target.agent_name',
                 'target.current_fyp',
-                'stbonus.current_level',
-                'ntbonus.next_level',
-                DB::raw("COALESCE(ntbonus.next_min - target.current_fyp, 0) as fyp_gap")
+                DB::raw("(SELECT reward FROM contests WHERE type = 'mdrt' AND level = target.position AND minimum_premium <= target.current_fyp AND '$year' BETWEEN YEAR(start) AND YEAR(end) ORDER BY minimum_premium DESC LIMIT 1) as current_level"),
+                DB::raw("(SELECT reward FROM contests WHERE type = 'mdrt' AND level = target.position AND minimum_premium > target.current_fyp AND '$year' BETWEEN YEAR(start) AND YEAR(end) ORDER BY minimum_premium ASC LIMIT 1) as next_level"),
+                DB::raw("COALESCE((SELECT minimum_premium FROM contests WHERE type = 'mdrt' AND level = target.position AND minimum_premium > target.current_fyp AND '$year' BETWEEN YEAR(start) AND YEAR(end) ORDER BY minimum_premium ASC LIMIT 1) - target.current_fyp, 0) as fyp_gap")
             ])
             ->orderBy('target.current_fyp', 'DESC')
             ->get();
@@ -614,42 +592,20 @@ class ProductionService
 
         // Final aggregation and contest joins
         return DB::query()->fromSub($achievement, 'target')
-            ->leftJoinLateral(
-                DB::table('contests')
-                    ->select('reward as current_trip', 'minimum_premium', 'minimum_policy')
-                    ->where('type', 'empire')
-                    ->whereColumn('level', 'target.position')
-                    ->whereColumn('minimum_premium', '<=', 'target.ape')
-                    ->whereRaw("? BETWEEN YEAR(start) AND YEAR(end)", [$year])
-                    ->orderBy('minimum_premium', 'DESC')
-                    ->limit(1),
-                'stbonus'
-            )
-            ->leftJoinLateral(
-                DB::table('contests')
-                    ->select('reward as next_trip', 'minimum_premium', 'minimum_policy')
-                    ->where('type', 'empire')
-                    ->whereColumn('level', 'target.position')
-                    ->whereColumn('minimum_premium', '>', 'target.ape')
-                    ->whereRaw("? BETWEEN YEAR(start) AND YEAR(end)", [$year])
-                    ->orderBy('minimum_premium', 'ASC')
-                    ->limit(1),
-                'ntbonus'
-            )
-            ->select([
-                'target.name',
-                'target.agent_leader_id',
-                'target.position',
-                'target.ape as current_ape',
-                'target.cases as current_cases',
-                'stbonus.current_trip',
-                'ntbonus.next_trip',
-                DB::raw("COALESCE(ntbonus.minimum_premium - target.ape, 0) as ape_gap"),
-                DB::raw("COALESCE(IF(ntbonus.minimum_policy - target.cases < 0,0,ntbonus.minimum_policy - target.cases), 0) as cases_gap"),
-            ])
-            ->orderByRaw("FIELD(position, 'FC', 'BP*', 'BP**', 'BP***')")
-            ->orderBy('target.ape', 'DESC')
-            ->get();
+        ->select([
+            'target.name',
+            'target.agent_leader_id',
+            'target.position',
+            'target.ape as current_ape',
+            'target.cases as current_cases',
+            DB::raw("(SELECT reward FROM contests WHERE type = 'empire' AND level = target.position AND minimum_premium <= target.ape AND '$year' BETWEEN YEAR(start) AND YEAR(end) ORDER BY minimum_premium DESC LIMIT 1) as current_trip"),
+            DB::raw("(SELECT reward FROM contests WHERE type = 'empire' AND level = target.position AND minimum_premium > target.ape AND '$year' BETWEEN YEAR(start) AND YEAR(end) ORDER BY minimum_premium ASC LIMIT 1) as next_trip"),
+            DB::raw("COALESCE((SELECT minimum_premium FROM contests WHERE type = 'empire' AND level = target.position AND minimum_premium > target.ape AND '$year' BETWEEN YEAR(start) AND YEAR(end) ORDER BY minimum_premium ASC LIMIT 1) - target.ape, 0) as ape_gap"),
+            DB::raw("COALESCE(IF((SELECT minimum_policy FROM contests WHERE type = 'empire' AND level = target.position AND minimum_premium > target.ape AND '$year' BETWEEN YEAR(start) AND YEAR(end) ORDER BY minimum_premium ASC LIMIT 1) - target.cases < 0, 0, (SELECT minimum_policy FROM contests WHERE type = 'empire' AND level = target.position AND minimum_premium > target.ape AND '$year' BETWEEN YEAR(start) AND YEAR(end) ORDER BY minimum_premium ASC LIMIT 1) - target.cases), 0) as cases_gap"),
+        ])
+        ->orderByRaw("FIELD(position, 'FC', 'BP*', 'BP**', 'BP***')")
+        ->orderBy('target.ape', 'DESC')
+        ->get();
     }
 
     public function reportFinancing($agency, $year, $month)
@@ -1350,7 +1306,10 @@ class ProductionService
             // Base agent performance query for Empire
             $agentEmpire = DB::table('agents as ag')
                 ->join('agent_programs as ap', 'ag.id', '=', 'ap.agent_id')
-                ->leftJoin($tableName . ' as production', 'ag.id', '=', 'production.agent_id')
+                ->leftJoin($tableName . ' as production', function($join) use ($year) {
+                    $join->on('ag.id', '=', 'production.agent_id')
+                         ->whereRaw("SUBSTRING_INDEX(production.case_month, ' ', -1) = ?", [$year]);
+                })
                 ->select([
                     'ag.id as agent_id',
                     'ag.official_number',
@@ -1360,7 +1319,6 @@ class ProductionService
                     DB::raw("COALESCE(SUM(production.ot_contest), 0) AS ape"),
                     DB::raw("SUM(CASE WHEN production.status_polis = 'PP' THEN 1 ELSE 0 END) AS cases")
                 ])
-                ->whereRaw("SUBSTRING_INDEX(production.case_month, ' ', -1) = ?", [$year])
                 ->where('ap.position', 'FC')
                 ->groupBy([
                     'ag.id',
@@ -1368,7 +1326,8 @@ class ProductionService
                     'ap.position',
                     'ap.agent_leader_id',
                     'ag.name'
-                ]);
+                ])
+                ->having('ape', '>', 0);
 
             // Current Level Subquery (stbonus)
             $stBonusSub = DB::table('contests')
@@ -1419,10 +1378,21 @@ class ProductionService
             // Converting the SQL logic fully:
             $empireClub = DB::query()->fromSub($empireData, 'base')
                 ->select([
-                    'agent_name', 'agent_leader', 'current_ape', 'current_cases', 'current_trip', 'next_trip',
+                    'agent_name',
+                    'agent_name as agent_no',
+                    DB::raw("COALESCE(current_trip, '-') as status"),
+                    'current_ape as wape',
+                    'current_cases as cases',
+                    DB::raw("COALESCE(GREATEST(next_min_premium - current_ape, 0), 0) as gap_wape"),
+                    DB::raw("COALESCE(GREATEST(next_min_policy - current_cases, 0), 0) as gap_cases"),
+                    'current_trip',
+                    'next_trip',
+                    'current_ape',
+                    'current_cases',
                     DB::raw("COALESCE(GREATEST(next_min_premium - current_ape, 0), 0) as ape_gap"),
-                    DB::raw("COALESCE(GREATEST(next_min_policy - current_cases, 0), 0) as cases_gap")
+                    DB::raw("COALESCE(GREATEST(next_min_policy - current_cases, 0), 0) as cases_gap"),
                 ])
+                ->orderByDesc('current_ape')
                 ->get();
 
             // Empire Stats
@@ -1438,7 +1408,10 @@ class ProductionService
             // Base agent performance for MDRT
             $agentMdrt = DB::table('agents as ag')
                 ->join('agent_programs as ap', 'ag.id', '=', 'ap.agent_id')
-                ->leftJoin($tableName . ' as production', 'ag.id', '=', 'production.agent_id')
+                ->leftJoin($tableName . ' as production', function($join) use ($year) {
+                    $join->on('ag.id', '=', 'production.agent_id')
+                         ->whereRaw("SUBSTRING_INDEX(production.case_month, ' ', -1) = ?", [$year]);
+                })
                 ->select([
                     'ag.id as agent_id',
                     'ag.official_number',
@@ -1447,7 +1420,6 @@ class ProductionService
                     'ag.name',
                     DB::raw("SUM(production.mdrt) AS mdrt")
                 ])
-                ->whereRaw("SUBSTRING_INDEX(production.case_month, ' ', -1) = ?", [$year])
                 ->where('ap.position', 'FC')
                 ->groupBy([
                     'ag.id', 
@@ -1474,9 +1446,17 @@ class ProductionService
 
             $mdrtReport = DB::query()->fromSub($mdrtData, 'base')
                 ->select([
-                    'agent_name', 'agent_leader', 'position', 'current_fyp', 'current_level', 'next_level',
+                    'agent_name',
+                    'agent_name as agent_no',
+                    DB::raw("COALESCE(current_level, '-') as status"),
+                    'current_fyp as fyp',
+                    DB::raw("COALESCE(GREATEST(next_min_premium - current_fyp, 0), 0) as gap_fyp"),
+                    'current_level',
+                    'next_level',
+                    'current_fyp',
                     DB::raw("COALESCE(GREATEST(next_min_premium - current_fyp, 0), 0) as fyp_gap")
                 ])
+                ->orderByDesc('current_fyp')
                 ->get();
 
             // MDRT Stats

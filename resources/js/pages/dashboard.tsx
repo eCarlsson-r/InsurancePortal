@@ -279,9 +279,15 @@ export default function Dashboard({ kpis, empire_stats, mdrt_stats, empire_club,
                                                 <tr key={index}>
                                                     <td>{club.agent_no}</td>
                                                     <td>{club.status}</td>
-                                                    <td>{club.wape}</td>
+                                                    <td>{Number(club.wape).toLocaleString('id-ID', {
+                                                        style: 'currency',
+                                                        currency: 'IDR',
+                                                    })}</td>
                                                     <td>{club.cases}</td>
-                                                    <td>{club.gap_wape}</td>
+                                                    <td>{Number(club.gap_wape).toLocaleString('id-ID', {
+                                                        style: 'currency',
+                                                        currency: 'IDR',
+                                                    })}</td>
                                                     <td>{club.gap_cases}</td>
                                                 </tr>
                                             ))
@@ -317,8 +323,14 @@ export default function Dashboard({ kpis, empire_stats, mdrt_stats, empire_club,
                                                 <tr key={index}>
                                                     <td>{mdrtItem.agent_no}</td>
                                                     <td>{mdrtItem.status}</td>
-                                                    <td>{mdrtItem.fyp}</td>
-                                                    <td>{mdrtItem.gap_fyp}</td>
+                                                    <td>{Number(mdrtItem.fyp).toLocaleString('id-ID', {
+                                                        style: 'currency',
+                                                        currency: 'IDR',
+                                                    })}</td>
+                                                    <td>{Number(mdrtItem.gap_fyp).toLocaleString('id-ID', {
+                                                        style: 'currency',
+                                                        currency: 'IDR',
+                                                    })}</td>
                                                 </tr>
                                             ))
                                         ) : (
